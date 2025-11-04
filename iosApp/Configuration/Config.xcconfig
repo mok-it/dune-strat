@@ -1,0 +1,7 @@
+TEAM_ID=
+
+PRODUCT_NAME=dune-strat
+PRODUCT_BUNDLE_IDENTIFIER=hu.mokegyesulet.it.dunestrat.dune-strat$(TEAM_ID)
+
+CURRENT_PROJECT_VERSION=1
+MARKETING_VERSION=1.0
