@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "612234740419",
+    "project_id": "dune-strat",
+    "storage_bucket": "dune-strat.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:612234740419:android:3cf838a6797eb5abb11876",
+        "android_client_info": {
+          "package_name": "hu.mokegyesulet.it.dunestrat"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCwAwKuVw8XD8cgnwqvYFVigs0f-W5R9R4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
