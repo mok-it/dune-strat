@@ -6,5 +6,5 @@ data class Field(
     val spice: Int,
     val effectiveWeapon: Weapon,
     val harvester: Boolean,
-    val neighbours: List<Field>,
+    val neighbours: Set<Field>,
 )
