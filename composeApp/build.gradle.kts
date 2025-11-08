@@ -88,9 +88,6 @@ subprojects {
             reporter(ReporterType.PLAIN)
             reporter(ReporterType.CHECKSTYLE)
         }
-        filter {
-            exclude("**/build/**/*.kt")
-        }
     }
 }
 
