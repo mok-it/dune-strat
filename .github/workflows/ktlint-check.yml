@@ -47,3 +47,4 @@ jobs:
         with:
           report-path: build/*.xml
           ignore-warnings: true
+          continue-on-error: false
