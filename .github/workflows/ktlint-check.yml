@@ -1,9 +1,14 @@
 name: Ktlint check
 
 on:
+  push:
+    paths:
+      - .github/workflows/ktlint-check.yml
+      - 'src/**/*.kt'
+      - '**.kts'
   pull_request:
     paths:
-      - .github/workflows/ktlint.yml
+      - .github/workflows/ktlint-check.yml
       - 'src/**/*.kt'
       - '**.kts'
 
