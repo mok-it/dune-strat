@@ -4,5 +4,5 @@ enum class Weapon {
     PISTOL,
     LASGUN,
     CRYSKNIFE,
-    LEGION
+    LEGION,
 }
