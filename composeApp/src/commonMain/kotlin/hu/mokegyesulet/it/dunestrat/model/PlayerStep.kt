@@ -2,8 +2,8 @@ package hu.mokegyesulet.it.dunestrat.model
 
 data class PlayerStep(
     val player: Player,
-    val leaveFields: Set<Field>,
-    val enterFields: Set<Field>,
+    val leaveFields: Set<GameStateField>,
+    val enterFields: Set<GameStateField>,
     val purchaseWeapons: Map<Weapon, Int>,
-    val buildHarvester: Set<Field>,
+    val buildHarvester: Set<GameStateField>,
 )
