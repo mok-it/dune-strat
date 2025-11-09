@@ -57,11 +57,6 @@ kotlin {
             implementation(compose.components.uiToolingPreview)
             implementation(libs.androidx.lifecycle.viewmodelCompose)
             implementation(libs.androidx.lifecycle.runtimeCompose)
-            implementation(libs.androidx.navigation.compose)
-            implementation(libs.androidx.material.icons.extended)
-            implementation(project.dependencies.platform(libs.firebase.bom))
-            implementation(libs.firebase.auth)
-            implementation(libs.firebase.firestore)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
