@@ -1,7 +1,7 @@
 package hu.mokegyesulet.it.dunestrat.model
 
 data class GameState(
-    val fields: Set<Field>,
+    val fields: Set<GameStateField>,
     val players: Set<Player>,
 ) {
 
@@ -10,11 +10,5 @@ data class GameState(
         val newPlayers = players.toMutableSet()
 
         TODO()
-    }
-
-    companion object {
-        fun create12PlayerHexagon(): GameState {
-            TODO()
-        }
     }
 }

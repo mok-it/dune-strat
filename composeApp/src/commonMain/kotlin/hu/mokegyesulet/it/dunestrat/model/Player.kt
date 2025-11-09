@@ -5,7 +5,7 @@ data class Player(
     val water: Int,
     val spice: Int,
     private val weapons: Map<Weapon, Int>,
-    val ownedFields: Set<Field>,
+    val ownedFields: Set<GameStateField>,
 ) {
     fun getWeaponCount(weapon: Weapon): Int = weapons[weapon] ?: 0
 }
