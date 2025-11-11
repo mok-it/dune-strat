@@ -5,6 +5,6 @@ data class GameStateField(
     val water: Int,
     val spice: Int,
     val effectiveWeapon: Weapon,
-    val harvester: Boolean,
+    var harvester: Boolean,
     val neighbours: Set<GameStateField>,
 )

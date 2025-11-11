@@ -1,10 +1,10 @@
 package hu.mokegyesulet.it.dunestrat.model
 
-data class DesertField(
-    val id: String,
-    val water: Int,
-    val spice: Int,
-    val effectiveWeapon: Weapon,
-    val neighbours: Set<DesertField>,
-    val startingField: Boolean,
+class DesertField(
+    var id: String,
+    var water: Int,
+    var spice: Int,
+    var effectiveWeapon: Weapon,
+    val neighbours: MutableSet<DesertField>,
+    var startingField: Boolean,
 )

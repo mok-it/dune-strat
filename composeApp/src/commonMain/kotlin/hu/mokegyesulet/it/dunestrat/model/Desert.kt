@@ -1,6 +1,6 @@
 package hu.mokegyesulet.it.dunestrat.model
 
-data class Desert(
+class Desert(
     val fields: Set<DesertField>,
 ) {
     companion object {

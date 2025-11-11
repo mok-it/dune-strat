@@ -1,36 +1,34 @@
 package hu.mokegyesulet.it.dunestrat.model
 
-data class Player(
+class Player(
     val id: String,
-    val water: Int,
-    val spice: Int,
-    private val weapons: Map<Weapon, Int>,
-    val ownedFields: Set<GameStateField>,
+    var water: Int,
+    var spice: Int,
+    private val weapons: MutableMap<Weapon, Int>,
+    val ownedFields: MutableSet<GameStateField>,
 ) {
     fun getWeaponCount(weapon: Weapon): Int = weapons[weapon] ?: 0
 
-    fun leaveFields(fields: Set<GameStateField>): Player {
-        return this.copy(ownedFields = ownedFields - fields)
+    fun leaveFields(fields: Set<GameStateField>) {
+        ownedFields.removeAll(fields)
     }
 
-    fun waterConsumption(): Pair<Player, Boolean> {
+    fun waterConsumption(): Boolean {
         var waterChange = 0
         ownedFields.forEach { field -> waterChange += field.water }
-        val newWater = this.water + waterChange
-        if (newWater >= 0) {
-            return this.copy(water = newWater) to false
+        water += waterChange
+        if (water >= 0) {
+            return false
         }
-
-        return this.leaveFields(ownedFields.filter { field -> field.water < 0 }.toSet()).copy(water = 0) to true
+        leaveFields(ownedFields.filter { field -> field.water < 0 }.toSet())
+        return true
     }
 
-    fun purchaseWeapons(purchaseWeapons: Map<Weapon, Int>, purchasePrice: Int): Player {
-        val newWeapons = weapons.toMutableMap()
+    fun purchaseWeapons(purchaseWeapons: Map<Weapon, Int>, purchasePrice: Int) {
         purchaseWeapons.forEach { weapon ->
-            newWeapons[weapon.key] = getWeaponCount(weapon.key) + weapon.value
+            weapons[weapon.key] = getWeaponCount(weapon.key) + weapon.value
         }
 
-        return this.copy(weapons = newWeapons, spice = spice - purchasePrice)
+        spice -= purchasePrice
     }
-
 }
