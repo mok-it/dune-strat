@@ -1,7 +1,6 @@
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-import org.jlleitschuh.gradle.ktlint.reporter.ReporterType
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
@@ -69,22 +68,6 @@ kotlin {
 }
 
 tasks.getByPath("preBuild").dependsOn("ktlintFormat")
-
-subprojects {
-    apply(plugin = "org.jlleitschuh.gradle.ktlint")
-    configure<org.jlleitschuh.gradle.ktlint.KtlintExtension> {
-        version.set("1.7.1")
-        debug.set(true)
-        verbose.set(true)
-        outputToConsole.set(true)
-        outputColorName.set("RED")
-        ignoreFailures.set(false)
-        reporters {
-            reporter(ReporterType.PLAIN)
-            reporter(ReporterType.CHECKSTYLE)
-        }
-    }
-}
 
 android {
     namespace = "hu.mokegyesulet.it.dunestrat"
