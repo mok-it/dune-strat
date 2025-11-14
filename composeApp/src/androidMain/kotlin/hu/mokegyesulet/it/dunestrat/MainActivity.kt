@@ -12,6 +12,9 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
 
+        // Initialize Napier logging for Android
+        debugBuild()
+
         setContent {
             App()
         }

@@ -5,6 +5,8 @@ import androidx.compose.ui.window.ComposeViewport
 
 @OptIn(ExperimentalComposeUiApi::class)
 fun main() {
+    // Initialize Napier logging for Web/JS
+    debugBuild()
     ComposeViewport {
         App()
     }

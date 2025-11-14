@@ -15,6 +15,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import dune_strat.composeapp.generated.resources.Res
 import dune_strat.composeapp.generated.resources.compose_multiplatform
+import hu.mokegyesulet.it.dunestrat.model.Desert
+import io.github.aakira.napier.Napier
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
@@ -23,6 +25,10 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 fun App() {
     MaterialTheme {
         var showContent by remember { mutableStateOf(false) }
+
+        val desert = Desert.create12PlayerHexagon()
+        Napier.d { desert.toString() }
+
         Column(
             modifier = Modifier
                 .background(MaterialTheme.colorScheme.primaryContainer)
