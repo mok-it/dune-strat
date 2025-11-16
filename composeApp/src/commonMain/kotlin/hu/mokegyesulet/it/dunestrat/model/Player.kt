@@ -1,9 +1,13 @@
 package hu.mokegyesulet.it.dunestrat.model
 
+import kotlin.collections.forEach
+import kotlin.math.pow
+
 class Player(
     val id: String,
     var water: Int,
     var spice: Int,
+    var harvestersPurchased: Int,
     private val weapons: MutableMap<Weapon, Int>,
     val ownedFields: MutableSet<GameStateField>,
 ) {
@@ -17,10 +21,13 @@ class Player(
         var waterChange = 0
         ownedFields.forEach { field -> waterChange += field.water }
         water += waterChange
+
+        // return whether there is an issue or not
         if (water >= 0) {
             return false
         }
         leaveFields(ownedFields.filter { field -> field.water < 0 }.toSet())
+        water = 0
         return true
     }
 
@@ -30,5 +37,34 @@ class Player(
         }
 
         spice -= purchasePrice
+    }
+
+    fun deliverWeapons(purchaseWeapons: Map<Weapon, Int>) {
+        purchaseWeapons.keys.forEach { weapon ->
+            weapons[weapon] = getWeaponCount(weapon) + (purchaseWeapons[weapon] ?: 0)
+        }
+    }
+
+    fun purchaseHarvester(purchaseField: GameStateField, purchasePrice: Int) {
+        purchaseField.harvester = true
+        harvestersPurchased++
+        spice -= purchasePrice
+    }
+
+    fun calculatePrices(purchases: PlayerStep): Map<String, Int> {
+        val prices = mutableMapOf<String, Int>()
+        var sum = 0
+        purchases.purchaseWeapons.keys.forEach { weapon ->
+            sum += weapon.price
+        }
+        prices["weapons"] = sum
+        prices["harvester"] = 5 * 2.toDouble().pow(harvestersPurchased).toInt()
+        return prices
+    }
+
+    fun validatePrices(purchasePrices: MutableMap<String, Int>): Boolean {
+        var sum = 0
+        purchasePrices.values.forEach { value -> sum += value }
+        return sum >= spice
     }
 }
