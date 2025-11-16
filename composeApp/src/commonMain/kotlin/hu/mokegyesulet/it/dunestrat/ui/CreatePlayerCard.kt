@@ -1,17 +1,21 @@
 package hu.mokegyesulet.it.dunestrat.ui
 
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
 @Preview
-fun CreatePlayerCard() {
-    Card() {
-        Text("Játékos:")
+fun CreatePlayerCard(modifier: Modifier) {
+    Card(
+        modifier = modifier.padding(20.dp)
+    ) {
         var playerID = remember { mutableStateOf("Jozsi") }
         TextField(
             state = rememberTextFieldState(playerID.value),
@@ -27,31 +31,31 @@ fun CreatePlayerCard() {
         var spice = remember { mutableStateOf("0") }
         TextField(
             state = rememberTextFieldState(spice.value),
-            label = { Text("Spice") }
+            label = { Text("Fűszer") }
         )
 
         var pistol = remember { mutableStateOf("0") }
         TextField(
             state = rememberTextFieldState(pistol.value),
-            label = { Text("Spice") }
+            label = { Text("Pisztoly") }
         )
 
         var lasgun = remember { mutableStateOf("0") }
         TextField(
             state = rememberTextFieldState(lasgun.value),
-            label = { Text("Spice") }
+            label = { Text("Lasgun") }
         )
 
         var crysknife = remember { mutableStateOf("0") }
         TextField(
             state = rememberTextFieldState(crysknife.value),
-            label = { Text("Spice") }
+            label = { Text("Crysknife") }
         )
 
         var legio = remember { mutableStateOf("0") }
         TextField(
             state = rememberTextFieldState(legio.value),
-            label = { Text("Spice") }
+            label = { Text("Légio") }
         )
 
         var startingGameStateID = remember { mutableStateOf("A1") }
