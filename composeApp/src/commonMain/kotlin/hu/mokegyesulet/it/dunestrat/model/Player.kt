@@ -51,7 +51,7 @@ class Player(
         spice -= purchasePrice
     }
 
-    fun calculatePrices(purchases: PlayerStep): Map<String, Int> {
+    fun calculatePrices(purchases: PlayerStep): mutableMap<String, Int> {
         val prices = mutableMapOf<String, Int>()
         var sum = 0
         purchases.purchaseWeapons.keys.forEach { weapon ->
@@ -67,4 +67,5 @@ class Player(
         purchasePrices.values.forEach { value -> sum += value }
         return sum >= spice
     }
+
 }
