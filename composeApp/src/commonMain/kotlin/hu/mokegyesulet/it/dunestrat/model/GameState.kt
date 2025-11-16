@@ -35,7 +35,7 @@ class GameState(
         }
 
     fun checkPurchases(playerSteps: MutableSet<PlayerStep>) {
-        players.forEach { player ->
+        players.forEach { player -> player.validatePrices(player.calculatePrices(getPlayerStepById(player.id, playerSteps)))
         }
     }
 }
