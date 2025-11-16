@@ -31,7 +31,12 @@ class Player(
         return true
     }
 
-    fun purchaseWeapons(purchaseWeapons: Map<Weapon, Int>, purchasePrice: Int) {
+    fun purchaseWeapons(purchaseWeapons: Map<Weapon, Int>) {
+        var purchasePrice = 0
+        purchaseWeapons.keys.forEach { weapon ->
+            purchasePrice += weapon.price
+        }
+
         purchaseWeapons.forEach { weapon ->
             weapons[weapon.key] = getWeaponCount(weapon.key) + weapon.value
         }
@@ -45,10 +50,10 @@ class Player(
         }
     }
 
-    fun purchaseHarvester(purchaseField: GameStateField, purchasePrice: Int) {
+    fun purchaseHarvester(purchaseField: GameStateField) {
         purchaseField.harvester = true
         harvestersPurchased++
-        spice -= purchasePrice
+        spice -= 5 * 2.toDouble().pow(harvestersPurchased).toInt()
     }
 
     fun calculatePrices(purchases: PlayerStep): mutableMap<String, Int> {
