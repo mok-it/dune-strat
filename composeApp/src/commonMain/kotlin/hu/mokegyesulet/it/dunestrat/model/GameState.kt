@@ -9,6 +9,7 @@ class GameState(
         val playerSteps = playerSteps.toMutableSet()
 
         this.leaveFields(playerSteps)
+
         this.waterConsumption(playerSteps)
     }
 
@@ -32,4 +33,9 @@ class GameState(
         playerSteps.first { playerStep ->
             playerStep.playerId == playerId
         }
+
+    fun checkPurchases(playerSteps: MutableSet<PlayerStep>) {
+        players.forEach { player ->
+        }
+    }
 }
