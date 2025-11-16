@@ -56,15 +56,16 @@ class Player(
         spice -= 5 * 2.toDouble().pow(harvestersPurchased).toInt()
     }
 
-    fun calculatePrices(purchases: PlayerStep): mutableMap<String, Int> {
-        val prices = mutableMapOf<String, Int>()
+    fun calculatePrices(purchases: PlayerStep): Int {
         var sum = 0
         purchases.purchaseWeapons.keys.forEach { weapon ->
             sum += weapon.price
         }
-        prices["weapons"] = sum
-        prices["harvester"] = 5 * 2.toDouble().pow(harvestersPurchased).toInt()
-        return prices
+
+        for (i in 0.. purchases.buildHarvester.size) {
+            sum += 5 * 2.toDouble().pow(harvestersPurchased+i).toInt()
+        }
+        return sum
     }
 
     fun validatePrices(purchasePrices: MutableMap<String, Int>): Boolean {
