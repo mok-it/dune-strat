@@ -10,6 +10,7 @@ class Player(
     var harvestersPurchased: Int,
     private val weapons: MutableMap<Weapon, Int>,
     val ownedFields: MutableSet<GameStateField>,
+    var inDebt: Boolean,
 ) {
     fun getWeaponCount(weapon: Weapon): Int = weapons[weapon] ?: 0
 
@@ -56,16 +57,15 @@ class Player(
         spice -= 5 * 2.toDouble().pow(harvestersPurchased).toInt()
     }
 
-    fun calculatePrices(purchases: PlayerStep): Int {
+    fun calculatePrices(purchases: PlayerStep): MutableMap<String, Int> {
+        val prices = mutableMapOf<String, Int>()
         var sum = 0
         purchases.purchaseWeapons.keys.forEach { weapon ->
             sum += weapon.price
         }
-
-        for (i in 0.. purchases.buildHarvester.size) {
-            sum += 5 * 2.toDouble().pow(harvestersPurchased+i).toInt()
-        }
-        return sum
+        prices["weapons"] = sum
+        prices["harvester"] = 5 * 2.toDouble().pow(harvestersPurchased).toInt()
+        return prices
     }
 
     fun validatePrices(purchasePrices: MutableMap<String, Int>): Boolean {
@@ -73,5 +73,4 @@ class Player(
         purchasePrices.values.forEach { value -> sum += value }
         return sum >= spice
     }
-
 }

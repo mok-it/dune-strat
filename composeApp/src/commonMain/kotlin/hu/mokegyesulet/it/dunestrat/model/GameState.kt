@@ -9,8 +9,9 @@ class GameState(
         val playerSteps = playerSteps.toMutableSet()
 
         this.leaveFields(playerSteps)
-
         this.waterConsumption(playerSteps)
+        this.checkPurchases(playerSteps)
+        // TODO: implement combat
     }
 
     fun leaveFields(playerSteps: Set<PlayerStep>) {
@@ -35,7 +36,20 @@ class GameState(
         }
 
     fun checkPurchases(playerSteps: MutableSet<PlayerStep>) {
-        players.forEach { player -> player.validatePrices(player.calculatePrices(getPlayerStepById(player.id, playerSteps)))
+        players.forEach { player ->
+            player.inDebt = player.validatePrices(
+                player.calculatePrices(getPlayerStepById(player.id, playerSteps)),
+            )
+        }
+    }
+
+    fun purchaseHarvesers(playerSteps: MutableSet<PlayerStep>) {
+        players.forEach { player ->
+            if (!player.inDebt) {
+                getPlayerStepById(player.id, playerSteps).buildHarvester.forEach { field ->
+                    player.purchaseHarvester(field)
+                }
+            }
         }
     }
 }
