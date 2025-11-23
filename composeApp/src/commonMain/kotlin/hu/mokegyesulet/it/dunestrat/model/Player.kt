@@ -38,10 +38,6 @@ class Player(
             purchasePrice += weapon.price
         }
 
-        purchaseWeapons.forEach { weapon ->
-            weapons[weapon.key] = getWeaponCount(weapon.key) + weapon.value
-        }
-
         spice -= purchasePrice
     }
 
@@ -53,24 +49,38 @@ class Player(
 
     fun purchaseHarvester(purchaseField: GameStateField) {
         purchaseField.harvester = true
-        harvestersPurchased++
-        spice -= 5 * 2.toDouble().pow(harvestersPurchased).toInt()
+        spice -= 5 * 2.toDouble().pow(harvestersPurchased++).toInt()
     }
 
-    fun calculatePrices(purchases: PlayerStep): MutableMap<String, Int> {
-        val prices = mutableMapOf<String, Int>()
+    fun calculatePrices(purchases: PlayerStep): Int {
         var sum = 0
         purchases.purchaseWeapons.keys.forEach { weapon ->
             sum += weapon.price
         }
-        prices["weapons"] = sum
-        prices["harvester"] = 5 * 2.toDouble().pow(harvestersPurchased).toInt()
-        return prices
+        sum += 5 * 2.toDouble().pow(harvestersPurchased).toInt()
+        return sum
     }
 
-    fun validatePrices(purchasePrices: MutableMap<String, Int>): Boolean {
-        var sum = 0
-        purchasePrices.values.forEach { value -> sum += value }
-        return sum >= spice
+    fun calculatePower(field: GameStateField): Int {
+        var sum = getWeaponCount(Weapon.LEGION) * 2 + getWeaponCount(field.effectiveWeapon) * 2
+        weapons.keys.forEach { weapon ->
+            sum += getWeaponCount(weapon)
+        }
+        return sum
+    }
+
+    fun isFieldReachable(fieldinqestion: GameStateField): Boolean {
+        ownedFields.filter { field -> field != fieldinqestion }.forEach { field ->
+            if (fieldinqestion in field.neighbours) {
+                return true
+            }
+        }
+        return false
+    }
+
+    fun loseWeaponPrecent(precent: Double) {
+        weapons.keys.forEach { weapon ->
+            weapons[weapon] = ((weapons[weapon]!!.toDouble()) * (1 - precent)).toInt()
+        }
     }
 }
