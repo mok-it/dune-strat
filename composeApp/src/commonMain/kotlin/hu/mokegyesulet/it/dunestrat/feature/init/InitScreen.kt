@@ -26,38 +26,39 @@ import hu.mokegyesulet.it.dunestrat.ui.CreatePlayerCard
 fun InitScreen() {
     val viewModel = viewModel { InitViewModel() }
 
-    var expanded by remember { mutableStateOf(false) }
-    var selectedMap by remember { mutableStateOf("Hexagon – 12 játékos") }
-    val mapOptions = listOf("Hexagon – 12 játékos", "Hexagon – 6 játékos")
+    var expanded by viewModel.dropdownExpanded
+    var selectedMap by viewModel.selectedMap
+    val playerCount by viewModel.playerCount
+    val mapOptions by viewModel.mapOptions
 
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(top = 16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Box {
             OutlinedTextField(
-                value = selectedMap,
+                value = "Hexagon – $playerCount játékos",
                 onValueChange = {},
                 readOnly = true,
                 label = { Text("Térkép kiválasztása") },
                 modifier = Modifier
                     .fillMaxWidth(0.7f)
-                    .clickable() { expanded = true }
+                    .clickable { expanded = true },
             )
 
             DropdownMenu(
                 expanded = expanded,
-                onDismissRequest = { expanded = false }
+                onDismissRequest = { expanded = false },
             ) {
                 mapOptions.forEach { map ->
                     DropdownMenuItem(
-                        text = { Text(map) },
+                        text = { "Hexagon – $playerCount játékos" },
                         onClick = {
                             selectedMap = map
                             expanded = false
-                        }
+                        },
                     )
                 }
             }
@@ -65,17 +66,15 @@ fun InitScreen() {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        val playerCount = if (selectedMap.contains("12")) 12 else 6
-
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             for (i in 1..playerCount) {
                 item { Text(i.toString() + ". játékos") }
                 item {
                     CreatePlayerCard(
-                        modifier = Modifier.fillMaxWidth(0.45f)
+                        modifier = Modifier.fillMaxWidth(0.45f),
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                 }
@@ -83,7 +82,7 @@ fun InitScreen() {
             item {
                 Button(
                     onClick = { viewModel.savePlayers() },
-                    modifier = Modifier.padding(16.dp)
+                    modifier = Modifier.padding(16.dp),
                 ) {
                     Text("Adatok mentése")
                 }
