@@ -67,6 +67,12 @@ kotlin {
             implementation(libs.kotlinx.coroutinesSwing)
         }
     }
+
+    jvmToolchain(21)
+}
+
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
+    compilerOptions.jvmTarget.set(JvmTarget.JVM_21)
 }
 
 tasks.getByPath("preBuild").dependsOn("ktlintFormat")
