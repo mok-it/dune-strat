@@ -5,5 +5,5 @@ class PlayerStep(
     var leaveFields: Set<GameStateField>,
     var enterFields: Set<GameStateField>,
     var purchaseWeapons: Map<Weapon, Int>,
-    var buildHarvester: Set<GameStateField>,
+    var buildHarvesters: Set<GameStateField>,
 )
