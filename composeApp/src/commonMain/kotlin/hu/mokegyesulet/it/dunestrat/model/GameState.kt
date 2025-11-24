@@ -34,10 +34,12 @@ class GameState(
         }
     }
 
-    fun getPlayerStepById(playerId: String, playerSteps: Set<PlayerStep>): PlayerStep =
-        playerSteps.first { playerStep ->
-            playerStep.playerId == playerId
-        }
+    fun getPlayerStepById(
+        playerId: String,
+        playerSteps: Set<PlayerStep>,
+    ): PlayerStep = playerSteps.first { playerStep ->
+        playerStep.playerId == playerId
+    }
 
     fun checkPurchases(playerSteps: Set<PlayerStep>) {
         players.forEach { player ->
@@ -101,32 +103,34 @@ class GameState(
                 val field = entry.key
                 val players = entry.value
 
-                var max = players.first().calculatePower(field)
-                var winningPlayer: Player = players.first()
-                var draw = false
-                players.filter { player -> player != winningPlayer }.forEach { player ->
-                    val power = player.calculatePower(field)
-                    if (max < power) {
-                        max = power
-                        winningPlayer = player
-                        draw = false
-                    } else if (max == power) {
-                        draw = true
-                    }
-                    if (fieldOcupiedBy(field) != null) {
-                        if (fieldOcupiedBy(field)!!.calculatePower(field) >= max) {
-                            draw = true
-                        } else if (draw == true) {
-                            player.leaveFields(setOf(field))
-                        }
-                    } else if (!draw) {
-                        winningPlayer.ownedFields.add(field)
-                        losses[winningPlayer] = losses[winningPlayer]!! + 0.2
-                    } else {
-                        losses[winningPlayer] = losses[winningPlayer]!! + 0.1
-                    }
+                if (players.isNotEmpty()) {
+                    var max = players.first().calculatePower(field, false)
+                    var winningPlayer: Player = players.first()
+                    var draw = false
                     players.filter { player -> player != winningPlayer }.forEach { player ->
-                        losses[player] = losses[player]!! + 0.1
+                        val power = player.calculatePower(field, false)
+                        if (max < power) {
+                            max = power
+                            winningPlayer = player
+                            draw = false
+                        } else if (max == power) {
+                            draw = true
+                        }
+                        if (fieldOcupiedBy(field) != null) {
+                            if (fieldOcupiedBy(field)!!.calculatePower(field, true) >= max) {
+                                draw = true
+                            } else if (draw == true) {
+                                player.leaveFields(setOf(field))
+                            }
+                        } else if (!draw) {
+                            winningPlayer.ownedFields.add(field)
+                            losses[winningPlayer] = losses[winningPlayer]!! + 0.2
+                        } else {
+                            losses[winningPlayer] = losses[winningPlayer]!! + 0.1
+                        }
+                        players.filter { player -> player != winningPlayer }.forEach { player ->
+                            losses[player] = losses[player]!! + 0.1
+                        }
                     }
                 }
             }
