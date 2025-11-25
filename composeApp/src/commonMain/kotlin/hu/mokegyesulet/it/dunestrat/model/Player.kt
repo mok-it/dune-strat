@@ -61,9 +61,9 @@ class Player(
         return sum
     }
 
-    fun calculatePower(field: GameStateField,isdefender: Boolean): Int {
+    fun calculatePower(field: GameStateField): Int {
         var sum = getWeaponCount(field.effectiveWeapon) * 2
-        if (!isdefender){
+        if (field not in ownedFields){
             sum += getWeaponCount(Weapon.LEGION) * 3
         }
         weapons.filter { weapon -> weapon != Weapon.LEGION}.keys.forEach { weapon ->
