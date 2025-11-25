@@ -104,11 +104,11 @@ class GameState(
                 val players = entry.value
 
                 if (players.isNotEmpty()) {
-                    var max = players.first().calculatePower(field, false)
+                    var max = players.first().calculatePower(field)
                     var winningPlayer: Player = players.first()
                     var draw = false
                     players.filter { player -> player != winningPlayer }.forEach { player ->
-                        val power = player.calculatePower(field, false)
+                        val power = player.calculatePower(field)
                         if (max < power) {
                             max = power
                             winningPlayer = player
@@ -117,27 +117,32 @@ class GameState(
                             draw = true
                         }
                         if (fieldOcupiedBy(field) != null) {
-                            if (fieldOcupiedBy(field)!!.calculatePower(field, true) >= max) {
+                            if (fieldOcupiedBy(field)!!.calculatePower(field) >= max) {
                                 draw = true
-                            } else if (draw == true) {
-                                player.leaveFields(setOf(field))
                             }
-                        } else if (!draw) {
-                            winningPlayer.ownedFields.add(field)
-                            losses[winningPlayer] = losses[winningPlayer]!! + 0.2
-                        } else {
-                            losses[winningPlayer] = losses[winningPlayer]!! + 0.1
-                        }
-                        players.filter { player -> player != winningPlayer }.forEach { player ->
-                            losses[player] = losses[player]!! + 0.1
+                            if (fieldOcupiedBy(field) != null) {
+                                if (fieldOcupiedBy(field)!!.calculatePower(field, true) >= max) {
+                                    draw = true
+                                } else if (draw == true) {
+                                    player.leaveFields(setOf(field))
+                                }
+                            } else if (!draw) {
+                                winningPlayer.ownedFields.add(field)
+                                losses[winningPlayer] = losses[winningPlayer]!! + 0.2
+                            } else {
+                                losses[winningPlayer] = losses[winningPlayer]!! + 0.1
+                            }
+                            players.filter { player -> player != winningPlayer }.forEach { player ->
+                                losses[player] = losses[player]!! + 0.1
+                            }
                         }
                     }
                 }
-            }
 
-        players.forEach { player ->
-            player.loseWeaponPrecent(losses[player]!!)
-        }
+                players.forEach { player ->
+                    player.loseWeaponPrecent(losses[player]!!)
+                }
+            }
     }
 
     fun fieldOcupiedBy(field: GameStateField): Player? {
