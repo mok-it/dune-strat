@@ -6,8 +6,6 @@ class GameState(
 ) {
 
     fun runTurn(playerSteps: MutableSet<PlayerStep>) {
-        val playerSteps = playerSteps.toMutableSet()
-
         this.leaveFields(playerSteps)
         this.waterConsumption(playerSteps)
         this.checkPurchases(playerSteps)
@@ -19,15 +17,14 @@ class GameState(
     }
 
     fun leaveFields(playerSteps: Set<PlayerStep>) {
-        players.map { player ->
+        players.forEach { player ->
             player.leaveFields(getPlayerStepById(player.id, playerSteps).leaveFields)
         }
     }
 
     fun waterConsumption(playerSteps: MutableSet<PlayerStep>) {
         players.forEach { player ->
-            val res = player.waterConsumption()
-            if (res) {
+            if (player.waterConsumption()) {
                 playerSteps.removeAll { it.playerId == player.id }
                 playerSteps.add(PlayerStep(player.id, setOf(), setOf(), mapOf(), setOf()))
             }
@@ -37,9 +34,9 @@ class GameState(
     fun getPlayerStepById(
         playerId: String,
         playerSteps: Set<PlayerStep>,
-    ): PlayerStep = playerSteps.first { playerStep ->
+    ): PlayerStep = playerSteps.find { playerStep ->
         playerStep.playerId == playerId
-    }
+    } ?: PlayerStep(playerId, setOf(), setOf(), mapOf(), setOf())
 
     fun checkPurchases(playerSteps: Set<PlayerStep>) {
         players.forEach { player ->
