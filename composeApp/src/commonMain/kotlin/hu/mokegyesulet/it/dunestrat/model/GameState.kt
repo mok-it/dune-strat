@@ -13,7 +13,7 @@ class GameState(
         this.checkPurchases(playerSteps)
         this.buildHarvesters(playerSteps)
         this.purchaseWeapons(playerSteps)
-        this.produce()
+        this.produceResources()
         this.expansions(playerSteps)
         this.deliverWeapons(playerSteps)
     }
@@ -39,14 +39,14 @@ class GameState(
             playerStep.playerId == playerId
         }
 
-    fun checkPurchases(playerSteps: MutableSet<PlayerStep>) {
+    fun checkPurchases(playerSteps: Set<PlayerStep>) {
         players.forEach { player ->
             player.inDebt =
                 player.spice >= player.calculatePrices(getPlayerStepById(player.id, playerSteps))
         }
     }
 
-    fun buildHarvesters(playerSteps: MutableSet<PlayerStep>) {
+    fun buildHarvesters(playerSteps: Set<PlayerStep>) {
         players.filter { !it.inDebt }.forEach { player ->
             getPlayerStepById(player.id, playerSteps).buildHarvesters.forEach { field ->
                 if (field in player.ownedFields) {
@@ -56,7 +56,7 @@ class GameState(
         }
     }
 
-    fun purchaseWeapons(playerSteps: MutableSet<PlayerStep>) {
+    fun purchaseWeapons(playerSteps: Set<PlayerStep>) {
         players.filter { !it.inDebt }.forEach { player ->
             player.purchaseWeapons(getPlayerStepById(player.id, playerSteps).purchaseWeapons)
         }
@@ -71,13 +71,13 @@ class GameState(
         }
     }
 
-    fun deliverWeapons(playerSteps: MutableSet<PlayerStep>) {
+    fun deliverWeapons(playerSteps: Set<PlayerStep>) {
         players.filter { !it.inDebt }.forEach { player ->
             player.deliverWeapons(getPlayerStepById(player.id, playerSteps).purchaseWeapons)
         }
     }
 
-    fun expansions(playerSteps: MutableSet<PlayerStep>) {
+    fun expansions(playerSteps: Set<PlayerStep>) {
         val chosenfields = mutableMapOf<GameStateField, MutableSet<Player>>()
         val losses = mutableMapOf<Player, Double>()
 
@@ -89,27 +89,26 @@ class GameState(
             chosenfields[field] = mutableSetOf()
         }
 
-        players.filter { !it.inDebt }.forEach { player ->
-            getPlayerStepById(player.id, playerSteps).enterFields.forEach { field ->
-                if (player.isFieldReachable(field)) {
-                    chosenfields[field]?.add(player)
-                }
+        players.filter { !it.inDebt }
+            .forEach { player ->
+                getPlayerStepById(player.id, playerSteps).enterFields
+                    .filter { field -> player.isFieldReachable(field) }
+                    .forEach { field -> chosenfields[field]?.add(player) }
             }
-        }
 
-        chosenfields.forEach { entry ->
-            val field = entry.key
-            val players = entry.value
+        chosenfields.filter { it.value.isNotEmpty() }
+            .forEach { entry ->
+                val field = entry.key
+                val players = entry.value
 
-            if (players.isNotEmpty()) {
                 var max = players.first().calculatePower(field)
-                var winingplayer: Player = players.first()
+                var winningPlayer: Player = players.first()
                 var draw = false
-                players.filter { player -> player != winingplayer }.forEach { player ->
+                players.filter { player -> player != winningPlayer }.forEach { player ->
                     val power = player.calculatePower(field)
                     if (max < power) {
                         max = power
-                        winingplayer = player
+                        winningPlayer = player
                         draw = false
                     } else if (max == power) {
                         draw = true
@@ -121,22 +120,18 @@ class GameState(
                             player.leaveFields(setOf(field))
                         }
                     } else if (!draw) {
-                        winingplayer.ownedFields.add(field)
-                        losses[winingplayer] = losses[winingplayer]!! + 0.2
+                        winningPlayer.ownedFields.add(field)
+                        losses[winningPlayer] = losses[winningPlayer]!! + 0.2
                     } else {
-                        losses[winingplayer] = losses[winingplayer]!! + 0.1
+                        losses[winningPlayer] = losses[winningPlayer]!! + 0.1
                     }
-                    players.filter { player -> player != winingplayer }.forEach { player ->
+                    players.filter { player -> player != winningPlayer }.forEach { player ->
                         losses[player] = losses[player]!! + 0.1
                     }
                 }
             }
-        }
 
         players.forEach { player ->
-            if (losses[player]!! > 1.0) {
-                losses[player] = 1.0
-            }
             player.loseWeaponPrecent(losses[player]!!)
         }
     }
