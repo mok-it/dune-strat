@@ -63,18 +63,18 @@ class Player(
 
     fun calculatePower(field: GameStateField): Int {
         var sum = getWeaponCount(field.effectiveWeapon) * 2
-        if (field not in ownedFields){
+        if (field !in ownedFields) {
             sum += getWeaponCount(Weapon.LEGION) * 3
         }
-        weapons.filter { weapon -> weapon != Weapon.LEGION}.keys.forEach { weapon ->
+        weapons.filter { weapon -> weapon.key != Weapon.LEGION }.keys.forEach { weapon ->
             sum += getWeaponCount(weapon)
         }
         return sum
     }
 
-    fun isFieldReachable(fieldinqestion: GameStateField): Boolean {
-        ownedFields.filter { field -> field != fieldinqestion }.forEach { field ->
-            if (fieldinqestion in field.neighbours) {
+    fun isFieldReachable(fieldInQuestion: GameStateField): Boolean {
+        ownedFields.filter { field -> field != fieldInQuestion }.forEach { field ->
+            if (fieldInQuestion in field.neighbours) {
                 return true
             }
         }
