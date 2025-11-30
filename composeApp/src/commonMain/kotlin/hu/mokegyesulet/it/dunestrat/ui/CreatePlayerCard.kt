@@ -8,60 +8,105 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import hu.mokegyesulet.it.dunestrat.model.Player
+import hu.mokegyesulet.it.dunestrat.model.Weapon
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
 @Preview
-fun CreatePlayerCard(modifier: Modifier) {
+fun CreatePlayerCard(
+    index : Int,
+    modifier: Modifier,
+    player: Player,
+    onChange: (Player, Int) -> Unit,
+    startingFieldId: String,
+    onStartingFieldChange: (String) -> Unit
+) {
     Card(
         modifier = modifier.padding(20.dp)
     ) {
-        var playerID = remember { mutableStateOf("Jozsi") }
         TextField(
-            state = rememberTextFieldState(playerID.value),
+            value = player.id,
+            onValueChange = { onChange(player.copy(id = it), index) },
             label = { Text("Játékos ID") }
         )
 
-        var water = remember { mutableStateOf("0") }
         TextField(
-            state = rememberTextFieldState(water.value),
-            label = { Text("Víz") }
+            value = player.water.toString(),
+            onValueChange = { onChange(player.copy(water = it.toInt()), index) },
+            label = { Text("Víz készlet") }
         )
 
-        var spice = remember { mutableStateOf("0") }
         TextField(
-            state = rememberTextFieldState(spice.value),
-            label = { Text("Fűszer") }
+            value = player.spice.toString(),
+            onValueChange = { onChange(player.copy(spice = it.toInt()), index) },
+            label = { Text("Fűszer készlet") }
         )
 
-        var pistol = remember { mutableStateOf("0") }
         TextField(
-            state = rememberTextFieldState(pistol.value),
+            value = player.getWeaponCount(Weapon.PISTOL).toString(),
+            onValueChange = {
+                val newWeapons: Map<Weapon, Int> = mapOf(
+                    Weapon.PISTOL to it.toInt(),
+                    Weapon.LASGUN to player.getWeaponCount( Weapon.LASGUN),
+                    Weapon.CRYSKNIFE to player.getWeaponCount( Weapon.CRYSKNIFE),
+                    Weapon.LEGION to player.getWeaponCount( Weapon.LEGION)
+                )
+                val newPlayer = player.copy(weapons = newWeapons)
+                onChange(newPlayer, index)
+            },
             label = { Text("Pisztoly") }
         )
 
-        var lasgun = remember { mutableStateOf("0") }
         TextField(
-            state = rememberTextFieldState(lasgun.value),
+            value = player.getWeaponCount(Weapon.LASGUN).toString(),
+            onValueChange = {
+                val newWeapons: Map<Weapon, Int> = mapOf(
+                    Weapon.PISTOL to player.getWeaponCount( Weapon.PISTOL),
+                    Weapon.LASGUN to it.toInt(),
+                    Weapon.CRYSKNIFE to player.getWeaponCount( Weapon.CRYSKNIFE),
+                    Weapon.LEGION to player.getWeaponCount( Weapon.LEGION)
+                )
+                val newPlayer = player.copy(weapons = newWeapons)
+                onChange(newPlayer, index)
+            },
             label = { Text("Lasgun") }
         )
 
-        var crysknife = remember { mutableStateOf("0") }
         TextField(
-            state = rememberTextFieldState(crysknife.value),
+            value = player.getWeaponCount(Weapon.CRYSKNIFE).toString(),
+            onValueChange = {
+                val newWeapons: Map<Weapon, Int> = mapOf(
+                    Weapon.PISTOL to player.getWeaponCount( Weapon.PISTOL),
+                    Weapon.LASGUN to player.getWeaponCount( Weapon.LASGUN),
+                    Weapon.CRYSKNIFE to it.toInt(),
+                    Weapon.LEGION to player.getWeaponCount( Weapon.LEGION)
+                )
+                val newPlayer = player.copy(weapons = newWeapons)
+                onChange(newPlayer, index)
+            },
             label = { Text("Crysknife") }
         )
 
-        var legio = remember { mutableStateOf("0") }
         TextField(
-            state = rememberTextFieldState(legio.value),
-            label = { Text("Légio") }
+            value = player.getWeaponCount(Weapon.LEGION).toString(),
+            onValueChange = {
+                val newWeapons: Map<Weapon, Int> = mapOf(
+                    Weapon.PISTOL to player.getWeaponCount( Weapon.PISTOL),
+                    Weapon.LASGUN to player.getWeaponCount( Weapon.LASGUN),
+                    Weapon.CRYSKNIFE to player.getWeaponCount( Weapon.CRYSKNIFE),
+                    Weapon.LEGION to it.toInt()
+                )
+                val newPlayer = player.copy(weapons = newWeapons)
+                onChange(newPlayer, index)
+            },
+            label = { Text("Légió") }
         )
 
-        var startingGameStateID = remember { mutableStateOf("A1") }
         TextField(
-            state = rememberTextFieldState(startingGameStateID.value),
-            label = { Text("Kezdő mező ID") }
+            value = startingFieldId,
+            onValueChange = onStartingFieldChange,
+            label = { Text("Kezdő mező") }
         )
     }
 }
