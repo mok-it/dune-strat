@@ -78,9 +78,11 @@ class Player(
         return false
     }
 
-    fun loseWeaponPrecent(precent: Double) {
+    fun loseWeaponPrecent(percent: Double) {
+        val normalizedPercent = if (percent > 1.0) 1.0 else percent
         weapons.keys.forEach { weapon ->
-            weapons[weapon] = ((weapons[weapon]!!.toDouble()) * (1 - precent)).toInt()
+            weapons[weapon] = ((weapons[weapon]?.toDouble() ?: 0.0) * (1 - normalizedPercent))
+                .toInt()
         }
     }
 }
