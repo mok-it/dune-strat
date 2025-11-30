@@ -116,12 +116,12 @@ class GameState(
                         } else if (max == power) {
                             draw = true
                         }
-                        if (fieldOcupiedBy(field) != null) {
-                            if (fieldOcupiedBy(field)!!.calculatePower(field) >= max) {
+                        if (fieldOccupiedBy(field) != null) {
+                            if (fieldOccupiedBy(field)!!.calculatePower(field) >= max) {
                                 draw = true
                             }
-                            if (fieldOcupiedBy(field) != null) {
-                                if (fieldOcupiedBy(field)!!.calculatePower(field, true) >= max) {
+                            if (fieldOccupiedBy(field) != null) {
+                                if (fieldOccupiedBy(field)!!.calculatePower(field) >= max) {
                                     draw = true
                                 } else if (draw == true) {
                                     player.leaveFields(setOf(field))
@@ -145,7 +145,7 @@ class GameState(
             }
     }
 
-    fun fieldOcupiedBy(field: GameStateField): Player? {
+    fun fieldOccupiedBy(field: GameStateField): Player? {
         players.forEach { player ->
             if (field in player.ownedFields) {
                 return player
