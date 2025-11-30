@@ -33,12 +33,7 @@ class Player(
     }
 
     fun purchaseWeapons(purchaseWeapons: Map<Weapon, Int>) {
-        var purchasePrice = 0
-        purchaseWeapons.keys.forEach { weapon ->
-            purchasePrice += weapon.price
-        }
-
-        spice -= purchasePrice
+        spice -= calculateWeaponPrices(purchaseWeapons)
     }
 
     fun deliverWeapons(purchaseWeapons: Map<Weapon, Int>) {
@@ -52,14 +47,19 @@ class Player(
         spice -= 5 * 2.toDouble().pow(harvestersPurchased++).toInt()
     }
 
-    fun calculatePrices(purchases: PlayerStep): Int {
+    fun calculateWeaponPrices(purchaseWeapons: Map<Weapon, Int>): Int {
         var sum = 0
-        purchases.purchaseWeapons.keys.forEach { weapon ->
-            sum += weapon.price
+        purchaseWeapons.forEach { entry ->
+            sum += entry.value * entry.key.price
         }
-        sum += 5 * 2.toDouble().pow(harvestersPurchased).toInt()
         return sum
     }
+
+    fun calculateHarvesterPrice(count: Int): Int =
+        (5 * 2.toDouble().pow(harvestersPurchased) * (2.toDouble().pow(count) - 1)).toInt()
+    fun calculatePrices(purchases: PlayerStep): Int =
+        calculateWeaponPrices(purchases.purchaseWeapons) +
+            calculateHarvesterPrice(purchases.buildHarvesters.size)
 
     fun calculatePower(field: GameStateField): Int {
         var sum = getWeaponCount(field.effectiveWeapon) * 2
@@ -73,7 +73,10 @@ class Player(
     }
 
     fun isFieldReachable(fieldInQuestion: GameStateField): Boolean {
-        ownedFields.filter { field -> field != fieldInQuestion }.forEach { field ->
+        if (fieldInQuestion in ownedFields) {
+            return false
+        }
+        ownedFields.forEach { field ->
             if (fieldInQuestion in field.neighbours) {
                 return true
             }
