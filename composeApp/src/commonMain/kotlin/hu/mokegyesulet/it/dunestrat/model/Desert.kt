@@ -26,11 +26,16 @@ data class Desert(
                 7 to Pair(-1, 1),
             )
 
-            for (x in -7..7) {
-                for (y in -14..14) {
+            val size = 7
+
+            for (x in -size..size) {
+                for (y in -size * 2..size * 2) {
                     val distance = abs(x) + abs(y)
-                    if (distance % 2 == 0 && distance / 2 <= 7) {
-                        val values = desertValuesByDistance[distance / 2] ?: Pair(0, 0)
+                    if (distance % 2 == 0 && distance / 2 <= size) {
+                        val stepsToReach =
+                            abs(x) + if (abs(y) > abs(x)) (abs(y) - abs(x)) / 2 else 0
+
+                        val values = desertValuesByDistance[stepsToReach] ?: Pair(0, 0)
 
                         val desertField = DesertField(
                             id = "${'B' + x + 7}${(y + 14 + 2) / 2}",
