@@ -77,7 +77,7 @@ class GameState(
     }
 
     fun expansions(playerSteps: Set<PlayerStep>) {
-        val chosenfields = mutableMapOf<GameStateField, MutableSet<Player>>()
+        val chosenFields = mutableMapOf<GameStateField, MutableSet<Player>>()
         val losses = mutableMapOf<Player, Double>()
 
         players.forEach { player ->
@@ -85,69 +85,74 @@ class GameState(
         }
 
         fields.forEach { field ->
-            chosenfields[field] = mutableSetOf()
+            chosenFields[field] = mutableSetOf()
         }
 
         players.filter { !it.inDebt }
             .forEach { player ->
                 getPlayerStepById(player.id, playerSteps).enterFields
                     .filter { field -> player.isFieldReachable(field) }
-                    .forEach { field -> chosenfields[field]?.add(player) }
+                    .forEach { field -> chosenFields[field]?.add(player) }
             }
 
-        chosenfields.filter { it.value.isNotEmpty() }
+        chosenFields.filter { it.value.isNotEmpty() }
             .forEach { entry ->
                 val field = entry.key
                 val players = entry.value
 
                 if (players.isNotEmpty()) {
-                    var max = players.first().calculatePower(field)
-                    var winningPlayer: Player = players.first()
-                    var draw = false
-                    players.filter { player -> player != winningPlayer }.forEach { player ->
-                        val power = player.calculatePower(field)
-                        if (max < power) {
-                            max = power
-                            winningPlayer = player
-                            draw = false
-                        } else if (max == power) {
-                            draw = true
-                        }
-                        if (fieldOccupiedBy(field) != null) {
-                            if (fieldOccupiedBy(field)!!.calculatePower(field) >= max) {
-                                draw = true
-                            }
-                            if (fieldOccupiedBy(field) != null) {
-                                if (fieldOccupiedBy(field)!!.calculatePower(field) >= max) {
-                                    draw = true
-                                } else if (draw == true) {
-                                    player.leaveFields(setOf(field))
-                                }
-                            } else if (!draw) {
-                                winningPlayer.ownedFields.add(field)
-                                losses[winningPlayer] = losses[winningPlayer]!! + 0.2
-                            } else {
-                                losses[winningPlayer] = losses[winningPlayer]!! + 0.1
-                            }
-                            players.filter { player -> player != winningPlayer }.forEach { player ->
-                                losses[player] = losses[player]!! + 0.1
-                            }
-                        }
+                    val occupant = getOccupant(field)
+                    val max = players.maxOfOrNull { it.calculatePower(field) } ?: 0
+                    val winningPlayers: List<Player> = players.filter { player ->
+                        player.calculatePower(field) == max
                     }
-                }
-
-                players.forEach { player ->
-                    player.loseWeaponPrecent(losses[player]!!)
+                    val newOccupant = modifyFieldOwnershipsAfterBattle(field, winningPlayers)
+                    players.forEach { player ->
+                        losses[player] =
+                            (losses[player] ?: 0.0) +
+                            calculateLossOnField(player, occupant, newOccupant)
+                    }
                 }
             }
     }
 
-    fun fieldOccupiedBy(field: GameStateField): Player? {
+    fun getOccupant(field: GameStateField): Player? {
         players.forEach { player ->
             if (field in player.ownedFields) {
                 return player
             }
         }
         return null
+    }
+
+    private fun modifyFieldOwnershipsAfterBattle(
+        field: GameStateField,
+        winningPlayers: List<Player>,
+    ): Player? {
+        val occupant = getOccupant(field)
+        if (occupant in winningPlayers) {
+            return occupant
+        }
+        occupant?.ownedFields?.remove(field)
+        if (winningPlayers.size >= 2) {
+            return null
+        }
+        val newOccupant = winningPlayers[0]
+        newOccupant.ownedFields.add(field)
+        return newOccupant
+    }
+
+    private fun calculateLossOnField(
+        player: Player,
+        previousOccupant: Player?,
+        newOccupant: Player?,
+    ): Double {
+        if (previousOccupant == player) {
+            return 0.0
+        }
+        if (newOccupant == player) {
+            return 0.2
+        }
+        return 0.1
     }
 }
