@@ -17,8 +17,10 @@ kotlinx-coroutines = "1.10.2"
 materialIconsExtended = "1.7.3"
 navigationCompose = "2.9.1"
 google-services = "4.4.4"
-firebase = "34.5.0"
 ktlint-plugin = "14.0.1"
+kotlinx-serialization = "1.10.0-RC"
+supabase = "3.3.0"
+ktor = "3.2.2"
 
 [libraries]
 material-icons-extended = { module = "org.jetbrains.compose.material:material-icons-extended", version.ref = "materialIconsExtended" }
@@ -34,6 +36,17 @@ androidx-activity-compose = { module = "androidx.activity:activity-compose", ver
 androidx-lifecycle-viewmodelCompose = { module = "org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "androidx-lifecycle" }
 androidx-lifecycle-runtimeCompose = { module = "org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose", version.ref = "androidx-lifecycle" }
 kotlinx-coroutinesSwing = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-swing", version.ref = "kotlinx-coroutines" }
+supabase-auth = { module = "io.github.jan-tennert.supabase:auth-kt"}
+supabase-auth-compose = { module = "io.github.jan-tennert.supabase:compose-auth"}
+supabase-postgrest = { module = "io.github.jan-tennert.supabase:postgrest-kt"}
+supabase-storage = { module = "io.github.jan-tennert.supabase:storage-kt"}
+supabase-realtime = { module = "io.github.jan-tennert.supabase:realtime-kt"}
+supabase-bom = { module = "io.github.jan-tennert.supabase:bom", version.ref = "supabase" }
+kotlinx-serialization = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json",version.ref="kotlinx-serialization" }
+ktor-client-cio = { module = "io.ktor:ktor-client-cio", version.ref = "ktor" }
+ktor-client-js = { module = "io.ktor:ktor-client-js", version.ref = "ktor" }
+ktor-client-darwin = { module = "io.ktor:ktor-client-darwin", version.ref = "ktor" }
+
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

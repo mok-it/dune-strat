@@ -10,6 +10,7 @@ plugins {
     alias(libs.plugins.composeHotReload)
     alias(libs.plugins.googleServices)
     alias(libs.plugins.ktlint)
+    kotlin("plugin.serialization") version "2.3.0"
 }
 
 kotlin {
@@ -46,6 +47,7 @@ kotlin {
         androidMain.dependencies {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
+            implementation(libs.ktor.client.cio)
         }
         commonMain.dependencies {
             implementation(compose.runtime)
@@ -58,6 +60,15 @@ kotlin {
             implementation(libs.androidx.lifecycle.runtimeCompose)
             implementation(libs.navigation.compose)
             implementation(libs.material.icons.extended)
+            implementation(
+                project.dependencies.platform(libs.supabase.bom),
+            )
+            implementation(libs.supabase.auth)
+            implementation(libs.supabase.auth.compose)
+            implementation(libs.supabase.storage)
+            implementation(libs.supabase.realtime)
+            implementation(libs.supabase.postgrest)
+            implementation(libs.kotlinx.serialization)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
@@ -65,6 +76,17 @@ kotlin {
         jvmMain.dependencies {
             implementation(compose.desktop.currentOs)
             implementation(libs.kotlinx.coroutinesSwing)
+            implementation(libs.ktor.client.cio)
+        }
+        jsMain {
+            dependencies {
+                implementation(libs.ktor.client.js)
+            }
+        }
+        iosMain {
+            dependencies {
+                implementation(libs.ktor.client.darwin)
+            }
         }
     }
 

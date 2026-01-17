@@ -4,4 +4,5 @@ sealed class Screen(
     val route: String,
 ) {
     data object MainMenu : Screen(route = "main-menu")
+    data object Supabase : Screen(route = "supabase")
 }

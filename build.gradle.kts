@@ -11,4 +11,5 @@ plugins {
     alias(libs.plugins.kotlinMultiplatform) apply false
     alias(libs.plugins.googleServices) apply false
     alias(libs.plugins.ktlint) apply false
+    kotlin("plugin.serialization") version "2.3.0" apply false
 }
