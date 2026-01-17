@@ -9,7 +9,7 @@ object SupabaseAuth : Auth {
     private val auth = SupabaseClientProvider.client.auth
 
     override suspend fun logIn() = auth.signInWith(Google)
-    val sessionStatus get(): Flow<SessionStatus> = auth.sessionStatus
+    override val sessionStatus get(): Flow<SessionStatus> = auth.sessionStatus
 
     override suspend fun logOut() = auth.signOut()
 }

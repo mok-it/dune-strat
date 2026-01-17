@@ -10,7 +10,7 @@ plugins {
     alias(libs.plugins.composeHotReload)
     alias(libs.plugins.googleServices)
     alias(libs.plugins.ktlint)
-    kotlin("plugin.serialization") version "2.3.0"
+    alias(libs.plugins.serialization)
 }
 
 kotlin {
