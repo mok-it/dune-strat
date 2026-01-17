@@ -1,6 +1,14 @@
 package hu.mokegyesulet.it.dunestrat.model
 
-class PlayerStep(
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
+
+@Serializable
+data class PlayerStep(
+    @Transient
+    val id: Int? = null,
+    @Transient
+    val gameStateId: Int = -1,
     val playerId: String,
     var leaveFields: Set<GameStateField>,
     var enterFields: Set<GameStateField>,

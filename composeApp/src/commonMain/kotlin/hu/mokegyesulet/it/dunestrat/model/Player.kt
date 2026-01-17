@@ -2,8 +2,10 @@ package hu.mokegyesulet.it.dunestrat.model
 
 import kotlin.collections.forEach
 import kotlin.math.pow
+import kotlinx.serialization.Serializable
 
-class Player(
+@Serializable
+data class Player(
     val id: String,
     var water: Int,
     var spice: Int,

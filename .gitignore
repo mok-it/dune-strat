@@ -22,3 +22,7 @@ node_modules/
 .idea/usage.statistics.xml
 .idea/shelf/
 .idea/*.iml
+
+# Nix
+.direnv
+.envrc

@@ -1,6 +1,17 @@
 package hu.mokegyesulet.it.dunestrat.model
 
-class GameState(
+import kotlin.collections.setOf
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
+
+@Serializable
+data class GameState(
+    @Transient
+    val id: Int? = null,
+    @Transient
+    val gameId: Int = -1,
+    @Transient
+    val index: Int = -1,
     val fields: Set<GameStateField>,
     val players: Set<Player>,
 ) {
@@ -26,7 +37,15 @@ class GameState(
         players.forEach { player ->
             if (player.waterConsumption()) {
                 playerSteps.removeAll { it.playerId == player.id }
-                playerSteps.add(PlayerStep(player.id, setOf(), setOf(), mapOf(), setOf()))
+                playerSteps.add(
+                    PlayerStep(
+                        playerId = player.id,
+                        leaveFields = setOf(),
+                        enterFields = setOf(),
+                        purchaseWeapons = mapOf(),
+                        buildHarvesters = setOf(),
+                    ),
+                )
             }
         }
     }
@@ -36,7 +55,13 @@ class GameState(
         playerSteps: Set<PlayerStep>,
     ): PlayerStep = playerSteps.find { playerStep ->
         playerStep.playerId == playerId
-    } ?: PlayerStep(playerId, setOf(), setOf(), mapOf(), setOf())
+    } ?: PlayerStep(
+        playerId = playerId,
+        leaveFields = setOf(),
+        enterFields = setOf(),
+        purchaseWeapons = mapOf(),
+        buildHarvesters = setOf(),
+    )
 
     fun checkPurchases(playerSteps: Set<PlayerStep>) {
         players.forEach { player ->
