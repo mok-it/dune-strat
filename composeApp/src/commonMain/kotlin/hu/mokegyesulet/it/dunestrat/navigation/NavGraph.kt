@@ -6,7 +6,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import hu.mokegyesulet.it.dunestrat.feature.mainmenu.MainMenu
-import hu.mokegyesulet.it.dunestrat.feature.supabase.SupabaseScreen
 
 @Composable
 fun NavGraph(navController: NavHostController = rememberNavController()) {
@@ -16,13 +15,9 @@ fun NavGraph(navController: NavHostController = rememberNavController()) {
     ) {
         composable(Screen.MainMenu.route) {
             MainMenu(
-                onPlaceholder1 = { navController.navigate(Screen.Supabase.route) },
+                onPlaceholder1 = {},
                 onPlaceholder2 = {},
             )
-        }
-
-        composable(Screen.Supabase.route) {
-            SupabaseScreen()
         }
     }
 }

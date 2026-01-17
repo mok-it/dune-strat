@@ -2,10 +2,15 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/composeApp/dune-strat.composeApp.jvmDev.iml" filepath="$PROJECT_DIR$/.idea/modules/composeApp/dune-strat.composeApp.jvmDev.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/composeApp/dune-strat.composeApp.jvmMain.iml" filepath="$PROJECT_DIR$/.idea/modules/composeApp/dune-strat.composeApp.jvmMain.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/composeApp/dune-strat.composeApp.jvmTest.iml" filepath="$PROJECT_DIR$/.idea/modules/composeApp/dune-strat.composeApp.jvmTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/composeApp/dune-strat.composeApp.commonMain.iml" filepath="$PROJECT_DIR$/.idea/modules/composeApp/dune-strat.composeApp.commonMain.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/composeApp/dune-strat.composeApp.commonTest.iml" filepath="$PROJECT_DIR$/.idea/modules/composeApp/dune-strat.composeApp.commonTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/composeApp/dune-strat.composeApp.iosArm64Main.iml" filepath="$PROJECT_DIR$/.idea/modules/composeApp/dune-strat.composeApp.iosArm64Main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/composeApp/dune-strat.composeApp.iosMain.iml" filepath="$PROJECT_DIR$/.idea/modules/composeApp/dune-strat.composeApp.iosMain.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/composeApp/dune-strat.composeApp.iosSimulatorArm64Main.iml" filepath="$PROJECT_DIR$/.idea/modules/composeApp/dune-strat.composeApp.iosSimulatorArm64Main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/composeApp/dune-strat.composeApp.jsMain.iml" filepath="$PROJECT_DIR$/.idea/modules/composeApp/dune-strat.composeApp.jsMain.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/composeApp/dune-strat.composeApp.main.iml" filepath="$PROJECT_DIR$/.idea/modules/composeApp/dune-strat.composeApp.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/composeApp/dune-strat.composeApp.wasmJsMain.iml" filepath="$PROJECT_DIR$/.idea/modules/composeApp/dune-strat.composeApp.wasmJsMain.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/composeApp/dune-strat.composeApp.webMain.iml" filepath="$PROJECT_DIR$/.idea/modules/composeApp/dune-strat.composeApp.webMain.iml" />
     </modules>
   </component>
 </project>
