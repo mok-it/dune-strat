@@ -28,7 +28,7 @@ data class Desert(
 
             // exelből kimásolt
             // ürres mezőnél Legion a hatásos
-            val effectiveWeaponsById = mapOf(
+            val effectiveWeaponsByIdOldCoordinates = mapOf(
                 "A1" to Weapon.LEGION,
                 "A2" to Weapon.LEGION,
                 "A3" to Weapon.PISTOL,
@@ -248,8 +248,12 @@ data class Desert(
                 "Q9" to Weapon.LEGION,
             )
 
+            val effectiveWeaponsById = effectiveWeaponsByIdOldCoordinates.mapKeys {
+                convertCoordinateToNewSystem(it.key)
+            }
+
             // exelből
-            val bases = setOf(
+            val basesOldCoordinates = setOf(
                 "A3",
                 "A7",
                 "C1",
@@ -263,6 +267,10 @@ data class Desert(
                 "Q3",
                 "Q7",
             )
+
+            val bases = basesOldCoordinates.map {
+                convertCoordinateToNewSystem(it)
+            }.toSet()
 
             val size = 7
 
@@ -312,6 +320,20 @@ data class Desert(
             }
 
             return Desert(newFields)
+        }
+
+        fun convertCoordinateToNewSystem(
+            oldCoordinate: String,
+            middleColumnLetter: Char = 'I',
+        ): String {
+            val letter = oldCoordinate[0]
+            val number = oldCoordinate.substring(1).toInt()
+            if (letter <= middleColumnLetter) {
+                return oldCoordinate
+            }
+            val shift = letter - middleColumnLetter
+            val newNumber = number + shift
+            return "$letter$newNumber"
         }
     }
 }
