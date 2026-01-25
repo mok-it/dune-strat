@@ -2,16 +2,21 @@ package hu.mokegyesulet.it.dunestrat.backend.entities
 
 import hu.mokegyesulet.it.dunestrat.model.Game
 import hu.mokegyesulet.it.dunestrat.model.GameProgress
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 
-class GameDatabaseEntry(
+@Serializable
+class GameDatabaseEntity(
     val id: Int?,
     val progress: Int,
+    @SerialName("desert_id")
+    val desertId: Int,
     val json: String,
 ) {
     fun toGame(): Game {
         val game = Json.decodeFromString<Game>(json)
-        return game.copy(id = id, progress = GameProgress.entries[progress])
+        return game.copy(id = id, progress = GameProgress.entries[progress], desertId = desertId)
     }
 
     companion object {
@@ -19,8 +24,9 @@ class GameDatabaseEntry(
     }
 }
 
-fun Game.toDatabaseEntry(): GameDatabaseEntry = GameDatabaseEntry(
+fun Game.toDatabaseEntry(): GameDatabaseEntity = GameDatabaseEntity(
     id = id,
     this.progress.ordinal,
     json = Json.encodeToString(this),
+    desertId = desertId,
 )

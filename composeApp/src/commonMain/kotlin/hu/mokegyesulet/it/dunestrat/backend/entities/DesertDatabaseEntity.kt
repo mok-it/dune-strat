@@ -1,8 +1,10 @@
 package hu.mokegyesulet.it.dunestrat.backend.entities
 
 import hu.mokegyesulet.it.dunestrat.model.Desert
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 
+@Serializable
 class DesertDatabaseEntity(
     val id: Int?,
     val json: String,

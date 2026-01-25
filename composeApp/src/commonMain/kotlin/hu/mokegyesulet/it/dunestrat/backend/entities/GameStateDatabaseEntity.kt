@@ -1,10 +1,14 @@
 package hu.mokegyesulet.it.dunestrat.backend.entities
 
 import hu.mokegyesulet.it.dunestrat.model.GameState
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 
-class GameStateDatabaseEntry(
+@Serializable
+class GameStateDatabaseEntity(
     val id: Int?,
+    @SerialName("game_id")
     val gameId: Int,
     val index: Int,
     val json: String,
@@ -18,7 +22,7 @@ class GameStateDatabaseEntry(
     }
 }
 
-fun GameState.toDatabaseEntry(): GameStateDatabaseEntry = GameStateDatabaseEntry(
+fun GameState.toDatabaseEntry(): GameStateDatabaseEntity = GameStateDatabaseEntity(
     id = id,
     gameId = gameId,
     index = index,

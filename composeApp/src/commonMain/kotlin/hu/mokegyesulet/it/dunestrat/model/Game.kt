@@ -11,6 +11,8 @@ data class Game(
     @Transient
     val progress: GameProgress = GameProgress.ERROR,
     val teams: List<Team>,
+    @Transient
+    val desertId: Int = -1,
 )
 
 enum class GameProgress {

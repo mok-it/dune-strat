@@ -1,8 +1,8 @@
 package hu.mokegyesulet.it.dunestrat.backend
 
 import hu.mokegyesulet.it.dunestrat.backend.entities.DesertDatabaseEntity
-import hu.mokegyesulet.it.dunestrat.backend.entities.GameDatabaseEntry
-import hu.mokegyesulet.it.dunestrat.backend.entities.GameStateDatabaseEntry
+import hu.mokegyesulet.it.dunestrat.backend.entities.GameDatabaseEntity
+import hu.mokegyesulet.it.dunestrat.backend.entities.GameStateDatabaseEntity
 import hu.mokegyesulet.it.dunestrat.backend.entities.PlayerStepDatabaseEntry
 import hu.mokegyesulet.it.dunestrat.backend.entities.toDatabaseEntity
 import hu.mokegyesulet.it.dunestrat.backend.entities.toDatabaseEntry
@@ -18,14 +18,14 @@ import kotlinx.coroutines.flow.map
 
 object SubabaseRepository : Repository {
     val supabase = SupabaseClientProvider.client
-    const val GAME_TABLE = GameDatabaseEntry.TABLE_NAME
-    const val GAME_STATE_TABLE = GameDatabaseEntry.TABLE_NAME
+    const val GAME_TABLE = GameDatabaseEntity.TABLE_NAME
+    const val GAME_STATE_TABLE = GameDatabaseEntity.TABLE_NAME
     const val STEP_TABLE = PlayerStepDatabaseEntry.TABLE_NAME
     const val DESERT_TABLE = DesertDatabaseEntity.TABLE_NAME
 
     @OptIn(SupabaseExperimental::class)
     override fun getGames(): Flow<List<Game>> =
-        supabase.from(GAME_TABLE).selectAsFlow(GameDatabaseEntry::id).map { list ->
+        supabase.from(GAME_TABLE).selectAsFlow(GameDatabaseEntity::id).map { list ->
             list.map { it.toGame() }
         }
 
@@ -35,7 +35,7 @@ object SubabaseRepository : Repository {
 
     @OptIn(SupabaseExperimental::class)
     override fun getGameStates(): Flow<List<GameState>> =
-        supabase.from(GAME_STATE_TABLE).selectAsFlow(GameStateDatabaseEntry::id).map { list ->
+        supabase.from(GAME_STATE_TABLE).selectAsFlow(GameStateDatabaseEntity::id).map { list ->
             list.map { it.toGameState() }
         }
 
