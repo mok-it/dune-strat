@@ -22,6 +22,11 @@ node_modules/
 .idea/usage.statistics.xml
 .idea/shelf/
 .idea/*.iml
+.idea/gradle.xml
+.idea/ktlint-plugin.xml
+.idea/misc.xml
+.idea/runConfigurations.xml
+.idea/libraries/
 
 # Nix
 .direnv
