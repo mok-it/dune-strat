@@ -3,7 +3,7 @@ package hu.mokegyesulet.it.dunestrat.backend
 import hu.mokegyesulet.it.dunestrat.backend.entities.DesertDatabaseEntity
 import hu.mokegyesulet.it.dunestrat.backend.entities.GameDatabaseEntity
 import hu.mokegyesulet.it.dunestrat.backend.entities.GameStateDatabaseEntity
-import hu.mokegyesulet.it.dunestrat.backend.entities.PlayerStepDatabaseEntry
+import hu.mokegyesulet.it.dunestrat.backend.entities.PlayerStepDatabaseEntity
 import hu.mokegyesulet.it.dunestrat.backend.entities.toDatabaseEntity
 import hu.mokegyesulet.it.dunestrat.backend.entities.toDatabaseEntry
 import hu.mokegyesulet.it.dunestrat.model.Desert
@@ -20,7 +20,7 @@ object SubabaseRepository : Repository {
     val supabase = SupabaseClientProvider.client
     const val GAME_TABLE = GameDatabaseEntity.TABLE_NAME
     const val GAME_STATE_TABLE = GameDatabaseEntity.TABLE_NAME
-    const val STEP_TABLE = PlayerStepDatabaseEntry.TABLE_NAME
+    const val STEP_TABLE = PlayerStepDatabaseEntity.TABLE_NAME
     const val DESERT_TABLE = DesertDatabaseEntity.TABLE_NAME
 
     @OptIn(SupabaseExperimental::class)
@@ -45,7 +45,7 @@ object SubabaseRepository : Repository {
 
     @OptIn(SupabaseExperimental::class)
     override fun getPlayerSteps(): Flow<List<PlayerStep>> =
-        supabase.from(STEP_TABLE).selectAsFlow(PlayerStepDatabaseEntry::id).map { list ->
+        supabase.from(STEP_TABLE).selectAsFlow(PlayerStepDatabaseEntity::id).map { list ->
             list.map { it.toPlayerStep() }
         }
 
