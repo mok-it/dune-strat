@@ -345,7 +345,7 @@ data class Desert(
 
                         val values = desertValuesByDistance[stepsToReach] ?: Pair(0, 0)
 
-                        val id = "${'B' + x + 7}${(y + 14 + 2) / 2}"
+                        val id = "${'B' + x + size}${(y + (size * 2) + 2) / 2}"
 
                         val desertField = DesertField(
                             id = id,
@@ -364,11 +364,21 @@ data class Desert(
                             startingField = id in bases,
                         )
 
-                        println("($x, $y): $desertField")
-
                         fields.add(desertField)
                     }
                 }
+            }
+
+            bases.forEach { id ->
+                val desertField = DesertField(
+                    id = id,
+                    water = 4,
+                    spice = 0,
+                    effectiveWeapon = effectiveWeaponsById[id]!!,
+                    neighbours = setOf(),
+                    startingField = true,
+                )
+                fields.add(desertField)
             }
 
             val newFields = mutableSetOf<DesertField>()
@@ -378,22 +388,15 @@ data class Desert(
 
                 val fieldFirstCord = field.id[0].code
                 val fieldSecondCord = field.id.substring(1).toInt()
-                val neigbourFirstCords = mutableSetOf(
-                    fieldFirstCord - 1,
-                    fieldFirstCord,
-                    fieldFirstCord + 1,
-                )
-                val neigbourSecondCords = mutableSetOf(
-                    fieldSecondCord - 1,
-                    fieldSecondCord,
-                    fieldSecondCord + 1,
-                )
+
+                val neighbourFirstCords = fieldFirstCord - 1..fieldFirstCord + 1
+
+                val neighbourSecondCords = fieldSecondCord - 1..fieldSecondCord + 1
 
                 fields.filter { entry ->
-                    (entry.id[0].code in neigbourFirstCords) and
-                        (entry.id.substring(1).toInt() in neigbourSecondCords)
-                }.forEach { entry ->
-                    if (!(
+                    (entry.id[0].code in neighbourFirstCords) and
+                        (entry.id.substring(1).toInt() in neighbourSecondCords) and
+                        !(
                             (
                                 (entry.id[0].code == fieldFirstCord - 1) and
                                     (entry.id.substring(1).toInt() == fieldSecondCord + 1)
@@ -405,9 +408,8 @@ data class Desert(
                                     (entry.id.substring(1).toInt() == fieldSecondCord)
                                 )
                             )
-                    ) {
-                        neighbours.add(entry)
-                    }
+                }.forEach { entry ->
+                    neighbours.add(entry)
                 }
 
                 newFields.add(
