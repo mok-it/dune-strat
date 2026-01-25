@@ -302,10 +302,40 @@ data class Desert(
             }
 
             val newFields = mutableSetOf<DesertField>()
+
             fields.forEach { field ->
                 val neighbours = mutableSetOf<DesertField>()
 
-                // TODO
+                val fieldFirstCord = field.id[0].code
+                val fieldSecondCord = field.id.substring(1).toInt()
+                val neigbourFirstCords = mutableSetOf(
+                    fieldFirstCord - 1,
+                    fieldFirstCord,
+                    fieldFirstCord + 1,
+                )
+                val neigbourSecondCords = mutableSetOf(
+                    fieldSecondCord - 1,
+                    fieldSecondCord,
+                    fieldSecondCord + 1,
+                )
+
+                fields.filter { entry ->
+                    (entry.id[0].code in neigbourFirstCords) and
+                        (entry.id.substring(1).toInt() in neigbourSecondCords)
+                }.forEach { entry ->
+                    if (!(
+                            (
+                                (entry.id[0] == fieldFirstCord - 1) and
+                                    (entry.id.substring(1).toInt() == fieldSecondCord + 1)
+                                ) or (
+                                (entry.id[0] == fieldFirstCord + 1) and
+                                    (entry.id.substring(1).toInt() == fieldSecondCord - 1)
+                                )
+                            )
+                    ) {
+                        neighbours.add(entry)
+                    }
+                }
 
                 newFields.add(
                     DesertField(
@@ -313,7 +343,7 @@ data class Desert(
                         field.water,
                         field.spice,
                         field.effectiveWeapon,
-                        neighbours.toSet(),
+                        neighbours,
                         field.startingField,
                     ),
                 )
