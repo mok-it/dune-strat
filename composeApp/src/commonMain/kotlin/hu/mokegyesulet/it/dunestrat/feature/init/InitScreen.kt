@@ -38,6 +38,7 @@ fun InitScreen() {
     val mapOptions by viewModel.mapOptions
     val playerList by viewModel.playerList
     val startingFieldIds by viewModel.startingFieldIds
+    val isFormValid by viewModel.isFormValid
 
     Column(
         modifier = Modifier
@@ -45,28 +46,36 @@ fun InitScreen() {
             .padding(top = 16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Box {
+        // Dropdown
+        Box(
+            modifier = Modifier
+                .fillMaxWidth(0.7f)
+                .clickable(                         //Az alatta lévő 2 sornak jónak kéne lennie, de nem az xd
+                    indication = null,
+                    interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() }
+                ) {
+                    expanded = true
+                }
+        ) {
             OutlinedTextField(
                 value = "Hexagon – $playerCount játékos",
                 onValueChange = {},
                 readOnly = true,
                 label = { Text("Térkép kiválasztása") },
-                modifier = Modifier
-                    .fillMaxWidth(0.7f)
-                    .clickable { expanded = true },
+                modifier = Modifier.fillMaxWidth()
             )
 
             DropdownMenu(
                 expanded = expanded,
-                onDismissRequest = { expanded = false },
+                onDismissRequest = { expanded = false }
             ) {
                 mapOptions.forEach { map ->
                     DropdownMenuItem(
-                        text = { "Hexagon – $playerCount játékos" },
+                        text = { Text("Hexagon – $map játékos") },
                         onClick = {
-                            selectedMap = map
+                            viewModel.onEvent(InitViewModel.InitScreenEvent.ChangeSelectedMap(map))
                             expanded = false
-                        },
+                        }
                     )
                 }
             }
@@ -78,36 +87,42 @@ fun InitScreen() {
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            for (i in 0..<  playerCount) {
-                item { Text(i.toString() + ". játékos") }
+            for (playerNumber in 1..playerCount) {
+                val index = playerNumber - 1
+
+                item { Text("$playerNumber. játékos") }
+
                 item {
                     CreatePlayerCard(
-                        index = i,
+                        index = index,
                         modifier = Modifier.fillMaxWidth(0.45f),
-                        player = playerList[i],
-                        onChange = {player, index ->
-                            viewModel.onEvent(InitViewModel.InitScreenEvent.UpdatePlayerData(player, index))
+                        player = playerList[index],
+                        onChange = { player, i ->
+                            viewModel.onEvent(
+                                InitViewModel.InitScreenEvent.UpdatePlayerData(player, i)
+                            )
                         },
-                        onStartingFieldChange = {fieldId ->
-                            viewModel.onEvent(InitViewModel.InitScreenEvent.UpdatePlayerStartingField(fieldId = fieldId, i))
+                        onStartingFieldChange = { fieldId ->
+                            viewModel.onEvent(
+                                InitViewModel.InitScreenEvent.UpdatePlayerStartingField(fieldId, index)
+                            )
                         },
-                        startingFieldId = startingFieldIds[i]
+                        startingFieldId = startingFieldIds[index]
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                 }
             }
+
+            // Mentés gomb: dinamikusan engedélyezett
             item {
                 Button(
                     onClick = { viewModel.savePlayers() },
-                    modifier = Modifier.padding(16.dp),
+                    enabled = isFormValid,
+                    modifier = Modifier.padding(16.dp)
                 ) {
                     Text("Adatok mentése")
                 }
             }
         }
     }
-}
-
-private fun InitViewModel.savePlayers() {
-    TODO("savePlayers függvény hiányos")
 }
