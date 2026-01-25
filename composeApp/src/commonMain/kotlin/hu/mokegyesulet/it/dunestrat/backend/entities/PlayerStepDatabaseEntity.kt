@@ -6,7 +6,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 
 @Serializable
-class PlayerStepDatabaseEntry(
+class PlayerStepDatabaseEntity(
     val id: Int?,
     @SerialName("game_state_id")
     val gameStateId: Int,
@@ -23,7 +23,7 @@ class PlayerStepDatabaseEntry(
     }
 }
 
-fun PlayerStep.toDatabaseEntry(): PlayerStepDatabaseEntry = PlayerStepDatabaseEntry(
+fun PlayerStep.toDatabaseEntry(): PlayerStepDatabaseEntity = PlayerStepDatabaseEntity(
     id = id,
     gameStateId = gameStateId,
     json = Json.encodeToString(this),
