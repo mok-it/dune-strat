@@ -1,8 +1,8 @@
 package hu.mokegyesulet.it.dunestrat.model
 
+import kotlin.math.abs
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
-import kotlin.math.abs
 
 @Serializable
 data class Desert(
@@ -360,7 +360,7 @@ data class Desert(
                                 values.second
                             },
                             effectiveWeapon = effectiveWeaponsById[id] ?: Weapon.LEGION,
-                            neighbours = setOf(),
+                            neighbours = mutableSetOf(),
                             startingField = id in bases,
                         )
 
@@ -375,7 +375,7 @@ data class Desert(
                     water = 4,
                     spice = 0,
                     effectiveWeapon = effectiveWeaponsById[id]!!,
-                    neighbours = setOf(),
+                    neighbours = mutableSetOf(),
                     startingField = true,
                 )
                 fields.add(desertField)
@@ -424,7 +424,7 @@ data class Desert(
                 )
             }
 
-            return Desert(newFields)
+            return Desert(fields = newFields)
         }
 
         fun convertCoordinateToNewSystem(
