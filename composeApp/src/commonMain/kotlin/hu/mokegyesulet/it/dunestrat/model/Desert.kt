@@ -268,9 +268,71 @@ data class Desert(
                 "Q7",
             )
 
+            // exelből
+            val mountainsOldCoordinates = mapOf(
+                "A3"	to 3,
+                "A7"	to 3,
+                "B2"	to 7,
+                "B9"	to 7,
+                "C1"	to 3,
+                "C5"	to 6,
+                "C6"	to 6,
+                "C7"	to 6,
+                "C11"	to 3,
+                "D6"	to 5,
+                "D7"	to 5,
+                "E3"	to 6,
+                "E11"	to 6,
+                "F3"	to 6,
+                "F4"	to 5,
+                "F6"	to 3,
+                "F9"	to 3,
+                "F11"	to 5,
+                "F12"	to 6,
+                "G1"	to 3,
+                "G3"	to 6,
+                "G4"	to 5,
+                "G12"	to 5,
+                "G13"	to 6,
+                "G15"	to 3,
+                "I2"	to 7,
+                "I6"	to 3,
+                "I12"	to 3,
+                "I16"	to 7,
+                "K1"	to 3,
+                "K3"	to 6,
+                "K4"	to 5,
+                "K12"	to 5,
+                "K13"	to 6,
+                "K15"	to 3,
+                "L3"	to 6,
+                "L4"	to 5,
+                "L6"	to 3,
+                "L9"	to 3,
+                "L11"	to 5,
+                "L12"	to 6,
+                "M3"	to 6,
+                "M11"	to 6,
+                "N6"	to 5,
+                "N7"	to 5,
+                "O1"	to 3,
+                "O5"	to 6,
+                "O6"	to 6,
+                "O7"	to 6,
+                "O11"	to 3,
+                "P2"	to 7,
+                "P9"	to 7,
+                "Q3"	to 3,
+                "Q7"	to 3,
+            )
+
             val bases = basesOldCoordinates.map {
                 convertCoordinateToNewSystem(it)
             }.toSet()
+
+            val mountains = mountainsOldCoordinates.mapKeys {
+                convertCoordinateToNewSystem(it.key)
+            }
 
             val size = 7
 
@@ -287,8 +349,16 @@ data class Desert(
 
                         val desertField = DesertField(
                             id = id,
-                            water = values.first,
-                            spice = values.second,
+                            water = if (id in mountains.keys) {
+                                mountains[id]!!
+                            } else {
+                                values.first
+                            },
+                            spice = if (id in mountains.keys) {
+                                mountains[id]!!
+                            } else {
+                                values.second
+                            },
                             effectiveWeapon = effectiveWeaponsById[id] ?: Weapon.LEGION,
                             neighbours = setOf(),
                             startingField = id in bases,
@@ -330,6 +400,9 @@ data class Desert(
                                 ) or (
                                 (entry.id[0].code == fieldFirstCord + 1) and
                                     (entry.id.substring(1).toInt() == fieldSecondCord - 1)
+                                ) or (
+                                (entry.id[0].code == fieldFirstCord) and
+                                    (entry.id.substring(1).toInt() == fieldSecondCord)
                                 )
                             )
                     ) {
