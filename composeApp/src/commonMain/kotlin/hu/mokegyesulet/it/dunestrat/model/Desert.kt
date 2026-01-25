@@ -325,10 +325,10 @@ data class Desert(
                 }.forEach { entry ->
                     if (!(
                             (
-                                (entry.id[0] == fieldFirstCord - 1) and
+                                (entry.id[0].code == fieldFirstCord - 1) and
                                     (entry.id.substring(1).toInt() == fieldSecondCord + 1)
                                 ) or (
-                                (entry.id[0] == fieldFirstCord + 1) and
+                                (entry.id[0].code == fieldFirstCord + 1) and
                                     (entry.id.substring(1).toInt() == fieldSecondCord - 1)
                                 )
                             )
