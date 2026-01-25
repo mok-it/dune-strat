@@ -26,6 +26,7 @@ node_modules/
 .idea/ktlint-plugin.xml
 .idea/misc.xml
 .idea/runConfigurations.xml
+/.idea/deploymentTargetSelector.xml
 .idea/libraries/
 
 # Nix
