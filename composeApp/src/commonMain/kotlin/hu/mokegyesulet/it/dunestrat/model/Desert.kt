@@ -8,6 +8,8 @@ import kotlinx.serialization.Transient
 data class Desert(
     @Transient
     val id: Int? = null,
+    @Transient
+    val name: String = "",
     val fields: Set<DesertField>,
 ) {
 
@@ -388,7 +390,10 @@ data class Desert(
                 )
             }
 
-            return Desert(fields = newFields)
+            return Desert(
+                name = "Standard 12 játékos",
+                fields = newFields,
+            )
         }
 
         fun convertCoordinateToNewSystem(
