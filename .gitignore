@@ -18,16 +18,8 @@ captures
 node_modules/
 
 # IntelliJ files
-.idea/workspace.xml
-.idea/usage.statistics.xml
-.idea/shelf/
-.idea/*.iml
-.idea/gradle.xml
-.idea/ktlint-plugin.xml
-.idea/misc.xml
-.idea/runConfigurations.xml
-/.idea/deploymentTargetSelector.xml
-.idea/libraries/
+.idea/
+!.idea/externalDependencies.xml
 
 # Nix
 .direnv
