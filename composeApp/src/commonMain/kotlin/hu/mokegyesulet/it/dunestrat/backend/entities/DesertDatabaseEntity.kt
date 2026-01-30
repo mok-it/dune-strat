@@ -7,11 +7,12 @@ import kotlinx.serialization.json.Json
 @Serializable
 class DesertDatabaseEntity(
     val id: Int?,
+    val name: String,
     val json: String,
 ) {
     fun toDesert(): Desert {
         val desert = Json.decodeFromString<Desert>(json)
-        return desert.copy(id = id)
+        return desert.copy(id = id, name = name)
     }
 
     companion object {
@@ -21,5 +22,6 @@ class DesertDatabaseEntity(
 
 fun Desert.toDatabaseEntity() = DesertDatabaseEntity(
     id = id,
+    name = name,
     json = Json.encodeToString(this),
 )
