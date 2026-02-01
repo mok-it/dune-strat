@@ -1,18 +1,42 @@
 package hu.mokegyesulet.it.dunestrat.backend.entities
 
 import hu.mokegyesulet.it.dunestrat.model.Desert
+import hu.mokegyesulet.it.dunestrat.model.DesertField
+import hu.mokegyesulet.it.dunestrat.model.Weapon
+import kotlinx.serialization.EncodeDefault
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 
 @Serializable
 class DesertDatabaseEntity(
-    val id: Int?,
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val id: Int = -1,
     val name: String,
-    val json: String,
+    val fieldJsons: List<String>,
 ) {
     fun toDesert(): Desert {
-        val desert = Json.decodeFromString<Desert>(json)
-        return desert.copy(id = id, name = name)
+        val fieldsWithIdList = fieldJsons.map { Json.decodeFromString<DesertFieldWithIdList>(it) }
+
+        val fields = mutableMapOf<String, DesertField>()
+        fieldsWithIdList.forEach { fieldWithIdList ->
+            fields[fieldWithIdList.id] = fieldWithIdList.toDesertField()
+        }
+
+        fieldsWithIdList.forEach { fieldWithIdList ->
+            val field = fields[fieldWithIdList.id]!!
+            fieldWithIdList.neighboursId.forEach { neighbourId ->
+                val neighbourField = fields[neighbourId]
+                if (neighbourField != null) {
+                    field.neighbours.add(neighbourField)
+                }
+            }
+        }
+
+        return Desert(
+            id = id,
+            name = name,
+            fields = fields.values.toSet(),
+        )
     }
 
     companion object {
@@ -23,5 +47,33 @@ class DesertDatabaseEntity(
 fun Desert.toDatabaseEntity() = DesertDatabaseEntity(
     id = id,
     name = name,
-    json = Json.encodeToString(this),
+    fieldJsons = fields.map { Json.encodeToString(it.toDesertFieldWithIdList()) },
+)
+
+@Serializable
+class DesertFieldWithIdList(
+    val id: String,
+    val water: Int,
+    val spice: Int,
+    val effectiveWeapon: Weapon,
+    val neighboursId: List<String>,
+    val startingField: Boolean,
+) {
+    fun toDesertField() = DesertField(
+        id = id,
+        water = water,
+        spice = spice,
+        effectiveWeapon = effectiveWeapon,
+        neighbours = mutableSetOf(),
+        startingField = startingField,
+    )
+}
+
+fun DesertField.toDesertFieldWithIdList() = DesertFieldWithIdList(
+    id = id,
+    water = water,
+    spice = spice,
+    effectiveWeapon = effectiveWeapon,
+    neighboursId = neighbours.map { it.id },
+    startingField = startingField,
 )

@@ -9,5 +9,5 @@ data class GameStateField(
     val spice: Int,
     val effectiveWeapon: Weapon,
     var harvester: Boolean,
-    val neighbours: Set<GameStateField>,
+    val neighbours: MutableSet<GameStateField>,
 )

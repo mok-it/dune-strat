@@ -4,11 +4,8 @@ import kotlin.math.abs
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 
-@Serializable
 data class Desert(
-    @Transient
-    val id: Int? = null,
-    @Transient
+    val id: Int = -1,
     val name: String = "",
     val fields: Set<DesertField>,
 ) {
