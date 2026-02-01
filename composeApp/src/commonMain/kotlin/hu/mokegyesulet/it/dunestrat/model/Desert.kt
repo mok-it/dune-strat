@@ -321,7 +321,7 @@ data class Desert(
                                 values.first
                             },
                             spice = if (id in mountains.keys) {
-                                mountains[id]!!
+                                0
                             } else {
                                 values.second
                             },
@@ -347,10 +347,7 @@ data class Desert(
                 fields.add(desertField)
             }
 
-            val newFields = mutableSetOf<DesertField>()
-
             fields.forEach { field ->
-                val neighbours = mutableSetOf<DesertField>()
 
                 val fieldFirstCord = field.id[0].code
                 val fieldSecondCord = field.id.substring(1).toInt()
@@ -359,7 +356,7 @@ data class Desert(
 
                 val neighbourSecondCords = fieldSecondCord - 1..fieldSecondCord + 1
 
-                fields.filter { entry ->
+                val neighbours = fields.filter { entry ->
                     (entry.id[0].code in neighbourFirstCords) and
                         (entry.id.substring(1).toInt() in neighbourSecondCords) and
                         !(
@@ -374,25 +371,14 @@ data class Desert(
                                     (entry.id.substring(1).toInt() == fieldSecondCord)
                                 )
                             )
-                }.forEach { entry ->
-                    neighbours.add(entry)
                 }
 
-                newFields.add(
-                    DesertField(
-                        field.id,
-                        field.water,
-                        field.spice,
-                        field.effectiveWeapon,
-                        neighbours,
-                        field.startingField,
-                    ),
-                )
+                field.neighbours.addAll(neighbours)
             }
 
             return Desert(
                 name = "Standard 12 játékos",
-                fields = newFields,
+                fields = fields,
             )
         }
 
