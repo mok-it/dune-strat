@@ -11,7 +11,7 @@ import io.github.jan.supabase.realtime.selectAsFlow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
-object SubabaseRepository : Repository {
+object SupabaseRepository : Repository {
     val supabase = SupabaseClientProvider.client
     const val GAME_TABLE = GameDatabaseEntity.TABLE_NAME
     const val GAME_STATE_TABLE = GameStateDatabaseEntity.TABLE_NAME
