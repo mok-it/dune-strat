@@ -6,7 +6,7 @@ import kotlinx.serialization.Transient
 @Serializable
 data class PlayerStep(
     @Transient
-    val id: Int? = null,
+    val id: Int = -1,
     @Transient
     val gameStateId: Int = -1,
     val playerId: String,

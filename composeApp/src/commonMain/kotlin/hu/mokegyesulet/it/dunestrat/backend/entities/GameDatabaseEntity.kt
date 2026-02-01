@@ -2,13 +2,15 @@ package hu.mokegyesulet.it.dunestrat.backend.entities
 
 import hu.mokegyesulet.it.dunestrat.model.Game
 import hu.mokegyesulet.it.dunestrat.model.GameProgress
+import kotlinx.serialization.EncodeDefault
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 
 @Serializable
 class GameDatabaseEntity(
-    val id: Int?,
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val id: Int = -1,
     val progress: Int,
     @SerialName("desert_id")
     val desertId: Int,

@@ -7,12 +7,13 @@ import kotlinx.serialization.Transient
 @Serializable
 data class GameState(
     @Transient
-    val id: Int? = null,
+    val id: Int = -1,
     @Transient
     val gameId: Int = -1,
     @Transient
     val index: Int = -1,
-    val fields: Set<GameStateField>,
+    @Transient
+    val fields: Set<GameStateField> = setOf(),
     val players: Set<Player>,
 ) {
 
