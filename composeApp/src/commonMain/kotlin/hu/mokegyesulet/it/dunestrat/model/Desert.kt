@@ -1,8 +1,6 @@
 package hu.mokegyesulet.it.dunestrat.model
 
 import kotlin.math.abs
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.Transient
 
 data class Desert(
     val id: Int = -1,
