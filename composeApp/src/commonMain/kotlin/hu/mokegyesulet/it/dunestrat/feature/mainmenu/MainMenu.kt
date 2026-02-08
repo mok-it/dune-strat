@@ -11,6 +11,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
+import hu.mokegyesulet.it.dunestrat.util.getSimpleSvg
 
 @Composable
 fun MainMenu(
@@ -20,6 +21,7 @@ fun MainMenu(
 ) {
     val viewModel: MainMenuViewModel = viewModel { MainMenuViewModel() }
     val loggedIn by viewModel.isLoggedIn.collectAsState(initial = false)
+    val deserts by viewModel.deserts.collectAsState(initial = emptyList())
     if (loggedIn) {
         Column(
             modifier = Modifier.fillMaxSize(),
@@ -60,6 +62,17 @@ fun MainMenu(
                 onClick = viewModel::onLogin,
             ) {
                 Text(text = "Log in")
+            }
+
+            Button(
+                onClick = {
+                    val desert =
+                        deserts.find { it.id == 28 }
+                            ?: throw IllegalArgumentException("desert not found")
+                    println(getSimpleSvg(desert))
+                },
+            ) {
+                Text(text = "Get desert")
             }
         }
     }
