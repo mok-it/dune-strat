@@ -293,188 +293,193 @@ data class Desert(
                 convertCoordinateToNewSystem(it.key)
             }
 
-            val values = mapOf(
+            val oldValues = mapOf(
                 "A3" to Pair(3, 0),
                 "A7" to Pair(3, 0),
                 "B2" to Pair(7, 0),
+                "B3" to Pair(-1, 1),
                 "B4" to Pair(-1, 1),
-
                 "B5" to Pair(-1, 1),
                 "B6" to Pair(-1, 1),
+                "B7" to Pair(-1, 1),
                 "B8" to Pair(-1, 1),
-
                 "B9" to Pair(7, 0),
                 "C1" to Pair(3, 0),
+                "C2" to Pair(-1, 1),
                 "C3" to Pair(-2, 2),
-
                 "C4" to Pair(-2, 2),
                 "C5" to Pair(6, 0),
+                "C6" to Pair(6, 0),
                 "C7" to Pair(6, 0),
-
                 "C8" to Pair(-2, 2),
                 "C9" to Pair(-2, 2),
+                "C10" to Pair(-1, 1),
                 "C11" to Pair(3, 0),
-
                 "D2" to Pair(-1, 1),
                 "D3" to Pair(-2, 2),
+                "D4" to Pair(-3, 5),
                 "D5" to Pair(-3, 5),
-
                 "D6" to Pair(5, 0),
                 "D7" to Pair(5, 0),
+                "D8" to Pair(-3, 5),
                 "D9" to Pair(-3, 5),
-
                 "D10" to Pair(-2, 2),
                 "D11" to Pair(-1, 1),
+                "E2" to Pair(-1, 1),
                 "E3" to Pair(6, 0),
-
                 "E4" to Pair(-3, 5),
                 "E5" to Pair(-4, 11),
+                "E6" to Pair(-4, 11),
                 "E7" to Pair(-4, 11),
-
                 "E8" to Pair(-4, 11),
                 "E9" to Pair(-4, 11),
+                "E10" to Pair(-3, 5),
                 "E11" to Pair(6, 0),
-
                 "E12" to Pair(-1, 1),
                 "F2" to Pair(-1, 1),
+                "F3" to Pair(6, 0),
                 "F4" to Pair(5, 0),
-
                 "F5" to Pair(-4, 11),
                 "F6" to Pair(3, 0),
+                "F7" to Pair(-5, 19),
                 "F8" to Pair(-5, 19),
-
                 "F9" to Pair(3, 0),
                 "F10" to Pair(-4, 11),
+                "F11" to Pair(5, 0),
                 "F12" to Pair(6, 0),
-
                 "F13" to Pair(-1, 1),
                 "G1" to Pair(3, 0),
+                "G2" to Pair(-1, 1),
                 "G3" to Pair(6, 0),
-
                 "G4" to Pair(5, 0),
                 "G5" to Pair(-4, 11),
+                "G6" to Pair(-5, 19),
                 "G7" to Pair(-6, 29),
-
                 "G8" to Pair(-6, 29),
                 "G9" to Pair(-6, 29),
+                "G10" to Pair(-5, 19),
                 "G11" to Pair(-4, 11),
-
                 "G12" to Pair(5, 0),
                 "G13" to Pair(6, 0),
+                "G14" to Pair(-1, 1),
                 "G15" to Pair(3, 0),
-
                 "H2" to Pair(-1, 1),
                 "H3" to Pair(-2, 2),
+                "H4" to Pair(-3, 5),
                 "H5" to Pair(-4, 11),
-
                 "H6" to Pair(-5, 19),
                 "H7" to Pair(-6, 29),
+                "H8" to Pair(-7, 37),
                 "H9" to Pair(-7, 37),
-
                 "H10" to Pair(-6, 29),
                 "H11" to Pair(-5, 19),
+                "H12" to Pair(-4, 11),
                 "H13" to Pair(-3, 5),
-
                 "H14" to Pair(-2, 2),
                 "H15" to Pair(-1, 1),
+                "I2" to Pair(7, 0),
                 "I3" to Pair(-2, 2),
-
                 "I4" to Pair(-3, 5),
                 "I5" to Pair(-4, 11),
+                "I6" to Pair(3, 0),
                 "I7" to Pair(-6, 29),
-
                 "I8" to Pair(-7, 37),
                 "I9" to Pair(-8, 40),
+                "I10" to Pair(-7, 37),
                 "I11" to Pair(-6, 29),
-
                 "I12" to Pair(3, 0),
                 "I13" to Pair(-4, 11),
+                "I14" to Pair(-3, 5),
                 "I15" to Pair(-2, 2),
-
                 "I16" to Pair(7, 0),
                 "J2" to Pair(-1, 1),
+                "J3" to Pair(-2, 2),
                 "J4" to Pair(-3, 5),
-
                 "J5" to Pair(-4, 11),
                 "J6" to Pair(-5, 19),
+                "J7" to Pair(-6, 29),
                 "J8" to Pair(-7, 37),
-
                 "J9" to Pair(-7, 37),
                 "J10" to Pair(-6, 29),
+                "J11" to Pair(-5, 19),
                 "J12" to Pair(-4, 11),
-
                 "J13" to Pair(-3, 5),
                 "J14" to Pair(-2, 2),
+                "J15" to Pair(-1, 1),
                 "K1" to Pair(3, 0),
-
                 "K2" to Pair(-1, 1),
                 "K3" to Pair(6, 0),
+                "K4" to Pair(5, 0),
                 "K5" to Pair(-4, 11),
-
                 "K6" to Pair(-5, 19),
                 "K7" to Pair(-6, 29),
+                "K8" to Pair(-6, 29),
                 "K9" to Pair(-6, 29),
-
                 "K10" to Pair(-5, 19),
                 "K11" to Pair(-4, 11),
+                "K12" to Pair(5, 0),
                 "K13" to Pair(6, 0),
-
                 "K14" to Pair(-1, 1),
                 "K15" to Pair(3, 0),
+                "L2" to Pair(-1, 1),
                 "L3" to Pair(6, 0),
-
                 "L4" to Pair(5, 0),
                 "L5" to Pair(-4, 11),
+                "L6" to Pair(3, 0),
                 "L7" to Pair(-5, 19),
-
                 "L8" to Pair(-5, 19),
                 "L9" to Pair(3, 0),
+                "L10" to Pair(-4, 11),
                 "L11" to Pair(5, 0),
-
                 "L12" to Pair(6, 0),
                 "L13" to Pair(-1, 1),
+                "M2" to Pair(-1, 1),
                 "M3" to Pair(6, 0),
-
                 "M4" to Pair(-3, 5),
                 "M5" to Pair(-4, 11),
+                "M6" to Pair(-4, 11),
                 "M7" to Pair(-4, 11),
-
                 "M8" to Pair(-4, 11),
                 "M9" to Pair(-4, 11),
+                "M10" to Pair(-3, 5),
                 "M11" to Pair(6, 0),
-
                 "M12" to Pair(-1, 1),
                 "N2" to Pair(-1, 1),
+                "N3" to Pair(-2, 2),
                 "N4" to Pair(-3, 5),
-
                 "N5" to Pair(-3, 5),
                 "N6" to Pair(5, 0),
+                "N7" to Pair(5, 0),
                 "N8" to Pair(-3, 5),
-
                 "N9" to Pair(-3, 5),
                 "N10" to Pair(-2, 2),
+                "N11" to Pair(-1, 1),
                 "O1" to Pair(3, 0),
-
                 "O2" to Pair(-1, 1),
                 "O3" to Pair(-2, 2),
+                "O4" to Pair(-2, 2),
                 "O5" to Pair(6, 0),
-
                 "O6" to Pair(6, 0),
                 "O7" to Pair(6, 0),
+                "O8" to Pair(-2, 2),
                 "O9" to Pair(-2, 2),
-
                 "O10" to Pair(-1, 1),
                 "O11" to Pair(3, 0),
+                "P2" to Pair(7, 0),
                 "P3" to Pair(-1, 1),
-
                 "P4" to Pair(-1, 1),
                 "P5" to Pair(-1, 1),
+                "P6" to Pair(-1, 1),
                 "P7" to Pair(-1, 1),
-
                 "P8" to Pair(-1, 1),
                 "P9" to Pair(7, 0),
+                "Q3" to Pair(3, 0),
                 "Q7" to Pair(3, 0),
             )
+
+            val values = oldValues.mapKeys {
+                convertCoordinateToNewSystem(it.key)
+            }
 
 
             effectiveWeaponsById.forEach { (id, weapon) ->
