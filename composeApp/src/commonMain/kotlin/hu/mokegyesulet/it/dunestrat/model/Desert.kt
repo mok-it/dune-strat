@@ -299,11 +299,9 @@ data class Desert(
 
             for (x in -size..size) {
                 for (y in -size * 2..size * 2) {
-                    val distance = abs(x) + abs(y)
-                    if (distance % 2 == 0 && distance / 2 <= size) {
-                        val stepsToReach =
-                            abs(x) + if (abs(y) > abs(x)) (abs(y) - abs(x)) / 2 else 0
-
+                    val stepsToReach =
+                        abs(x) + if (abs(y) > abs(x)) (abs(y) - abs(x)) / 2 else 0
+                    if (stepsToReach <= size) {
                         val values = desertValuesByDistance[stepsToReach] ?: Pair(0, 0)
 
                         val id = "${'B' + x + size}${(y + (size * 2) + 2) / 2}"
