@@ -27,10 +27,8 @@ class DesertDatabaseEntity(
         fieldsWithIdList.forEach { fieldWithIdList ->
             val field = fields[fieldWithIdList.id]!!
             fieldWithIdList.neighboursId.forEach { neighbourId ->
-                val neighbourField = fields[neighbourId]
-                if (neighbourField != null) {
-                    field.neighbours.add(neighbourField)
-                }
+                val neighbourField = fields[neighbourId]!!
+                field.neighbours.add(neighbourField)
             }
         }
 
