@@ -1,5 +1,6 @@
 package hu.mokegyesulet.it.dunestrat.util
 
+import hu.mokegyesulet.it.dunestrat.backend.SupabaseRepository
 import hu.mokegyesulet.it.dunestrat.model.Desert
 
 fun hexDrawer(unitVector: UnitVector): String {
@@ -53,8 +54,11 @@ fun getSimpleSvg(desert: Desert): String {
     return svgOpening + fieldSvgs.joinToString(separator = "") { it } + svgEnd
 }
 
-fun main() {
-    val desert = Desert.create12PlayerHexagon()
+suspend fun main() {
+    val deserts = mutableListOf<Desert>()
+
+    SupabaseRepository.getDeserts().collect { deserts.addAll(it) }
+    val desert = deserts.find { it.id == 28 } ?: throw IllegalStateException("Desert not found")
     val svgString = getSimpleSvg(desert)
     println(svgString)
 }
