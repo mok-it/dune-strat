@@ -22,20 +22,35 @@ fun getTransformVector(unitVector: UnitVector): AbsoluteVector {
 }
 
 fun getSimpleSvg(desert: Desert): String {
-    val builder = StringBuilder()
-    builder.append("<svg xmlns=\"http://www.w3.org/2000/svg\">\n")
+    var minX = 0.0
+    var maxX = 0.0
+    var minY = 0.0
+    var maxY = 0.0
 
-    for (field in desert.fields) {
+    val fieldSvgs = desert.fields.map { field ->
         val unitVector = UnitVector.fromDisplayCoordinate(field.id)
         val transformVector = getTransformVector(unitVector)
-        builder.append(hexDrawer(unitVector) + "\n")
-        builder.append(
-            "<text x=\"${transformVector.x + 50}\" y=\"${transformVector.y + 50}\">${field.id}</text>\n",
-        )
+
+        minX = minOf(minX, transformVector.x)
+        maxX = maxOf(maxX, transformVector.x)
+        minY = minOf(minY, transformVector.y)
+        maxY = maxOf(maxY, transformVector.y)
+
+        val hex = hexDrawer(unitVector) + "\n"
+        val text = "<text x=\"${transformVector.x + 50}\" " +
+            "y=\"${transformVector.y + 50}\">${field.id}</text>\n"
+        hex + text
     }
 
-    builder.append("</svg>")
-    return builder.toString()
+    val width = maxX - minX + 300
+    val height = maxY - minY + 300
+
+    val viewbox = "viewbox = \"${minX - 100} ${minY - 100} $width $height\""
+
+    val svgOpening = "<svg width=\"$width\" height=\"$height\" $viewbox " +
+        "xmlns=\"http://www.w3.org/2000/svg\">\n"
+    val svgEnd = "</svg>"
+    return svgOpening + fieldSvgs.joinToString(separator = "") { it } + svgEnd
 }
 
 fun main() {
