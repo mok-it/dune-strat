@@ -481,9 +481,8 @@ data class Desert(
                 convertCoordinateToNewSystem(it.key)
             }
 
-
             effectiveWeaponsById.forEach { (id, weapon) ->
-                if( id in bases ){
+                if (id in bases) {
                     fields.add(
                         DesertField(
                             id = id,
@@ -492,9 +491,9 @@ data class Desert(
                             effectiveWeapon = weapon,
                             neighbours = mutableSetOf(),
                             startingField = true,
-                        )
+                        ),
                     )
-                } else if( id in mountains.keys ){
+                } else if (id in mountains.keys) {
                     fields.add(
                         DesertField(
                             id = id,
@@ -503,10 +502,9 @@ data class Desert(
                             effectiveWeapon = weapon,
                             neighbours = mutableSetOf(),
                             startingField = false,
-                        )
+                        ),
                     )
                 } else {
-
                     val (water, spice) = values[id] ?: Pair(-1, 1)
 
                     fields.add(
@@ -516,8 +514,8 @@ data class Desert(
                             spice = spice,
                             effectiveWeapon = weapon,
                             neighbours = mutableSetOf(),
-                            startingField = false
-                        )
+                            startingField = false,
+                        ),
                     )
                 }
             }
