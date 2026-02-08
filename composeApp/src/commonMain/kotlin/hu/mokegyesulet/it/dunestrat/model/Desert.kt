@@ -390,5 +390,94 @@ data class Desert(
             val newNumber = number + shift
             return "$letter$newNumber"
         }
+
+        fun create6PlayerTestHexagon(): Desert {
+            val outer: (
+                String,
+            ) -> DesertField = { id ->
+                DesertField(
+                    id,
+                    5,
+                    0,
+                    Weapon.LASGUN,
+                    mutableSetOf(),
+                    true,
+                )
+            }
+            val inner: (
+                String,
+            ) -> DesertField = { id ->
+                DesertField(
+                    id,
+                    -2,
+                    5,
+                    Weapon.PISTOL,
+                    mutableSetOf(),
+                    false,
+                )
+            }
+            val fields = mutableSetOf<DesertField>()
+            val center = DesertField(
+                "C3",
+                -5,
+                15,
+                Weapon.CRYSKNIFE,
+                mutableSetOf(),
+                false,
+            )
+            fields.add(center)
+            listOf("B2", "C2", "D3", "D4", "C4", "B3").forEach { id ->
+                val f = inner(id)
+                val prev = fields.last()
+                prev.neighbours.add(f)
+                f.neighbours.add(prev)
+                fields.add(f)
+                f.neighbours.add(center)
+                center.neighbours.add(f)
+                if (id == "B3") {
+                    val b2 = fields.first { it.id == "B2" }
+                    f.neighbours.add(b2)
+                    b2.neighbours.add(f)
+                }
+            }
+            val b2 = fields.first { it.id == "B2" }
+            val c2 = fields.first { it.id == "C2" }
+            val d3 = fields.first { it.id == "D3" }
+            val d4 = fields.first { it.id == "D4" }
+            val c4 = fields.first { it.id == "C4" }
+            val b3 = fields.first { it.id == "B3" }
+            val b1 = outer("B1")
+            val d2 = outer("D2")
+            val e4 = outer("E4")
+            val d5 = outer("D5")
+            val b4 = outer("B4")
+            val a2 = outer("A2")
+            fields.addAll(listOf(b1, d2, e4, d5, b4, a2))
+            b1.neighbours.add(b2)
+            b2.neighbours.add(b1)
+            b1.neighbours.add(c2)
+            c2.neighbours.add(b1)
+            d2.neighbours.add(c2)
+            c2.neighbours.add(d2)
+            d2.neighbours.add(d3)
+            d3.neighbours.add(d2)
+            e4.neighbours.add(d3)
+            d3.neighbours.add(e4)
+            e4.neighbours.add(d4)
+            d4.neighbours.add(e4)
+            d5.neighbours.add(d4)
+            d4.neighbours.add(d5)
+            d5.neighbours.add(c4)
+            c4.neighbours.add(d5)
+            b4.neighbours.add(c4)
+            c4.neighbours.add(b4)
+            b4.neighbours.add(b3)
+            b3.neighbours.add(b4)
+            a2.neighbours.add(b3)
+            b3.neighbours.add(a2)
+            a2.neighbours.add(b2)
+            b2.neighbours.add(a2)
+            return Desert(fields = fields, name = "Teszt (6 játékos)")
+        }
     }
 }
