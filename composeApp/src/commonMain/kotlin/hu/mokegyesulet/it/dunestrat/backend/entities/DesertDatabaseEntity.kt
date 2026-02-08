@@ -4,6 +4,7 @@ import hu.mokegyesulet.it.dunestrat.model.Desert
 import hu.mokegyesulet.it.dunestrat.model.DesertField
 import hu.mokegyesulet.it.dunestrat.model.Weapon
 import kotlinx.serialization.EncodeDefault
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 
@@ -12,6 +13,7 @@ class DesertDatabaseEntity(
     @EncodeDefault(EncodeDefault.Mode.NEVER)
     val id: Int = -1,
     val name: String,
+    @SerialName("field_jsons")
     val fieldJsons: List<String>,
 ) {
     fun toDesert(): Desert {
