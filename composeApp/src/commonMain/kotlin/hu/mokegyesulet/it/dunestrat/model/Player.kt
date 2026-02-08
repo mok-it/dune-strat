@@ -3,6 +3,7 @@ package hu.mokegyesulet.it.dunestrat.model
 import kotlin.collections.forEach
 import kotlin.math.pow
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 
 @Serializable
 data class Player(
@@ -12,7 +13,8 @@ data class Player(
     var harvestersPurchased: Int,
     private val weapons: MutableMap<Weapon, Int>,
     val ownedFields: MutableSet<GameStateField>,
-    var inDebt: Boolean,
+    @Transient
+    var inDebt: Boolean = false,
 ) {
     fun getWeaponCount(weapon: Weapon): Int = weapons[weapon] ?: 0
 

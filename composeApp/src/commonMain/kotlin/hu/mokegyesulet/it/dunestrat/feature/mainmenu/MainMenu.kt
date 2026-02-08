@@ -16,6 +16,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 fun MainMenu(
     onPlaceholder1: () -> Unit,
     onPlaceholder2: () -> Unit,
+    onTestData: () -> Unit,
 ) {
     val viewModel: MainMenuViewModel = viewModel { MainMenuViewModel() }
     val loggedIn by viewModel.isLoggedIn.collectAsState(initial = false)
@@ -35,6 +36,12 @@ fun MainMenu(
                 onClick = onPlaceholder2,
             ) {
                 Text(text = "Placeholder 2")
+            }
+
+            Button(
+                onClick = onTestData,
+            ) {
+                Text(text = "Test data")
             }
 
             Button(
