@@ -520,6 +520,45 @@ data class Desert(
                 }
             }
 
+            effectiveWeaponsById.forEach { (id, weapon) ->
+                if (id in bases) {
+                    fields.add(
+                        DesertField(
+                            id = id,
+                            water = 4,
+                            spice = 0,
+                            effectiveWeapon = weapon,
+                            neighbours = mutableSetOf(),
+                            startingField = true,
+                        ),
+                    )
+                } else if (id in mountains.keys) {
+                    fields.add(
+                        DesertField(
+                            id = id,
+                            water = mountains[id]!!,
+                            spice = 0,
+                            effectiveWeapon = weapon,
+                            neighbours = mutableSetOf(),
+                            startingField = false,
+                        ),
+                    )
+                } else {
+                    val (water, spice) = values[id] ?: Pair(-1, 1)
+
+                    fields.add(
+                        DesertField(
+                            id = id,
+                            water = water,
+                            spice = spice,
+                            effectiveWeapon = weapon,
+                            neighbours = mutableSetOf(),
+                            startingField = false,
+                        ),
+                    )
+                }
+            }
+
             fields.forEach { field ->
 
                 val fieldFirstCord = field.id[0].code
