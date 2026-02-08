@@ -1,7 +1,7 @@
 package hu.mokegyesulet.it.dunestrat.util
 
-import hu.mokegyesulet.it.dunestrat.backend.SupabaseRepository
 import hu.mokegyesulet.it.dunestrat.model.Desert
+import hu.mokegyesulet.it.dunestrat.model.DesertField
 
 fun hexDrawer(unitVector: UnitVector): String {
     val transformVector = getTransformVector(unitVector)
@@ -38,8 +38,8 @@ fun getSimpleSvg(desert: Desert): String {
         maxY = maxOf(maxY, transformVector.y)
 
         val hex = hexDrawer(unitVector) + "\n"
-        val text = "<text x=\"${transformVector.x + 50}\" " +
-            "y=\"${transformVector.y + 50}\">${field.id}</text>\n"
+
+        val text = getFieldText(field, transformVector)
         hex + text
     }
 
@@ -54,11 +54,16 @@ fun getSimpleSvg(desert: Desert): String {
     return svgOpening + fieldSvgs.joinToString(separator = "") { it } + svgEnd
 }
 
-suspend fun main() {
-    val deserts = mutableListOf<Desert>()
+fun getFieldText(field: DesertField, transformVector: AbsoluteVector): String {
+    val textStart = "<text x=\"${transformVector.x + 50}\" y=\"${transformVector.y + 50}\">"
+    val textId = field.id
+    val textValues = "(${field.water}, ${field.spice})"
+    val textEnd = "</text>\n"
+    return textStart + textId + textValues + textEnd
+}
 
-    SupabaseRepository.getDeserts().collect { deserts.addAll(it) }
-    val desert = deserts.find { it.id == 28 } ?: throw IllegalStateException("Desert not found")
+fun main() {
+    val desert = Desert.create12PlayerHexagon()
     val svgString = getSimpleSvg(desert)
     println(svgString)
 }

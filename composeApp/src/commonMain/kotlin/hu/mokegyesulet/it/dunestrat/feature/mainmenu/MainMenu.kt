@@ -11,6 +11,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
+import hu.mokegyesulet.it.dunestrat.model.Desert
 import hu.mokegyesulet.it.dunestrat.util.getSimpleSvg
 
 @Composable
@@ -66,9 +67,7 @@ fun MainMenu(
 
             Button(
                 onClick = {
-                    val desert =
-                        deserts.find { it.id == 28 }
-                            ?: throw IllegalArgumentException("desert not found")
+                    val desert = Desert.create12PlayerHexagon()
                     println(getSimpleSvg(desert))
                 },
             ) {
