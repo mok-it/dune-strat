@@ -1,7 +1,5 @@
 package hu.mokegyesulet.it.dunestrat.model
 
-import kotlin.math.abs
-
 data class Desert(
     val id: Int = -1,
     val name: String = "",
@@ -295,49 +293,228 @@ data class Desert(
                 convertCoordinateToNewSystem(it.key)
             }
 
-            val size = 7
+            val values = mapOf(
+                "A3" to Pair(3, 0),
+                "A7" to Pair(3, 0),
+                "B2" to Pair(7, 0),
+                "B4" to Pair(-1, 1),
 
-            for (x in -size..size) {
-                for (y in -size * 2..size * 2) {
-                    val stepsToReach =
-                        abs(x) + if (abs(y) > abs(x)) (abs(y) - abs(x)) / 2 else 0
-                    if (stepsToReach <= size) {
-                        val values = desertValuesByDistance[stepsToReach] ?: Pair(0, 0)
+                "B5" to Pair(-1, 1),
+                "B6" to Pair(-1, 1),
+                "B8" to Pair(-1, 1),
 
-                        val id = "${'B' + x + size}${(y + (size * 2) + 2) / 2}"
+                "B9" to Pair(7, 0),
+                "C1" to Pair(3, 0),
+                "C3" to Pair(-2, 2),
 
-                        val desertField = DesertField(
+                "C4" to Pair(-2, 2),
+                "C5" to Pair(6, 0),
+                "C7" to Pair(6, 0),
+
+                "C8" to Pair(-2, 2),
+                "C9" to Pair(-2, 2),
+                "C11" to Pair(3, 0),
+
+                "D2" to Pair(-1, 1),
+                "D3" to Pair(-2, 2),
+                "D5" to Pair(-3, 5),
+
+                "D6" to Pair(5, 0),
+                "D7" to Pair(5, 0),
+                "D9" to Pair(-3, 5),
+
+                "D10" to Pair(-2, 2),
+                "D11" to Pair(-1, 1),
+                "E3" to Pair(6, 0),
+
+                "E4" to Pair(-3, 5),
+                "E5" to Pair(-4, 11),
+                "E7" to Pair(-4, 11),
+
+                "E8" to Pair(-4, 11),
+                "E9" to Pair(-4, 11),
+                "E11" to Pair(6, 0),
+
+                "E12" to Pair(-1, 1),
+                "F2" to Pair(-1, 1),
+                "F4" to Pair(5, 0),
+
+                "F5" to Pair(-4, 11),
+                "F6" to Pair(3, 0),
+                "F8" to Pair(-5, 19),
+
+                "F9" to Pair(3, 0),
+                "F10" to Pair(-4, 11),
+                "F12" to Pair(6, 0),
+
+                "F13" to Pair(-1, 1),
+                "G1" to Pair(3, 0),
+                "G3" to Pair(6, 0),
+
+                "G4" to Pair(5, 0),
+                "G5" to Pair(-4, 11),
+                "G7" to Pair(-6, 29),
+
+                "G8" to Pair(-6, 29),
+                "G9" to Pair(-6, 29),
+                "G11" to Pair(-4, 11),
+
+                "G12" to Pair(5, 0),
+                "G13" to Pair(6, 0),
+                "G15" to Pair(3, 0),
+
+                "H2" to Pair(-1, 1),
+                "H3" to Pair(-2, 2),
+                "H5" to Pair(-4, 11),
+
+                "H6" to Pair(-5, 19),
+                "H7" to Pair(-6, 29),
+                "H9" to Pair(-7, 37),
+
+                "H10" to Pair(-6, 29),
+                "H11" to Pair(-5, 19),
+                "H13" to Pair(-3, 5),
+
+                "H14" to Pair(-2, 2),
+                "H15" to Pair(-1, 1),
+                "I3" to Pair(-2, 2),
+
+                "I4" to Pair(-3, 5),
+                "I5" to Pair(-4, 11),
+                "I7" to Pair(-6, 29),
+
+                "I8" to Pair(-7, 37),
+                "I9" to Pair(-8, 40),
+                "I11" to Pair(-6, 29),
+
+                "I12" to Pair(3, 0),
+                "I13" to Pair(-4, 11),
+                "I15" to Pair(-2, 2),
+
+                "I16" to Pair(7, 0),
+                "J2" to Pair(-1, 1),
+                "J4" to Pair(-3, 5),
+
+                "J5" to Pair(-4, 11),
+                "J6" to Pair(-5, 19),
+                "J8" to Pair(-7, 37),
+
+                "J9" to Pair(-7, 37),
+                "J10" to Pair(-6, 29),
+                "J12" to Pair(-4, 11),
+
+                "J13" to Pair(-3, 5),
+                "J14" to Pair(-2, 2),
+                "K1" to Pair(3, 0),
+
+                "K2" to Pair(-1, 1),
+                "K3" to Pair(6, 0),
+                "K5" to Pair(-4, 11),
+
+                "K6" to Pair(-5, 19),
+                "K7" to Pair(-6, 29),
+                "K9" to Pair(-6, 29),
+
+                "K10" to Pair(-5, 19),
+                "K11" to Pair(-4, 11),
+                "K13" to Pair(6, 0),
+
+                "K14" to Pair(-1, 1),
+                "K15" to Pair(3, 0),
+                "L3" to Pair(6, 0),
+
+                "L4" to Pair(5, 0),
+                "L5" to Pair(-4, 11),
+                "L7" to Pair(-5, 19),
+
+                "L8" to Pair(-5, 19),
+                "L9" to Pair(3, 0),
+                "L11" to Pair(5, 0),
+
+                "L12" to Pair(6, 0),
+                "L13" to Pair(-1, 1),
+                "M3" to Pair(6, 0),
+
+                "M4" to Pair(-3, 5),
+                "M5" to Pair(-4, 11),
+                "M7" to Pair(-4, 11),
+
+                "M8" to Pair(-4, 11),
+                "M9" to Pair(-4, 11),
+                "M11" to Pair(6, 0),
+
+                "M12" to Pair(-1, 1),
+                "N2" to Pair(-1, 1),
+                "N4" to Pair(-3, 5),
+
+                "N5" to Pair(-3, 5),
+                "N6" to Pair(5, 0),
+                "N8" to Pair(-3, 5),
+
+                "N9" to Pair(-3, 5),
+                "N10" to Pair(-2, 2),
+                "O1" to Pair(3, 0),
+
+                "O2" to Pair(-1, 1),
+                "O3" to Pair(-2, 2),
+                "O5" to Pair(6, 0),
+
+                "O6" to Pair(6, 0),
+                "O7" to Pair(6, 0),
+                "O9" to Pair(-2, 2),
+
+                "O10" to Pair(-1, 1),
+                "O11" to Pair(3, 0),
+                "P3" to Pair(-1, 1),
+
+                "P4" to Pair(-1, 1),
+                "P5" to Pair(-1, 1),
+                "P7" to Pair(-1, 1),
+
+                "P8" to Pair(-1, 1),
+                "P9" to Pair(7, 0),
+                "Q7" to Pair(3, 0),
+            )
+
+
+            effectiveWeaponsById.forEach { (id, weapon) ->
+                if( id in bases ){
+                    fields.add(
+                        DesertField(
                             id = id,
-                            water = if (id in mountains.keys) {
-                                mountains[id]!!
-                            } else {
-                                values.first
-                            },
-                            spice = if (id in mountains.keys) {
-                                0
-                            } else {
-                                values.second
-                            },
-                            effectiveWeapon = effectiveWeaponsById[id] ?: Weapon.LEGION,
+                            water = 4,
+                            spice = 0,
+                            effectiveWeapon = weapon,
                             neighbours = mutableSetOf(),
-                            startingField = id in bases,
+                            startingField = true,
                         )
+                    )
+                } else if( id in mountains.keys ){
+                    fields.add(
+                        DesertField(
+                            id = id,
+                            water = mountains[id]!!,
+                            spice = 0,
+                            effectiveWeapon = weapon,
+                            neighbours = mutableSetOf(),
+                            startingField = false,
+                        )
+                    )
+                } else {
 
-                        fields.add(desertField)
-                    }
+                    val (water, spice) = values[id] ?: Pair(-1, 1)
+
+                    fields.add(
+                        DesertField(
+                            id = id,
+                            water = water,
+                            spice = spice,
+                            effectiveWeapon = weapon,
+                            neighbours = mutableSetOf(),
+                            startingField = false
+                        )
+                    )
                 }
-            }
-
-            bases.forEach { id ->
-                val desertField = DesertField(
-                    id = id,
-                    water = 4,
-                    spice = 0,
-                    effectiveWeapon = effectiveWeaponsById[id]!!,
-                    neighbours = mutableSetOf(),
-                    startingField = true,
-                )
-                fields.add(desertField)
             }
 
             fields.forEach { field ->
