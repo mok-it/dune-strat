@@ -6,6 +6,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import hu.mokegyesulet.it.dunestrat.feature.MainMenu
+import hu.mokegyesulet.it.dunestrat.feature.playerlogin.PlayerLoginScreen
 
 @Composable
 fun NavGraph(navController: NavHostController = rememberNavController()) {
@@ -18,6 +19,9 @@ fun NavGraph(navController: NavHostController = rememberNavController()) {
                 onPlaceholder1 = {},
                 onPlaceholder2 = {},
             )
+        }
+        composable(Screen.LoginScreen.route) {
+            PlayerLoginScreen()
         }
     }
 }
