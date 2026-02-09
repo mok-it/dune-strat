@@ -12,4 +12,7 @@ sealed class Screen {
 
     @Serializable
     data object InitScreen : Screen()
+
+    @Serializable
+    data object PlayerStepInput : Screen()
 }
