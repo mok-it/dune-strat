@@ -14,7 +14,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Composable
 fun MainMenu(
-    onPlaceholder1: () -> Unit,
+    onPlayerStepInput: () -> Unit,
     onPlaceholder2: () -> Unit,
     onTestData: () -> Unit,
 ) {
@@ -27,9 +27,9 @@ fun MainMenu(
             verticalArrangement = Arrangement.SpaceEvenly,
         ) {
             Button(
-                onClick = onPlaceholder1,
+                onClick = onPlayerStepInput,
             ) {
-                Text(text = "Placeholder 1")
+                Text(text = "Player step input")
             }
 
             Button(
