@@ -12,16 +12,16 @@ import hu.mokegyesulet.it.dunestrat.feature.testdata.TestDataScreen
 fun NavGraph(navController: NavHostController = rememberNavController()) {
     NavHost(
         navController = navController,
-        startDestination = Screen.MainMenu.route,
+        startDestination = Screen.MainMenu,
     ) {
-        composable(Screen.MainMenu.route) {
+        composable<Screen.MainMenu> {
             MainMenu(
                 onPlaceholder1 = {},
                 onPlaceholder2 = {},
-                onTestData = { navController.navigate(Screen.TestData.route) },
+                onTestData = { navController.navigate(Screen.TestData) },
             )
         }
 
-        composable(Screen.TestData.route) { TestDataScreen() }
+        composable<Screen.TestData> { TestDataScreen() }
     }
 }
