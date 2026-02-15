@@ -7,6 +7,8 @@ import hu.mokegyesulet.it.dunestrat.model.GameState
 import hu.mokegyesulet.it.dunestrat.model.PlayerStep
 import io.github.jan.supabase.annotations.SupabaseExperimental
 import io.github.jan.supabase.postgrest.from
+import io.github.jan.supabase.postgrest.query.filter.FilterOperation
+import io.github.jan.supabase.postgrest.query.filter.FilterOperator
 import io.github.jan.supabase.realtime.selectAsFlow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -34,6 +36,16 @@ object SupabaseRepository : Repository {
             list.map { it.toGameState() }
         }
 
+    @OptIn(SupabaseExperimental::class)
+    override fun getLatestGameStateByGameId(gameId: String): Flow<GameState> =
+        supabase.from(GAME_STATE_TABLE).selectAsFlow(
+            GameStateDatabaseEntity::id,
+            filter = FilterOperation("game_id", FilterOperator.EQ, gameId),
+        ).map { list ->
+            list.map { it.toGameState() }.maxByOrNull { it.index }
+                ?: throw IllegalStateException("No game state found for game id: $gameId")
+        }
+
     override suspend fun saveGameState(gameState: GameState) {
         supabase.from(GAME_STATE_TABLE).insert(gameState.toDatabaseEntry())
     }
@@ -41,6 +53,15 @@ object SupabaseRepository : Repository {
     @OptIn(SupabaseExperimental::class)
     override fun getPlayerSteps(): Flow<List<PlayerStep>> =
         supabase.from(STEP_TABLE).selectAsFlow(PlayerStepDatabaseEntity::id).map { list ->
+            list.map { it.toPlayerStep() }
+        }
+
+    @OptIn(SupabaseExperimental::class)
+    override fun getPlayerStepsByGameStateId(gameStateId: String): Flow<List<PlayerStep>> =
+        supabase.from(STEP_TABLE).selectAsFlow(
+            PlayerStepDatabaseEntity::id,
+            filter = FilterOperation("game_state_id", FilterOperator.EQ, gameStateId),
+        ).map { list ->
             list.map { it.toPlayerStep() }
         }
 
