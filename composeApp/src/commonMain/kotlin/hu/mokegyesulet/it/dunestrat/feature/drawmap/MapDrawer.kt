@@ -36,8 +36,12 @@ object MapDrawer {
         fieldId: String,
         offset: Vector2D,
     ): String {
-        val textStart = "<text x=\"${offset.x}\" y=\"${offset.y}\">"
-        return "$textStart$fieldId</text>\n"
+        val center =
+            ((hexagonVertices[4] + hexagonVertices[5]) / 2) + Vector2D(0.0, 20.0) + offset
+        val position = "x=\"${center.x}\" y=\"${center.y}\""
+        val font = "font-size=\"20\" font-family=\"Times New Roman\""
+        val align = "dominant-baseline=\"middle\" text-anchor=\"middle\""
+        return "<text $position $align $font>$fieldId</text>\n"
     }
 
     private fun polygonSvgFromPoints(points: List<Vector2D>): String {
