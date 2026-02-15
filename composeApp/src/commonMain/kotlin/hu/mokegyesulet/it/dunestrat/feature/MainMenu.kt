@@ -9,12 +9,15 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import hu.mokegyesulet.it.dunestrat.ui.customShape
+
 
 @Composable
 fun MainMenu(
     onPlaceholder1: () -> Unit,
     onPlaceholder2: () -> Unit,
 ) {
+
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -22,9 +25,11 @@ fun MainMenu(
     ) {
         Button(
             onClick = onPlaceholder1,
+            shape = customShape,
         ) {
             Text(text = "Placeholder 1",
-                style = MaterialTheme.typography.titleLarge)
+                style = MaterialTheme.typography.titleLarge,
+                )
         }
 
         Button(
