@@ -14,6 +14,9 @@ data class Vector2D(
 
     operator fun minus(other: Vector2D): Vector2D = Vector2D(x - other.x, y - other.y)
 
+    operator fun div(scalar: Double): Vector2D = this * (1 / scalar)
+    operator fun div(scalar: Int): Vector2D = this / scalar.toDouble()
+
     fun rotate(angle: Double): Vector2D {
         val cosAngle = cos(angle)
         val sinAngle = sin(angle)
