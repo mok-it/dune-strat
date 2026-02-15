@@ -11,8 +11,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
-import hu.mokegyesulet.it.dunestrat.model.Desert
-import hu.mokegyesulet.it.dunestrat.util.getSimpleSvg
 
 @Composable
 fun MainMenu(
@@ -63,15 +61,6 @@ fun MainMenu(
                 onClick = viewModel::onLogin,
             ) {
                 Text(text = "Log in")
-            }
-
-            Button(
-                onClick = {
-                    val desert = Desert.create12PlayerHexagon()
-                    println(getSimpleSvg(desert))
-                },
-            ) {
-                Text(text = "Get desert")
             }
         }
     }
