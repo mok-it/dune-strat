@@ -1,10 +1,9 @@
 package hu.mokegyesulet.it.dunestrat.ui
 
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.lightColorScheme
 import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
-
 
 private val LightColors = lightColorScheme(
     primary = light_primary,
@@ -37,7 +36,6 @@ private val LightColors = lightColorScheme(
     outlineVariant = light_outlineVariant,
     scrim = light_scrim,
 )
-
 
 private val DarkColors = darkColorScheme(
     primary = dark_primary,
@@ -73,8 +71,10 @@ private val DarkColors = darkColorScheme(
 
 @Composable
 fun AppTheme(
-    useDarkTheme: Boolean = false, //isSystemInDarkTheme()
-    content: @Composable() () -> Unit
+    useDarkTheme: Boolean = false, // isSystemInDarkTheme()
+    content:
+    @Composable()
+    () -> Unit,
 ) {
     val colors = if (!useDarkTheme) {
         LightColors
@@ -83,9 +83,9 @@ fun AppTheme(
     }
 
     MaterialTheme(
+        typography = MetropolisTypography(),
         colorScheme = colors,
         content = content,
-        shapes = shapes
+        shapes = shapes,
     )
 }
-

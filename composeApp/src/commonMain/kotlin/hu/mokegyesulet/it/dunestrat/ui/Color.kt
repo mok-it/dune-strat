@@ -19,6 +19,7 @@ val light_errorContainer = Color(0xFFFFDAD6)
 val light_onError = Color(0xFFFFFFFF)
 val light_onErrorContainer = Color(0xFF410002)
 val light_background = Color(0xffebb000)
+val light_base = Color(0xAAFFF88B) // minden mögött lévő háttér színe
 val light_onBackground = Color(0xFF1F1B16)
 val light_surface = Color(0xFFFFFBFF)
 val light_onSurface = Color(0xFF1F1B16)
@@ -50,6 +51,7 @@ val dark_errorContainer = Color(0xFF93000A)
 val dark_onError = Color(0xFF690005)
 val dark_onErrorContainer = Color(0xFFFFDAD6)
 val dark_background = Color(0xebd38f55)
+val dark_base = Color(0xC6C78E05) // minden mögött lévő háttér színe
 val dark_onBackground = Color(0xFFEAE1D9)
 val dark_surface = Color(0xFF1F1B16)
 val dark_onSurface = Color(0xFFEAE1D9)
@@ -63,6 +65,3 @@ val dark_shadow = Color(0xFF000000)
 val dark_surfaceTint = Color(0xFFFFB951)
 val dark_outlineVariant = Color(0xFF4F4539)
 val dark_scrim = Color(0xFF000000)
-
-
-val seed = Color(0xFF825500)
