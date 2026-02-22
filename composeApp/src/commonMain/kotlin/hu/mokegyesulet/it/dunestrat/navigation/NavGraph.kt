@@ -37,7 +37,7 @@ fun NavGraph(navController: NavHostController = rememberNavController()) {
         }
 
         composable<Screen.PlayerStepInput> {
-            PlayerStepInputScreen()
+            PlayerStepInputScreen(0)
         }
     }
 }
