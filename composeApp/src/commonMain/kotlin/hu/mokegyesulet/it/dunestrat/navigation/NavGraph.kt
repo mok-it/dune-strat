@@ -22,9 +22,8 @@ fun NavGraph(
     ) {
         composable<Screen.MainMenu> {
             MainMenu(
-                onPlayerStepInput = { navController.navigate(Screen.PlayerStepInput(32)) },
-                onPlaceholder2 = {},
-                onTestData = { navController.navigate(Screen.TestData) },
+                onInputMoves = {},
+                onStat = {},
             )
         }
 

@@ -1,66 +1,148 @@
 package hu.mokegyesulet.it.dunestrat.feature.mainmenu
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.Button
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import dune_strat.composeapp.generated.resources.Res
+import dune_strat.composeapp.generated.resources.grid
+import org.jetbrains.compose.resources.painterResource
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainMenu(
-    onPlayerStepInput: () -> Unit,
-    onPlaceholder2: () -> Unit,
-    onTestData: () -> Unit,
+    onInputMoves: () -> Unit,
+    onStat: () -> Unit,
 ) {
-    val viewModel: MainMenuViewModel = viewModel { MainMenuViewModel() }
-    val loggedIn by viewModel.isLoggedIn.collectAsState(initial = false)
-    val deserts by viewModel.deserts.collectAsState(initial = emptyList())
-    if (loggedIn) {
+    val viewModel = viewModel { MainMenuViewModel() }
+    val gameCount by viewModel.gameCount
+    val games by viewModel.games.collectAsState(emptyList())
+    var showMenu by remember { mutableStateOf(false) }
+    var isExpanded by remember { mutableStateOf(false) }
+    var gameOpened by remember { mutableStateOf("") }
+    Row {
         Column(
-            modifier = Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.SpaceEvenly,
+            Modifier.padding(10.dp),
         ) {
             Button(
-                onClick = onPlayerStepInput,
-            ) {
-                Text(text = "Player step input")
-            }
+                onClick = { viewModel.onEvent(MainMenuViewModel.Event.CreateGame) },
+                modifier = Modifier.width(240.dp)
+                    .height(60.dp),
 
-            Button(
-                onClick = {},
             ) {
-                Text(text = "Placeholder 2")
+                Text(text = "Új játék")
             }
+            Text(text = "Létrehozott játékok száma: $gameCount")
+            //  Text(text = "Adatok: ${SupabaseRepository.getGames()}")
 
-            Button(
-                onClick = onTestData,
+            ExposedDropdownMenuBox(
+                expanded = isExpanded,
+                onExpandedChange = { isExpanded = it },
             ) {
-                Text(text = "Test data")
-            }
+                TextField(
+                    label = { Text("Játék kiválasztása") },
+                    value = gameOpened,
+                    onValueChange = {},
+                    readOnly = true,
+                    trailingIcon = {
+                        ExposedDropdownMenuDefaults.TrailingIcon(expanded = isExpanded)
+                    },
+                    colors = ExposedDropdownMenuDefaults.textFieldColors(),
+                    modifier = Modifier.menuAnchor(),
 
-            Button(
-                onClick = viewModel::onLogout,
-            ) {
-                Text(text = "Log out")
+                )
+                ExposedDropdownMenu(
+                    expanded = isExpanded,
+                    onDismissRequest = { isExpanded = false },
+
+                ) {
+                    DropdownMenuItem(
+                        text = { Text(text = "Játék 1") },
+                        onClick = {
+                            isExpanded = false
+                            gameOpened = "Játék 1"
+                        },
+                    )
+                    DropdownMenuItem(
+                        text = { Text(text = "Játék 2") },
+                        onClick = {
+                            isExpanded = false
+                            gameOpened = "Játék 2"
+                        },
+                    )
+                    DropdownMenuItem(
+                        text = { Text(text = "Játék 3") },
+                        onClick = {
+                            isExpanded = false
+                            gameOpened = "Játék 3"
+                        },
+                    )
+                }
             }
         }
-    } else {
+
         Column(
-            modifier = Modifier.fillMaxSize(),
+            Modifier.weight(1f)
+                .fillMaxSize()
+                .padding(5.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center,
+            verticalArrangement = Arrangement.Bottom,
+
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center,
+            ) {
+                Image(
+                    painter = painterResource(Res.drawable.grid),
+                    contentDescription = null,
+                    modifier = Modifier.background(Color.Yellow)
+                        .size(width = 600.dp, height = 600.dp),
+
+                )
+            }
+        }
+
+        Column(
+            modifier = Modifier
+                .wrapContentWidth()
+                .fillMaxHeight(),
+            verticalArrangement = Arrangement.Top,
+            horizontalAlignment = Alignment.End,
+
         ) {
             Button(
-                onClick = viewModel::onLogin,
+                onClick = onInputMoves,
+                modifier = Modifier.padding(10.dp)
+                    .width(200.dp)
+                    .height(50.dp),
             ) {
-                Text(text = "Log in")
+                Text(text = "Lépések felvétele")
+            }
+            Text(
+                text = "Statisztikák: ",
+                textAlign = TextAlign.Left,
+                modifier = Modifier.width(200.dp),
+
+            )
+
+            Spacer(
+                modifier = Modifier.height(8.dp)
+                    .weight(10f),
+            )
+
+            Button(
+                onClick = onStat,
+                modifier = Modifier.padding(10.dp),
+            ) {
+                Text(text = "STAT")
             }
         }
     }
