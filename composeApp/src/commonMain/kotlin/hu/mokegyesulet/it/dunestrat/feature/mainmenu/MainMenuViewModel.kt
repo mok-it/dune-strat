@@ -1,5 +1,6 @@
 package hu.mokegyesulet.it.dunestrat.feature.mainmenu
 
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import hu.mokegyesulet.it.dunestrat.backend.AuthStatus
@@ -29,4 +30,15 @@ class MainMenuViewModel : ViewModel() {
         get() = SupabaseAuth.authStatus.map {
             it is AuthStatus.Authenticated
         }
+
+    val gameCount = mutableStateOf(0)
+    val games = SupabaseRepository.getGames()
+    sealed class Event() {
+        data object CreateGame : Event()
+    }
+    fun onEvent(event: Event) {
+        when (event) {
+            is Event.CreateGame -> gameCount.value += 1
+        }
+    }
 }
