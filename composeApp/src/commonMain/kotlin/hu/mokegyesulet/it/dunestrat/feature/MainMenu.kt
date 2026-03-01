@@ -14,11 +14,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import hu.mokegyesulet.it.dunestrat.ui.DuneFontFamily
+import hu.mokegyesulet.it.dunestrat.ui.duneFontFamily
+import hu.mokegyesulet.it.dunestrat.ui.fancyRectangle
 import hu.mokegyesulet.it.dunestrat.ui.hexagonalRectangle
 
 @Composable
-fun MainMenu(onPlaceholder1: () -> Unit, onPlaceholder2: () -> Unit) {
+fun MainMenu(
+    onPlaceholder1: () -> Unit,
+    onPlaceholder2: () -> Unit,
+) {
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -26,7 +30,7 @@ fun MainMenu(onPlaceholder1: () -> Unit, onPlaceholder2: () -> Unit) {
     ) {
         Button(
             onClick = onPlaceholder1,
-            shape = hexagonalRectangle,
+            shape = fancyRectangle,
             border = BorderStroke(1.dp, colorScheme.outline),
             colors = ButtonColors(
                 colorScheme.primary,
@@ -43,11 +47,12 @@ fun MainMenu(onPlaceholder1: () -> Unit, onPlaceholder2: () -> Unit) {
 
         Button(
             onClick = onPlaceholder2,
+            shape = hexagonalRectangle,
         ) {
             Text(
                 text = "Placeholder 2",
                 style = MaterialTheme.typography.bodyMedium,
-                fontFamily = DuneFontFamily(),
+                fontFamily = duneFontFamily(),
             )
         }
         Text(
