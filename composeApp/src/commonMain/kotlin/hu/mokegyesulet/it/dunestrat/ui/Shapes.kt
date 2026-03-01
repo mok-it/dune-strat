@@ -24,6 +24,22 @@ val hexagonalRectangle = GenericShape { size, _ ->
     lineTo(0f, height * 0.1f)
 }
 
+val fancyRectangle = GenericShape { size, _ ->
+    val width = size.width
+    val height = size.height
+    val fancyBitSize = 5f
+
+    lineTo(0f, height)
+    lineTo(width / 2 - fancyBitSize, height)
+    lineTo(width / 2, height + fancyBitSize)
+    lineTo(width / 2 + fancyBitSize, height)
+    lineTo(width, height)
+    lineTo(width, 0f)
+    lineTo(width / 2 + fancyBitSize, 0f)
+    lineTo(width / 2, -fancyBitSize)
+    lineTo(width / 2 - fancyBitSize, 0f)
+    lineTo(0f, 0f)
+}
 val shapes = Shapes(
     extraSmall = RoundedCornerShape(4.dp),
     small = RoundedCornerShape(8.dp),
@@ -31,23 +47,3 @@ val shapes = Shapes(
     large = RoundedCornerShape(24.dp),
     extraLarge = RoundedCornerShape(32.dp),
 )
-
-@Composable
-fun hexagonalButton(text: String, onClick: () -> Unit) {
-    Button(
-        onClick = onClick,
-        shape = hexagonalRectangle,
-        border = BorderStroke(1.dp, colorScheme.outline),
-        colors = ButtonColors(
-            colorScheme.primary,
-            colorScheme.onPrimary,
-            colorScheme.secondary,
-            colorScheme.onSecondary,
-        ),
-    ) {
-        Text(
-            text = "aeo áéőè",
-            style = MaterialTheme.typography.titleLarge,
-        )
-    }
-}

@@ -4,7 +4,6 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/composeApp/dune-strat.composeApp.iml" filepath="$PROJECT_DIR$/.idea/modules/composeApp/dune-strat.composeApp.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/composeApp/dune-strat.composeApp.androidTest.iml" filepath="$PROJECT_DIR$/.idea/modules/composeApp/dune-strat.composeApp.androidTest.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/composeApp/dune-strat.composeApp.unitTest.iml" filepath="$PROJECT_DIR$/.idea/modules/composeApp/dune-strat.composeApp.unitTest.iml" />
     </modules>
   </component>
 </project>

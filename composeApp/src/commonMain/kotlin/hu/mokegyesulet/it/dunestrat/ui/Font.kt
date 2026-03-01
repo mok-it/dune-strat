@@ -14,7 +14,7 @@ import dune_strat.composeapp.generated.resources.metropolis_semi_bold
 import org.jetbrains.compose.resources.Font
 
 @Composable
-fun MetropolisFontFamily() = FontFamily(
+fun metropolisFontFamily() = FontFamily(
     Font(Res.font.metropolis_light, weight = FontWeight.Light),
     Font(Res.font.metropolis_normal, weight = FontWeight.Normal),
     Font(Res.font.metropolis_medium, weight = FontWeight.Medium),
@@ -23,13 +23,13 @@ fun MetropolisFontFamily() = FontFamily(
 )
 
 @Composable
-fun DuneFontFamily() = FontFamily(
+fun duneFontFamily() = FontFamily(
     Font(Res.font.Dune_Rise),
 )
 
 @Composable
-fun MetropolisTypography() = Typography().run {
-    val fontFamily = MetropolisFontFamily()
+fun metropolisTypography() = Typography().run {
+    val fontFamily = metropolisFontFamily()
     copy(
         displayLarge = displayLarge.copy(fontFamily = fontFamily),
         displayMedium = displayMedium.copy(fontFamily = fontFamily),
