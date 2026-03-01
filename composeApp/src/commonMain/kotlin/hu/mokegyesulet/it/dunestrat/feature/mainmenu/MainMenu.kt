@@ -40,7 +40,6 @@ fun MainMenu(
                 Text(text = "Új játék")
             }
             Text(text = "Létrehozott játékok száma: $gameCount")
-            //  Text(text = "Adatok: ${SupabaseRepository.getGames()}")
 
             ExposedDropdownMenuBox(
                 expanded = isExpanded,
@@ -55,7 +54,10 @@ fun MainMenu(
                         ExposedDropdownMenuDefaults.TrailingIcon(expanded = isExpanded)
                     },
                     colors = ExposedDropdownMenuDefaults.textFieldColors(),
-                    modifier = Modifier.menuAnchor(),
+                    // modifier = Modifier.menuAnchor(),
+                    modifier = Modifier.menuAnchor(
+                        ExposedDropdownMenuAnchorType.PrimaryNotEditable,
+                    ),
 
                 )
                 ExposedDropdownMenu(
