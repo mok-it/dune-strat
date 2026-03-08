@@ -73,7 +73,7 @@ fun CreatePlayerCard(
                 onValueChange = { input ->
                     val value = input.toIntOrNull()
                     if (value != null && value >= 0) {
-                        val currentWeapons = mapOf(
+                        val currentWeapons = mutableMapOf(
                             Weapon.PISTOL to value,
                             Weapon.LASGUN to player.getWeaponCount(Weapon.LASGUN),
                             Weapon.CRYSKNIFE to player.getWeaponCount(Weapon.CRYSKNIFE),
@@ -81,7 +81,7 @@ fun CreatePlayerCard(
                         )
                         onChange(player.copy(weapons = currentWeapons), index)
                     } else if (input.isEmpty()) {
-                        val currentWeapons = mapOf(
+                        val currentWeapons = mutableMapOf(
                             Weapon.PISTOL to 0,
                             Weapon.LASGUN to player.getWeaponCount(Weapon.LASGUN),
                             Weapon.CRYSKNIFE to player.getWeaponCount(Weapon.CRYSKNIFE),
@@ -98,7 +98,7 @@ fun CreatePlayerCard(
                 onValueChange = { input ->
                     val value = input.toIntOrNull()
                     if (value != null && value >= 0) {
-                        val currentWeapons = mapOf(
+                        val currentWeapons = mutableMapOf(
                             Weapon.PISTOL to player.getWeaponCount(Weapon.PISTOL),
                             Weapon.LASGUN to value,
                             Weapon.CRYSKNIFE to player.getWeaponCount(Weapon.CRYSKNIFE),
@@ -106,7 +106,7 @@ fun CreatePlayerCard(
                         )
                         onChange(player.copy(weapons = currentWeapons), index)
                     } else if (input.isEmpty()) {
-                        val currentWeapons = mapOf(
+                        val currentWeapons = mutableMapOf(
                             Weapon.PISTOL to player.getWeaponCount(Weapon.PISTOL),
                             Weapon.LASGUN to 0,
                             Weapon.CRYSKNIFE to player.getWeaponCount(Weapon.CRYSKNIFE),
@@ -123,7 +123,7 @@ fun CreatePlayerCard(
                 onValueChange = { input ->
                     val value = input.toIntOrNull()
                     if (value != null && value >= 0) {
-                        val currentWeapons = mapOf(
+                        val currentWeapons = mutableMapOf(
                             Weapon.PISTOL to player.getWeaponCount(Weapon.PISTOL),
                             Weapon.LASGUN to player.getWeaponCount(Weapon.LASGUN),
                             Weapon.CRYSKNIFE to value,
@@ -131,7 +131,7 @@ fun CreatePlayerCard(
                         )
                         onChange(player.copy(weapons = currentWeapons), index)
                     } else if (input.isEmpty()) {
-                        val currentWeapons = mapOf(
+                        val currentWeapons = mutableMapOf(
                             Weapon.PISTOL to player.getWeaponCount(Weapon.PISTOL),
                             Weapon.LASGUN to player.getWeaponCount(Weapon.LASGUN),
                             Weapon.CRYSKNIFE to 0,
@@ -148,7 +148,7 @@ fun CreatePlayerCard(
                 onValueChange = { input ->
                     val value = input.toIntOrNull()
                     if (value != null && value >= 0) {
-                        val currentWeapons = mapOf(
+                        val currentWeapons = mutableMapOf(
                             Weapon.PISTOL to player.getWeaponCount(Weapon.PISTOL),
                             Weapon.LASGUN to player.getWeaponCount(Weapon.LASGUN),
                             Weapon.CRYSKNIFE to player.getWeaponCount(Weapon.CRYSKNIFE),
@@ -156,7 +156,7 @@ fun CreatePlayerCard(
                         )
                         onChange(player.copy(weapons = currentWeapons), index)
                     } else if (input.isEmpty()) {
-                        val currentWeapons = mapOf(
+                        val currentWeapons = mutableMapOf(
                             Weapon.PISTOL to player.getWeaponCount(Weapon.PISTOL),
                             Weapon.LASGUN to player.getWeaponCount(Weapon.LASGUN),
                             Weapon.CRYSKNIFE to player.getWeaponCount(Weapon.CRYSKNIFE),
