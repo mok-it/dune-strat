@@ -1,15 +1,26 @@
 package hu.mokegyesulet.it.dunestrat.feature.init
 
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import hu.mokegyesulet.it.dunestrat.model.Player
+import hu.mokegyesulet.it.dunestrat.model.Weapon
 
 class InitViewModel() : ViewModel() {
 
-    private val startingPlayer = Player("", 0, 0, mapOf(), setOf())
+    private fun createDefaultPlayer() = Player(
+        id = "",
+        water = 0,
+        spice = 10,
+        weapons = mapOf(
+            Weapon.PISTOL to 0,
+            Weapon.LASGUN to 0,
+            Weapon.CRYSKNIFE to 0,
+            Weapon.LEGION to 0
+        ),
+        ownedFields = setOf()
+    )
+
     val playerList: MutableState<List<Player>>
     val startingFieldIds: MutableState<List<String>>
 
@@ -17,7 +28,7 @@ class InitViewModel() : ViewModel() {
         val startingPlayers = mutableListOf<Player>()
         val emptyFieldIds = mutableListOf<String>()
         repeat(12) {
-            startingPlayers.add(startingPlayer.copy())
+            startingPlayers.add(createDefaultPlayer())
             emptyFieldIds.add("")
         }
         playerList = mutableStateOf(startingPlayers)
@@ -57,10 +68,16 @@ class InitViewModel() : ViewModel() {
     }
 
     private fun validateForm() {
-        isFormValid.value = playerList.value.all { player ->
+        // Minden mezőnek ki kell lennie töltve
+        isFormValid.value = playerList.value.zip(startingFieldIds.value).all { (player, fieldId) ->
             player.id.isNotBlank() &&
+                fieldId.isNotBlank() &&
                 player.water >= 0 &&
-                player.spice >= 0
+                player.spice >= 0 &&
+                player.getWeaponCount(Weapon.PISTOL) >= 0 &&
+                player.getWeaponCount(Weapon.LASGUN) >= 0 &&
+                player.getWeaponCount(Weapon.CRYSKNIFE) >= 0 &&
+                player.getWeaponCount(Weapon.LEGION) >= 0
         }
     }
 
@@ -73,7 +90,7 @@ class InitViewModel() : ViewModel() {
             startingFieldIds.value = currentFields.take(newCount)
         } else {
             repeat(newCount - currentList.size) {
-                playerList.value = playerList.value + startingPlayer.copy()
+                playerList.value = playerList.value + createDefaultPlayer()
                 startingFieldIds.value = startingFieldIds.value + ""
             }
         }
@@ -83,6 +100,10 @@ class InitViewModel() : ViewModel() {
 
     fun savePlayers() {
         // TODO: implementálni a mentést
+        println("Játékosok mentése...")
+        playerList.value.forEachIndexed { index, player ->
+            println("${index + 1}. Jatekos: $player, Kezdo mezo: ${startingFieldIds.value[index]}")
+        }
     }
 
     sealed class InitScreenEvent {

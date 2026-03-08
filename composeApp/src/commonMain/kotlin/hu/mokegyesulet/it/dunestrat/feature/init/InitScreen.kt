@@ -1,6 +1,7 @@
 package hu.mokegyesulet.it.dunestrat.feature.init
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -17,17 +18,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import hu.mokegyesulet.it.dunestrat.model.Player
 import hu.mokegyesulet.it.dunestrat.ui.CreatePlayerCard
-
-// 1. Szám adatok ellenőrzése backenden
-// 2. Menü helyes működése
-// 3. Mentés gomb
-// 4. Desert lista -> legördülő menü
-// 5. Új gameState létrehozása
 
 @Composable
 fun InitScreen() {
@@ -48,14 +41,7 @@ fun InitScreen() {
     ) {
         // Dropdown
         Box(
-            modifier = Modifier
-                .fillMaxWidth(0.7f)
-                .clickable(                         //Az alatta lévő 2 sornak jónak kéne lennie, de nem az xd
-                    indication = null,
-                    interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() }
-                ) {
-                    expanded = true
-                }
+            modifier = Modifier.fillMaxWidth(0.7f)
         ) {
             OutlinedTextField(
                 value = "Hexagon – $playerCount játékos",
@@ -65,16 +51,28 @@ fun InitScreen() {
                 modifier = Modifier.fillMaxWidth()
             )
 
+            // Átlátszó klikkelő réteg a TextField felett
+            Box(
+                modifier = Modifier
+                    .matchParentSize()
+                    .clickable(
+                        indication = null,
+                        interactionSource = remember { MutableInteractionSource() }
+                    ) {
+                        expanded = !expanded
+                    }
+            )
+
             DropdownMenu(
                 expanded = expanded,
-                onDismissRequest = { expanded = false }
+                onDismissRequest = { expanded = false },
+                modifier = Modifier.fillMaxWidth(0.7f)
             ) {
                 mapOptions.forEach { map ->
                     DropdownMenuItem(
                         text = { Text("Hexagon – $map játékos") },
                         onClick = {
                             viewModel.onEvent(InitViewModel.InitScreenEvent.ChangeSelectedMap(map))
-                            expanded = false
                         }
                     )
                 }
@@ -113,7 +111,7 @@ fun InitScreen() {
                 }
             }
 
-            // Mentés gomb: dinamikusan engedélyezett
+            // Mentés gomb
             item {
                 Button(
                     onClick = { viewModel.savePlayers() },
