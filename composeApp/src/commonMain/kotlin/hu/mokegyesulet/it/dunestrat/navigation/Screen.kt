@@ -2,8 +2,11 @@ package hu.mokegyesulet.it.dunestrat.navigation
 
 import kotlinx.serialization.Serializable
 
-@Serializable
 sealed class Screen {
+
+    @Serializable
     data object MainMenu : Screen()
+
+    @Serializable
     data object TestData : Screen()
 }
