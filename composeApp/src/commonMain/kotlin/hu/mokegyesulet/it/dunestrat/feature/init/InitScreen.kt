@@ -16,11 +16,13 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import hu.mokegyesulet.it.dunestrat.ui.CreatePlayerCard
+
 
 @Composable
 fun InitScreen() {
@@ -32,6 +34,7 @@ fun InitScreen() {
     val playerList by viewModel.playerList
     val startingFieldIds by viewModel.startingFieldIds
     val isFormValid by viewModel.isFormValid
+    val deserts by viewModel.mapOptions.collectAsStateWithLifecycle()
 
     Column(
         modifier = Modifier
