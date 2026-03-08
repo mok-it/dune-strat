@@ -54,7 +54,6 @@ fun MainMenu(
                         ExposedDropdownMenuDefaults.TrailingIcon(expanded = isExpanded)
                     },
                     colors = ExposedDropdownMenuDefaults.textFieldColors(),
-                    // modifier = Modifier.menuAnchor(),
                     modifier = Modifier.menuAnchor(
                         ExposedDropdownMenuAnchorType.PrimaryNotEditable,
                     ),
@@ -62,30 +61,18 @@ fun MainMenu(
                 )
                 ExposedDropdownMenu(
                     expanded = isExpanded,
-                    onDismissRequest = { isExpanded = false },
+                    onDismissRequest = { viewModel.onEvent(MainMenuViewModel.Event.ExpandMenu) },
 
                 ) {
-                    DropdownMenuItem(
-                        text = { Text(text = "Játék 1") },
-                        onClick = {
-                            isExpanded = false
-                            gameOpened = "Játék 1"
-                        },
-                    )
-                    DropdownMenuItem(
-                        text = { Text(text = "Játék 2") },
-                        onClick = {
-                            isExpanded = false
-                            gameOpened = "Játék 2"
-                        },
-                    )
-                    DropdownMenuItem(
-                        text = { Text(text = "Játék 3") },
-                        onClick = {
-                            isExpanded = false
-                            gameOpened = "Játék 3"
-                        },
-                    )
+                    for (g in games) {
+                        DropdownMenuItem(
+                            text = { Text(text = g.name) },
+                            onClick = {
+                                viewModel.onEvent(MainMenuViewModel.Event.ExpandMenu)
+                                viewModel.onEvent(MainMenuViewModel.Event.SelectGame(g))
+                            },
+                        )
+                    }
                 }
             }
         }
