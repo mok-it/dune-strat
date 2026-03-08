@@ -12,13 +12,14 @@ class InitViewModel() : ViewModel() {
         id = "",
         water = 0,
         spice = 10,
-        weapons = mapOf(
+        weapons = mutableMapOf(
             Weapon.PISTOL to 0,
             Weapon.LASGUN to 0,
             Weapon.CRYSKNIFE to 0,
             Weapon.LEGION to 0
         ),
-        ownedFields = setOf()
+        ownedFields = mutableSetOf(),
+        harvestersPurchased = 0
     )
 
     val playerList: MutableState<List<Player>>
