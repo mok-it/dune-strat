@@ -6,6 +6,7 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.toUpperCase
 import androidx.lifecycle.ViewModel
@@ -17,9 +18,12 @@ import hu.mokegyesulet.it.dunestrat.model.PlayerStep
 import hu.mokegyesulet.it.dunestrat.model.Team
 import hu.mokegyesulet.it.dunestrat.model.Weapon
 import kotlin.collections.emptyList
+import kotlin.collections.map
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 
 class PlayerStepInputViewModel(
     val gameId: Int,
@@ -27,7 +31,7 @@ class PlayerStepInputViewModel(
 
     val tabIndex = mutableStateOf(0)
     val game = SupabaseRepository.getGames().mapNotNull { list ->
-        list.find { it.id == 0 }
+        list.find { it.id == gameId }
     }.stateIn(
         viewModelScope,
         SharingStarted.WhileSubscribed(5000),
@@ -37,9 +41,9 @@ class PlayerStepInputViewModel(
             desertId = -1,
         ),
     )
-    val gameState = SupabaseRepository.getGameStates().mapNotNull { list ->
-        list.find { it.id == 0 }
-    }.stateIn(
+    val gameState = SupabaseRepository.getLatestGameStateByGameId(
+        gameId,
+    ).stateIn(
         viewModelScope,
         SharingStarted.Eagerly,
         GameState(
@@ -49,176 +53,211 @@ class PlayerStepInputViewModel(
             fields = emptySet(),
         ),
     )
-//    val game = mutableStateOf(
-//        Game(
-//            name = "Teszt",
-//            progress = GameProgress.ONGOING,
-//            teams = (1..12).map {
-//                Team(
-//                    playerId = it.toString(),
-//                    students = listOf(
-//                        Student(
-//                            it.toString() + "a",
-//                        ),
-//                        Student(
-//                            it.toString() + "b",
-//                        ),
-//                        Student(
-//                            it.toString() + "c",
-//                        ),
-//                    ),
-//                )
-//            },
-//        ),
-//    )
 
     // Expose members as a stored derived State (not a getter) so Compose tracks it properly
     val members = derivedStateOf {
         game.value.teams.getOrNull(tabIndex.value)?.students?.joinToString { it.name } ?: ""
     }
 
-    val uiStates = mutableStateListOf(
-        EnterStepsUIState(),
-        EnterStepsUIState(),
-        EnterStepsUIState(),
-        EnterStepsUIState(),
-        EnterStepsUIState(),
-        EnterStepsUIState(),
-        EnterStepsUIState(),
-        EnterStepsUIState(),
-        EnterStepsUIState(),
-        EnterStepsUIState(),
-        EnterStepsUIState(),
-        EnterStepsUIState(),
+    val uiStates = SupabaseRepository.getPlayerStepsByGameStateId(
+        gameState.value.id,
+    ).map { list ->
+        if (list.isEmpty()) {
+            gameState.value.players.map {
+                EnterStepsUIState(
+                    playerId = it.id,
+                )
+            }
+        } else {
+            list.map { step ->
+                EnterStepsUIState(
+                    stepId = step.id,
+                    playerId = step.playerId,
+                    leaveFields = step.leaveFields.map { it.id to null }.toMutableStateList(),
+                    enterFields = step.enterFields.map { it.id to null }.toMutableStateList(),
+                    purchaseWeapons = step.purchaseWeapons.toMutableMap(),
+                    purchaseHarvester = mutableStateOf(
+                        if (step.buildHarvesters.isNotEmpty()) {
+                            step.buildHarvesters.first().id to null
+                        } else {
+                            "" to null
+                        },
+                    ),
+                )
+            }
+        }
+    }.stateIn(
+        viewModelScope,
+        SharingStarted.Eagerly,
+        (1..12).map {
+            EnterStepsUIState(
+                playerId = it.toString(),
+            )
+        },
     )
 
     // Expose uiState as a stored derived State so consumers observe changes to uiStates and tabIndex
     val uiState = derivedStateOf {
-        uiStates.getOrNull(tabIndex.value) ?: EnterStepsUIState()
+        uiStates.value.getOrNull(tabIndex.value) ?: EnterStepsUIState()
     }
 
     // Compose consumers often need to observe list mutations directly. Return the SnapshotStateList
     // for the current tab so composables can read it and be subscribed to its changes.
     val leaveFields = derivedStateOf {
-        uiStates.getOrNull(tabIndex.value)?.leaveFields ?: mutableStateListOf(Pair("", null))
+        uiStates.value.getOrNull(tabIndex.value)?.leaveFields ?: mutableStateListOf(Pair("", null))
     }
 
     val enterFields = derivedStateOf {
-        uiStates.getOrNull(tabIndex.value)?.enterFields ?: mutableStateListOf(Pair("", null))
+        uiStates.value.getOrNull(tabIndex.value)?.enterFields ?: mutableStateListOf(Pair("", null))
     }
 
     val purchaseWeapons = derivedStateOf {
-        uiStates.getOrNull(tabIndex.value)?.purchaseWeapons ?: mapOf()
+        uiStates.value.getOrNull(tabIndex.value)?.purchaseWeapons ?: mapOf()
     }
 
     fun onEvent(event: Event) {
+        val gameState = gameState.value
         when (event) {
             is Event.TabSelected -> tabIndex.value = event.index
 
-            is Event.Save -> {
-                val playerSteps = uiStates.mapIndexed { index, state ->
-                    PlayerStep()
+            is Event.RunTurn -> {
+                viewModelScope.launch {
+                    val playerSteps = getPlayerSteps()
+                    gameState.runTurn(playerSteps)
+                    SupabaseRepository.saveGameState(gameState)
                 }
             }
 
             is Event.LeaveField -> {
-                val lf = uiStates[tabIndex.value].leaveFields
-                val gs = gameState.value
-                val value = event.value.toUpperCase(locale = Locale.current).filter {
-                    it.isUpperCase() || it.isDigit()
-                }
+                val lf = uiStates.value[tabIndex.value].leaveFields
+                val fieldId = event.value.toFieldId()
                 val validation = when {
-                    value == "" -> null
+                    fieldId == "" -> null
 
-                    !gs.fields.map { it.id }.contains(event.value) -> Validation.NO_SUCH_FIELD
+                    !gameState.fields.map {
+                        it.id
+                    }.contains(fieldId) -> Validation.NO_SUCH_FIELD
 
-                    !gs.players.find {
-                        it.id.toInt() == tabIndex.value + 1
-                    }!!.ownedFields.map { it.id }.contains(event.value) -> Validation.UNOWNED_FIELD
+                    !isFieldOwnedByPlayer(
+                        fieldId,
+                        uiStates.value[tabIndex.value].playerId,
+                    ) -> Validation.UNOWNED_FIELD
 
                     else -> null
                 }
                 lf[event.index] =
-                    value to validation
+                    fieldId to validation
                 if (!lf.contains("" to null)) {
                     lf.add("" to null)
-                }
-
-                println("size: ${lf.size}")
-                for (i in lf) {
-                    println(i)
                 }
             }
 
             is Event.EnterField -> {
-                val ef = uiStates[tabIndex.value].enterFields
-                val gs = gameState.value
-                val value = event.value.toUpperCase(locale = Locale.current).filter {
-                    it.isUpperCase() || it.isDigit()
-                }
+                val ef = uiStates.value[tabIndex.value].enterFields
+                val fieldId = event.value.toFieldId()
                 val validation = when {
-                    value == "" -> null
+                    fieldId == "" -> null
 
-                    !gs.fields.map { it.id }.contains(event.value) -> Validation.NO_SUCH_FIELD
+                    !isFieldIdInGame(fieldId) -> Validation.NO_SUCH_FIELD
 
-                    gs.fields.find {
-                        it.id == event.value
-                    }!!.neighbours.map { it.id }.any { x: String ->
-                        gs.players.find { it.id.toInt() == tabIndex.value + 1 }!!
-                            .ownedFields.map { it.id }.contains(x)
-                    } -> Validation.UNREACHABLE_FIELD
+                    !isFieldReachableByPlayer(
+                        fieldId,
+                        uiStates.value[tabIndex.value].playerId,
+                    ) -> Validation.UNREACHABLE_FIELD
 
                     else -> null
                 }
                 ef[event.index] =
-                    value to validation
+                    fieldId to validation
                 if (!ef.contains("" to null)) {
                     ef.add("" to null)
-                }
-
-                println("size: ${ef.size}")
-                for (i in ef) {
-                    println(i)
                 }
             }
 
             is Event.PurchaseWeapon -> {
                 if (event.value == "") {
-                    uiStates[tabIndex.value].purchaseWeapons[event.weapon] = 0
+                    uiStates.value[tabIndex.value].purchaseWeapons[event.weapon] = 0
                 }
                 try {
                     val amount = event.value.toInt()
                     if (amount >= 0) {
-                        uiStates[tabIndex.value].purchaseWeapons[event.weapon] = amount
+                        uiStates.value[tabIndex.value].purchaseWeapons[event.weapon] = amount
                     }
                 } catch (_: NumberFormatException) {}
             }
 
             is Event.PurchaseHarvester -> {
-                val gameState = gameState.value
-                val value = event.value.toUpperCase(locale = Locale.current).filter {
-                    it.isUpperCase() || it.isDigit()
-                }
+                val fieldId = event.value.toFieldId()
                 val validation = when {
-                    value == "" -> null
+                    fieldId == "" -> null
 
-                    !gameState.fields.map {
-                        it.id
-                    }.contains(event.value) -> Validation.NO_SUCH_FIELD
+                    !isFieldIdInGame(fieldId) -> Validation.NO_SUCH_FIELD
 
-                    !gameState.players.find {
-                        it.id.toInt() == tabIndex.value + 1
-                    }!!.ownedFields.map { it.id }.contains(event.value) -> Validation.UNOWNED_FIELD
+                    !isFieldOwnedByPlayer(
+                        fieldId,
+                        uiStates.value[tabIndex.value].playerId,
+                    ) -> Validation.UNOWNED_FIELD
 
                     else -> null
                 }
 
-                uiStates[tabIndex.value].purchaseHarvester.value = value to validation
+                uiStates.value[tabIndex.value].purchaseHarvester.value = fieldId to validation
+            }
+
+            is Event.SaveToDatabase -> {
+                viewModelScope.launch {
+                    val playerStep = uiStates.value[tabIndex.value].toPlayerStep(gameState)
+                    if (playerStep.gameStateId != -1) {
+                        SupabaseRepository.savePlayerStep(playerStep)
+                    }
+                }
             }
         }
     }
 
+    private fun getPlayerSteps(): MutableSet<PlayerStep> {
+        val gameState = gameState.value
+        return uiStates.value.map {
+            it.toPlayerStep(gameState)
+        }.toMutableSet()
+    }
+
+    private fun isFieldIdInGame(fieldId: String): Boolean {
+        val gameState = gameState.value
+        return gameState.fields.map { it.id }.contains(fieldId)
+    }
+
+    private fun isFieldOwnedByPlayer(
+        fieldId: String,
+        playerId: String,
+    ): Boolean {
+        val gameState = gameState.value
+        val player = gameState.players.find { it.id == playerId }
+        if (player == null) {
+            return false
+        }
+        return player.ownedFields.map { it.id }.contains(fieldId)
+    }
+
+    private fun isFieldReachableByPlayer(
+        fieldId: String,
+        playerId: String,
+    ): Boolean {
+        val gameState = gameState.value
+        val player = gameState.players.find { it.id == playerId }
+        if (player == null) {
+            return false
+        }
+        return player.ownedFields.flatMap { it.neighbours }.map { it.id }.contains(fieldId)
+    }
+
+    private fun String.toFieldId(): String = this.toUpperCase(locale = Locale.current).filter {
+        it.isUpperCase() || it.isDigit()
+    }
+
     data class EnterStepsUIState(
+        val stepId: Int = -1,
+        val playerId: String = "",
         val leaveFields: SnapshotStateList<Pair<String, Validation?>> =
             mutableStateListOf(Pair("", null)),
         val enterFields: SnapshotStateList<Pair<String, Validation?>> =
@@ -231,7 +270,26 @@ class PlayerStepInputViewModel(
         ),
         val purchaseHarvester: MutableState<Pair<String, Validation?>> =
             mutableStateOf("" to null),
-    )
+    ) {
+        fun toPlayerStep(gameState: GameState): PlayerStep = PlayerStep(
+            id = stepId,
+            gameStateId = gameState.id,
+            playerId = playerId,
+            leaveFields = gameState.fields
+                .filter {
+                    it.id in leaveFields.map { fieldState -> fieldState.first }
+                }
+                .toSet(),
+            enterFields = gameState.fields
+                .filter {
+                    it.id in enterFields.map { fieldState -> fieldState.first }
+                }
+                .toSet(),
+            purchaseWeapons = purchaseWeapons,
+            buildHarvesters = gameState.fields
+                .filter { it.id == purchaseHarvester.value.first }.toSet(),
+        )
+    }
 
     enum class Validation(val message: String, val isError: Boolean) {
         NO_SUCH_FIELD("Ilyen mező nincs a pályán!", false),
@@ -241,10 +299,11 @@ class PlayerStepInputViewModel(
 
     sealed class Event {
         data class TabSelected(val index: Int) : Event()
-        data object Save : Event()
+        data object RunTurn : Event()
         data class LeaveField(val index: Int, val value: String) : Event()
         data class EnterField(val index: Int, val value: String) : Event()
         data class PurchaseWeapon(val weapon: Weapon, val value: String) : Event()
         data class PurchaseHarvester(val value: String) : Event()
+        data object SaveToDatabase : Event()
     }
 }
