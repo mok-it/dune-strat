@@ -38,7 +38,7 @@ object SupabaseRepository : Repository {
         }
 
     @OptIn(SupabaseExperimental::class)
-    override fun getLatestGameStateByGameId(gameId: String): Flow<GameState> =
+    override fun getLatestGameStateByGameId(gameId: Int): Flow<GameState> =
         supabase.from(GAME_STATE_TABLE).selectAsFlow(
             GameStateDatabaseEntity::id,
             filter = FilterOperation("game_id", FilterOperator.EQ, gameId),
@@ -59,7 +59,7 @@ object SupabaseRepository : Repository {
         }
 
     @OptIn(SupabaseExperimental::class)
-    override fun getPlayerStepsByGameStateId(gameStateId: String): Flow<List<PlayerStep>> =
+    override fun getPlayerStepsByGameStateId(gameStateId: Int): Flow<List<PlayerStep>> =
         supabase.from(STEP_TABLE).selectAsFlow(
             PlayerStepDatabaseEntity::id,
             filter = FilterOperation("game_state_id", FilterOperator.EQ, gameStateId),
@@ -68,7 +68,7 @@ object SupabaseRepository : Repository {
         }
 
     override suspend fun savePlayerStep(playerStep: PlayerStep) {
-        supabase.from(STEP_TABLE).insert(playerStep.toDatabaseEntry())
+        supabase.from(STEP_TABLE).upsert(playerStep.toDatabaseEntry())
     }
 
     override suspend fun saveDesert(desert: Desert) {

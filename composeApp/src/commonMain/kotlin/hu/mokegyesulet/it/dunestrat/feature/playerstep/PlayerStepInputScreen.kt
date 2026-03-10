@@ -1,34 +1,28 @@
 package hu.mokegyesulet.it.dunestrat.feature.playerstep
 
-import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.filled.QuestionMark
+import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.PrimaryScrollableTabRow
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.focus.FocusState
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.key.Key
-import androidx.compose.ui.input.key.KeyEventType
-import androidx.compose.ui.input.key.isShiftPressed
-import androidx.compose.ui.input.key.key
-import androidx.compose.ui.input.key.onPreviewKeyEvent
-import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -36,10 +30,10 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import hu.mokegyesulet.it.dunestrat.model.Weapon
 import hu.mokegyesulet.it.dunestrat.ui.tabKeyNavigable
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PlayerStepInputScreen(gameId: Int) {
     val viewModel = viewModel { PlayerStepInputViewModel(gameId) }
-    println(viewModel.gameId)
     val tabIndex by viewModel.tabIndex
     val members by viewModel.members
 
@@ -59,10 +53,33 @@ fun PlayerStepInputScreen(gameId: Int) {
 
     val gameState by viewModel.gameState.collectAsStateWithLifecycle()
 
-    val focusManager = LocalFocusManager.current
+    val saveOnLostFocus: (FocusState) -> Unit = {
+        if (!it.isFocused) {
+            println("Focus lost")
+            viewModel.onEvent(
+                PlayerStepInputViewModel.Event.SaveToDatabase,
+            )
+        }
+    }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
+        topBar = {
+            TopAppBar(
+                title = {},
+                actions = {
+                    Button(
+                        onClick = {
+                            viewModel.onEvent(
+                                PlayerStepInputViewModel.Event.RunTurn,
+                            )
+                        },
+                    ) {
+                        Text(text = "Kör futtatása")
+                    }
+                },
+            )
+        },
         bottomBar = {
             PrimaryScrollableTabRow(
                 selectedTabIndex = tabIndex,
@@ -88,31 +105,17 @@ fun PlayerStepInputScreen(gameId: Int) {
             Column {
                 Text("Field count: ${gameState.fields.size}")
                 Row {
-                    Column(
+                    FieldInputColumn(
+                        title = "Lelépés",
+                        fields = leaveFields,
+                        onValueChange = { index, value ->
+                            viewModel.onEvent(
+                                PlayerStepInputViewModel.Event.LeaveField(index, value),
+                            )
+                        },
+                        onFocusChanged = saveOnLostFocus,
                         modifier = Modifier.weight(1f),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                    ) {
-                        Text("Lelépés")
-                        LazyColumn {
-                            itemsIndexed(leaveFields) {
-                                    index: Int,
-                                    fieldData: Pair<String, PlayerStepInputViewModel.Validation?>,
-                                ->
-                                FieldRow(
-                                    value = fieldData.first,
-                                    onValueChange = { it: String ->
-                                        viewModel.onEvent(
-                                            PlayerStepInputViewModel.Event.LeaveField(
-                                                index,
-                                                it,
-                                            ),
-                                        )
-                                    },
-                                    validation = fieldData.second,
-                                )
-                            }
-                        }
-                    }
+                    )
                     Column(modifier = Modifier.weight(1f)) {
                         Text("Vásárlás")
                         Weapon.entries.forEach { weapon ->
@@ -142,11 +145,12 @@ fun PlayerStepInputScreen(gameId: Int) {
                                             ),
                                         )
                                     },
-                                    modifier = Modifier.tabKeyNavigable(focusManager),
+                                    modifier = Modifier.onFocusChanged(saveOnLostFocus),
                                 )
                             }
                         }
                         Row {
+                            Text("Harvester: ")
                             FieldRow(
                                 value = purchaseHarvester.first,
                                 onValueChange = {
@@ -155,33 +159,23 @@ fun PlayerStepInputScreen(gameId: Int) {
                                     )
                                 },
                                 validation = purchaseHarvester.second,
+                                modifier = Modifier.onFocusChanged(saveOnLostFocus),
                             )
                         }
                     }
-
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text("Rálépés")
-                        LazyColumn {
-                            itemsIndexed(enterFields) {
-                                    index: Int,
-                                    fieldData: Pair<String, PlayerStepInputViewModel.Validation?>,
-                                ->
-                                FieldRow(
-                                    value = fieldData.first,
-                                    onValueChange = { it: String ->
-                                        viewModel.onEvent(
-                                            PlayerStepInputViewModel.Event.LeaveField(
-                                                index,
-                                                it,
-                                            ),
-                                        )
-                                    },
-                                    validation = fieldData.second,
-                                )
-                            }
-                        }
-                    }
+                    FieldInputColumn(
+                        title = "Rálépés",
+                        fields = enterFields,
+                        onValueChange = { index, value ->
+                            viewModel.onEvent(
+                                PlayerStepInputViewModel.Event.EnterField(index, value),
+                            )
+                        },
+                        onFocusChanged = saveOnLostFocus,
+                        modifier = Modifier.weight(1f),
+                    )
                 }
+
                 Spacer(Modifier.weight(1f))
                 Text("Csapattagok: $members")
             }
@@ -221,5 +215,36 @@ fun FieldRow(
                 false -> Color(1.0f, 0.5f, 0.0f)
             },
         )
+    }
+}
+
+@Composable
+private fun FieldInputColumn(
+    title: String,
+    fields: List<Pair<String, PlayerStepInputViewModel.Validation?>>,
+    onValueChange: (Int, String) -> Unit,
+    onFocusChanged: (FocusState) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Column(
+        modifier = modifier,
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Text(text = title)
+        LazyColumn {
+            itemsIndexed(fields) {
+                    index: Int,
+                    fieldData: Pair<String, PlayerStepInputViewModel.Validation?>,
+                ->
+                FieldRow(
+                    value = fieldData.first,
+                    onValueChange = {
+                        onValueChange(index, it)
+                    },
+                    validation = fieldData.second,
+                    modifier = Modifier.onFocusChanged(onFocusChanged),
+                )
+            }
+        }
     }
 }
