@@ -1,24 +1,13 @@
 package hu.mokegyesulet.it.dunestrat.feature.playerstep
 
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateMapOf
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.*
 import androidx.compose.runtime.snapshots.SnapshotStateList
-import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.toUpperCase
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import hu.mokegyesulet.it.dunestrat.backend.SupabaseRepository
-import hu.mokegyesulet.it.dunestrat.model.Game
-import hu.mokegyesulet.it.dunestrat.model.GameState
-import hu.mokegyesulet.it.dunestrat.model.PlayerStep
-import hu.mokegyesulet.it.dunestrat.model.Team
-import hu.mokegyesulet.it.dunestrat.model.Weapon
-import kotlin.collections.emptyList
-import kotlin.collections.map
+import hu.mokegyesulet.it.dunestrat.model.*
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
@@ -63,9 +52,14 @@ class PlayerStepInputViewModel(
         gameState.value.id,
     ).map { list ->
         if (list.isEmpty()) {
-            gameState.value.players.map {
+//            gameState.value.players.map {
+//                EnterStepsUIState(
+//                    playerId = it.id,
+//                )
+//            }
+            (1..12).map {
                 EnterStepsUIState(
-                    playerId = it.id,
+                    playerId = it.toString(),
                 )
             }
         } else {
