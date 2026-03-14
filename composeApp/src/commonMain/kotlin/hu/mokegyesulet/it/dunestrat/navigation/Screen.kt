@@ -14,5 +14,5 @@ sealed class Screen {
     data object InitScreen : Screen()
 
     @Serializable
-    data object PlayerStepInput : Screen()
+    data class PlayerStepInput(val gameId: Int) : Screen()
 }

@@ -5,6 +5,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
 import hu.mokegyesulet.it.dunestrat.feature.init.InitScreen
 import hu.mokegyesulet.it.dunestrat.feature.mainmenu.MainMenu
 import hu.mokegyesulet.it.dunestrat.feature.playerstep.PlayerStepInputScreen
@@ -18,7 +19,7 @@ fun NavGraph(navController: NavHostController = rememberNavController()) {
     ) {
         composable<Screen.MainMenu> {
             MainMenu(
-                onPlayerStepInput = { navController.navigate(Screen.PlayerStepInput) },
+                onPlayerStepInput = { navController.navigate(Screen.PlayerStepInput(0)) },
                 onPlaceholder2 = {},
                 onTestData = { navController.navigate(Screen.TestData) },
             )
@@ -36,8 +37,11 @@ fun NavGraph(navController: NavHostController = rememberNavController()) {
             )
         }
 
-        composable<Screen.PlayerStepInput> {
-            PlayerStepInputScreen(0)
+        composable<Screen.PlayerStepInput> { backStackEntry ->
+
+            val navigationObject: Screen.PlayerStepInput = backStackEntry.toRoute()
+
+            PlayerStepInputScreen(navigationObject.gameId)
         }
     }
 }
