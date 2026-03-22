@@ -1,5 +1,6 @@
 package hu.mokegyesulet.it.dunestrat.feature.drawmap
 
+import dune_strat.composeapp.generated.resources.Res
 import hu.mokegyesulet.it.dunestrat.model.Desert
 import kotlin.math.PI
 
@@ -20,6 +21,29 @@ object MapDrawer {
 
     private val numberOffsetVector = hexagonVertices[1] - hexagonVertices[5]
     private val letterOffsetVector2D = (hexagonVertices[0] - hexagonVertices[4]).invertY()
+
+    private lateinit var desertSVG: String
+    private lateinit var mountainSVG: String
+
+    suspend fun loadResources() {
+        val desertBytes = Res.readBytes("drawable/svg/desert.svg")
+        desertSVG = desertBytes.decodeToString().replace("cls-", "desert-cls-")
+        val mountainBytes = Res.readBytes("drawable/svg/mountain.svg")
+        mountainSVG = mountainBytes.decodeToString().replace("cls-", "mountain-cls-")
+    }
+
+    private fun getDefinitions(): String {
+        val builder = StringBuilder()
+        builder.append("<defs>\n")
+        builder.append("<g id=\"desert\" transform=\"scale(0.6660724856)\">\n")
+        builder.append(desertSVG)
+        builder.append("</g>\n")
+        builder.append("<g id=\"mountain\" transform=\"scale(0.6660724856)\">\n")
+        builder.append(mountainSVG)
+        builder.append("</g>\n")
+        builder.append("</defs>\n")
+        return builder.toString()
+    }
 
     private fun getOffsetVector(coordinate: String): Vector2D {
         val letterOffset = coordinate.lowercase()[0].code - 'a'.code
@@ -88,6 +112,20 @@ object MapDrawer {
         return "<path d=\"$d\" $STYLE />\n"
     }
 
+    private val backgroundOffset =
+        hexagonVertices[3] - hexagonVertices[2] + (hexagonVertices[2] - hexagonVertices[1]) / 2
+
+    private fun getBackgroundSvg(
+        desert: Boolean,
+        offset: Vector2D,
+    ): String {
+        val fullOffset = offset + backgroundOffset
+        if (desert) {
+            return "<use href=\"#desert\" x=\"${fullOffset.x}\" y=\"${fullOffset.y}\" />\n"
+        }
+        return "<use href=\"#mountain\" x=\"${fullOffset.x}\" y=\"${fullOffset.y}\" />\n"
+    }
+
     fun getDesertSvg(desert: Desert): String {
         var minX = 0.0
         var maxX = 0.0
@@ -102,29 +140,39 @@ object MapDrawer {
             minY = minOf(minY, offset.y)
             maxY = maxOf(maxY, offset.y)
 
-            val hex = getHexagonSvg(offset)
-            val text = getFieldTextSvg(field.id, offset)
-            val weaponBox = getWeaponBoxSvg(offset)
-            val coordinateCircle = getCoordinateCircleSvg(offset)
-            val waterBox = getWaterBoxSvg(offset)
-            val spiceBox = getSpiceBoxSvg(offset)
+            val fieldBuilder = StringBuilder()
 
-            hex + text + weaponBox + coordinateCircle + waterBox + spiceBox
+            fieldBuilder.append(getBackgroundSvg(field.water < 0, offset))
+
+            fieldBuilder.append(getHexagonSvg(offset))
+            fieldBuilder.append(getFieldTextSvg(field.id, offset))
+            fieldBuilder.append(getWeaponBoxSvg(offset))
+            fieldBuilder.append(getCoordinateCircleSvg(offset))
+            fieldBuilder.append(getWaterBoxSvg(offset))
+            fieldBuilder.append(getSpiceBoxSvg(offset))
+
+            fieldBuilder.toString()
         }
 
         val width = maxX - minX + 300
         val height = maxY - minY + 300
 
-        val viewbox = "viewbox = \"${minX - 150} ${minY - 150} $width $height\""
+        val viewbox = "viewBox=\"${minX - 150} ${minY - 150} $width $height\""
 
         val svgOpening = "<svg width=\"$width\" height=\"$height\" $viewbox " +
             "xmlns=\"http://www.w3.org/2000/svg\">\n"
+
+        val definitions = getDefinitions()
+
         val svgEnd = "</svg>"
-        return svgOpening + fieldSvgs.joinToString(separator = "") { it } + svgEnd
+        return svgOpening + definitions + fieldSvgs.joinToString(separator = "") { it } + svgEnd
     }
 }
 
-fun main() {
+suspend fun main() {
     val desert = Desert.create12PlayerHexagon()
+
+    MapDrawer.loadResources()
+
     println(MapDrawer.getDesertSvg(desert))
 }
