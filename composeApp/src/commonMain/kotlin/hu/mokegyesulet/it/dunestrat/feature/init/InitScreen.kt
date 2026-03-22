@@ -13,28 +13,35 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuAnchorType
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults.TrailingIcon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.*
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import hu.mokegyesulet.it.dunestrat.model.Desert
 import hu.mokegyesulet.it.dunestrat.ui.CreatePlayerCard
 
-
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun InitScreen() {
     val viewModel = viewModel { InitViewModel() }
-    var expanded by viewModel.dropdownExpanded
-    var selectedMap by viewModel.selectedMap
+    val expanded by viewModel.dropdownExpanded
+//    val selectedMap by viewModel.selectedMap
     val playerCount by viewModel.playerCount
-    val mapOptions by viewModel.mapOptions
+    val mapOptions: List<Desert> by viewModel.mapOptions.collectAsStateWithLifecycle()
     val playerList by viewModel.playerList
     val startingFieldIds by viewModel.startingFieldIds
     val isFormValid by viewModel.isFormValid
-    val deserts by viewModel.mapOptions.collectAsStateWithLifecycle()
+    val selectedDesert by viewModel.selectedDesert
 
     Column(
         modifier = Modifier
@@ -44,40 +51,56 @@ fun InitScreen() {
     ) {
         // Dropdown
         Box(
-            modifier = Modifier.fillMaxWidth(0.7f)
+            modifier = Modifier.fillMaxWidth(0.7f),
         ) {
-            OutlinedTextField(
-                value = "Hexagon – $playerCount játékos",
-                onValueChange = {},
-                readOnly = true,
-                label = { Text("Térkép kiválasztása") },
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            // Átlátszó klikkelő réteg a TextField felett
-            Box(
-                modifier = Modifier
-                    .matchParentSize()
-                    .clickable(
-                        indication = null,
-                        interactionSource = remember { MutableInteractionSource() }
-                    ) {
-                        expanded = !expanded
-                    }
-            )
-
-            DropdownMenu(
+            ExposedDropdownMenuBox(
                 expanded = expanded,
-                onDismissRequest = { expanded = false },
-                modifier = Modifier.fillMaxWidth(0.7f)
-            ) {
-                mapOptions.forEach { map ->
-                    DropdownMenuItem(
-                        text = { Text("Hexagon – $map játékos") },
-                        onClick = {
-                            viewModel.onEvent(InitViewModel.InitScreenEvent.ChangeSelectedMap(map))
-                        }
+                onExpandedChange = {
+                    viewModel.onEvent(
+                        InitViewModel.InitScreenEvent.ChangeMapDropdownExpanded(!expanded),
                     )
+                },
+
+            ) {
+                OutlinedTextField(
+                    modifier = Modifier.menuAnchor(
+                        ExposedDropdownMenuAnchorType.PrimaryNotEditable,
+                        true,
+                    ).fillMaxWidth(),
+                    value = selectedDesert?.name?.ifBlank {
+                        "${selectedDesert?.fields?.count { it.startingField }} játékos térkép"
+                    } ?: "",
+                    onValueChange = {},
+                    readOnly = true,
+                    label = { Text("Térkép kiválasztása") },
+                    trailingIcon = { TrailingIcon(expanded = expanded) },
+                )
+
+                ExposedDropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = {
+                        viewModel.onEvent(
+                            InitViewModel.InitScreenEvent.ChangeMapDropdownExpanded(false),
+                        )
+                    },
+                    modifier = Modifier.fillMaxWidth(0.7f),
+                ) {
+                    mapOptions.forEach { map ->
+                        DropdownMenuItem(
+                            text = {
+                                Text(
+                                    text = map.name.ifBlank {
+                                        "${map.fields.count { it.startingField }} játékos térkép"
+                                    },
+                                )
+                            },
+                            onClick = {
+                                viewModel.onEvent(
+                                    InitViewModel.InitScreenEvent.ChangeSelectedMap(map),
+                                )
+                            },
+                        )
+                    }
                 }
             }
         }
@@ -100,15 +123,18 @@ fun InitScreen() {
                         player = playerList[index],
                         onChange = { player, i ->
                             viewModel.onEvent(
-                                InitViewModel.InitScreenEvent.UpdatePlayerData(player, i)
+                                InitViewModel.InitScreenEvent.UpdatePlayerData(player, i),
                             )
                         },
                         onStartingFieldChange = { fieldId ->
                             viewModel.onEvent(
-                                InitViewModel.InitScreenEvent.UpdatePlayerStartingField(fieldId, index)
+                                InitViewModel.InitScreenEvent.UpdatePlayerStartingField(
+                                    fieldId,
+                                    index,
+                                ),
                             )
                         },
-                        startingFieldId = startingFieldIds[index]
+                        startingFieldId = startingFieldIds[index],
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                 }
@@ -119,7 +145,7 @@ fun InitScreen() {
                 Button(
                     onClick = { viewModel.savePlayers() },
                     enabled = isFormValid,
-                    modifier = Modifier.padding(16.dp)
+                    modifier = Modifier.padding(16.dp),
                 ) {
                     Text("Adatok mentése")
                 }
