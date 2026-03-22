@@ -85,11 +85,10 @@ class TestDataViewModel : ViewModel() {
         val stateFields = desert.fields.toGameStateFields()
         randomlyAssignPlayers(desert, stateFields)
         val firstState = GameState(
-            0,
-            game.id,
-            0,
-            stateFields,
-            players.toSet(),
+            gameId = game.id,
+            index = 0,
+            fields = stateFields,
+            players = players.toSet(),
         )
         viewModelScope.launch {
             SupabaseRepository.saveGameState(firstState)

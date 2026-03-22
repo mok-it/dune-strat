@@ -2,6 +2,7 @@ package hu.mokegyesulet.it.dunestrat.feature.playerstep
 
 import androidx.compose.runtime.*
 import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.toUpperCase
 import androidx.lifecycle.ViewModel
@@ -36,8 +37,8 @@ class PlayerStepInputViewModel(
         viewModelScope,
         SharingStarted.Eagerly,
         GameState(
-            id = -1,
             gameId = -1,
+            index = -1,
             players = emptySet(),
             fields = emptySet(),
         ),
@@ -48,7 +49,15 @@ class PlayerStepInputViewModel(
         game.value.teams.getOrNull(tabIndex.value)?.students?.joinToString { it.name } ?: ""
     }
 
-    val uiStates = SupabaseRepository.getPlayerStepsByGameStateId(
+    val uiStates = mutableStateOf(
+        (1..12).map {
+            EnterStepsUIState(
+                playerId = it.toString(),
+            )
+        },
+    )
+
+    private val _uiStates = SupabaseRepository.getPlayerStepsByGameStateId(
         gameState.value.id,
     ).map { list ->
         if (list.isEmpty()) {
@@ -64,15 +73,19 @@ class PlayerStepInputViewModel(
             }
         } else {
             list.map { step ->
+
+                val purchaseWeapons = mutableStateMapOf<Weapon, Int>()
+                purchaseWeapons.putAll(step.purchaseWeapons)
+
                 EnterStepsUIState(
                     stepId = step.id,
                     playerId = step.playerId,
-                    leaveFields = step.leaveFields.map { it.id to null }.toMutableStateList(),
-                    enterFields = step.enterFields.map { it.id to null }.toMutableStateList(),
-                    purchaseWeapons = step.purchaseWeapons.toMutableMap(),
+                    leaveFields = step.leaveFields.map { it to null }.toMutableStateList(),
+                    enterFields = step.enterFields.map { it to null }.toMutableStateList(),
+                    purchaseWeapons = purchaseWeapons,
                     purchaseHarvester = mutableStateOf(
                         if (step.buildHarvesters.isNotEmpty()) {
-                            step.buildHarvesters.first().id to null
+                            step.buildHarvesters.first() to null
                         } else {
                             "" to null
                         },
@@ -80,15 +93,15 @@ class PlayerStepInputViewModel(
                 )
             }
         }
-    }.stateIn(
-        viewModelScope,
-        SharingStarted.Eagerly,
-        (1..12).map {
-            EnterStepsUIState(
-                playerId = it.toString(),
-            )
-        },
-    )
+    }
+
+    init {
+        viewModelScope.launch {
+            _uiStates.collect {
+                uiStates.value = it
+            }
+        }
+    }
 
     // Expose uiState as a stored derived State so consumers observe changes to uiStates and tabIndex
     val uiState = derivedStateOf {
@@ -106,7 +119,7 @@ class PlayerStepInputViewModel(
     }
 
     val purchaseWeapons = derivedStateOf {
-        uiStates.value.getOrNull(tabIndex.value)?.purchaseWeapons ?: mapOf()
+        uiStates.value.getOrNull(tabIndex.value)?.purchaseWeapons ?: mutableStateMapOf()
     }
 
     fun onEvent(event: Event) {
@@ -117,12 +130,14 @@ class PlayerStepInputViewModel(
             is Event.RunTurn -> {
                 viewModelScope.launch {
                     val playerSteps = getPlayerSteps()
-                    gameState.runTurn(playerSteps)
-                    SupabaseRepository.saveGameState(gameState)
+                    val newGameState = gameState.runTurn(playerSteps)
+                    SupabaseRepository.saveGameState(newGameState)
                 }
             }
 
             is Event.LeaveField -> {
+                println(event.value)
+
                 val lf = uiStates.value[tabIndex.value].leaveFields
                 val fieldId = event.value.toFieldId()
                 val validation = when {
@@ -256,7 +271,7 @@ class PlayerStepInputViewModel(
             mutableStateListOf(Pair("", null)),
         val enterFields: SnapshotStateList<Pair<String, Validation?>> =
             mutableStateListOf(Pair("", null)),
-        val purchaseWeapons: MutableMap<Weapon, Int> = mutableStateMapOf(
+        val purchaseWeapons: SnapshotStateMap<Weapon, Int> = mutableStateMapOf(
             Weapon.CRYSKNIFE to 0,
             Weapon.PISTOL to 0,
             Weapon.LASGUN to 0,
@@ -269,19 +284,18 @@ class PlayerStepInputViewModel(
             id = stepId,
             gameStateId = gameState.id,
             playerId = playerId,
-            leaveFields = gameState.fields
-                .filter {
-                    it.id in leaveFields.map { fieldState -> fieldState.first }
-                }
+            leaveFields = leaveFields.map { it.first }
                 .toSet(),
-            enterFields = gameState.fields
-                .filter {
-                    it.id in enterFields.map { fieldState -> fieldState.first }
-                }
+            enterFields = enterFields.map { it.first }
                 .toSet(),
             purchaseWeapons = purchaseWeapons,
-            buildHarvesters = gameState.fields
-                .filter { it.id == purchaseHarvester.value.first }.toSet(),
+            buildHarvesters = if (purchaseHarvester.value.first !=
+                ""
+            ) {
+                setOf(purchaseHarvester.value.first)
+            } else {
+                setOf()
+            },
         )
     }
 
