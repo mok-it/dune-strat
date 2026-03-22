@@ -4,11 +4,10 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import hu.mokegyesulet.it.dunestrat.model.Player
-import hu.mokegyesulet.it.dunestrat.model.Weapon
 import hu.mokegyesulet.it.dunestrat.backend.SupabaseRepository
 import hu.mokegyesulet.it.dunestrat.model.Desert
-import kotlinx.coroutines.flow.Flow
+import hu.mokegyesulet.it.dunestrat.model.Player
+import hu.mokegyesulet.it.dunestrat.model.Weapon
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
 
@@ -22,10 +21,10 @@ class InitViewModel() : ViewModel() {
             Weapon.PISTOL to 0,
             Weapon.LASGUN to 0,
             Weapon.CRYSKNIFE to 0,
-            Weapon.LEGION to 0
+            Weapon.LEGION to 0,
         ),
         ownedFields = mutableSetOf(),
-        harvestersPurchased = 0
+        harvestersPurchased = 0,
     )
 
     val playerList: MutableState<List<Player>>
@@ -43,35 +42,41 @@ class InitViewModel() : ViewModel() {
     }
 
     var dropdownExpanded = mutableStateOf(false)
-    var selectedMap = mutableStateOf(12)
     val playerCount = mutableStateOf(12)
-    val mapOptions = mutableStateOf(SupabaseRepository.getDeserts()
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList()))
+    val mapOptions = SupabaseRepository.getDeserts()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
     val isFormValid = mutableStateOf(false)
+
+    val selectedDesert: MutableState<Desert?> = mutableStateOf(null)
 
     fun onEvent(event: InitScreenEvent) {
         when (event) {
             is InitScreenEvent.ChangeMapDropdownExpanded -> {
                 dropdownExpanded.value = event.expanded
             }
-            is InitScreenEvent.ChangeSelectedMap -> {
-                selectedMap.value = event.desertSize.name.split(" ").first().toInt()
-                dropdownExpanded.value = false
-                resizePlayerList(event.desertSize.name.split(" ").first().toInt())
 
+            is InitScreenEvent.ChangeSelectedMap -> {
+                selectedDesert.value = event.selectedDesert
+
+                playerCount.value = selectedDesert.value?.fields?.count { it.startingField } ?: 0
+                dropdownExpanded.value = false
+                resizePlayerList(playerCount.value)
             }
+
             is InitScreenEvent.UpdatePlayerData -> {
                 val newPlayerList = playerList.value.toMutableList()
                 newPlayerList[event.index] = event.playerData
                 playerList.value = newPlayerList
                 validateForm()
             }
+
             is InitScreenEvent.UpdatePlayerStartingField -> {
                 val newStartingFieldIds = startingFieldIds.value.toMutableList()
                 newStartingFieldIds[event.index] = event.fieldId
                 startingFieldIds.value = newStartingFieldIds
                 validateForm()
             }
+
             is InitScreenEvent.InitPlayerOnMap -> {}
         }
     }
@@ -99,8 +104,8 @@ class InitViewModel() : ViewModel() {
             startingFieldIds.value = currentFields.take(newCount)
         } else {
             repeat(newCount - currentList.size) {
-                playerList.value = playerList.value + createDefaultPlayer()
-                startingFieldIds.value = startingFieldIds.value + ""
+                playerList.value += createDefaultPlayer()
+                startingFieldIds.value += ""
             }
         }
         playerCount.value = newCount
@@ -118,8 +123,11 @@ class InitViewModel() : ViewModel() {
     sealed class InitScreenEvent {
         data object InitPlayerOnMap : InitScreenEvent()
         data class ChangeMapDropdownExpanded(val expanded: Boolean) : InitScreenEvent()
-        data class ChangeSelectedMap(val desertSize: Desert) : InitScreenEvent()
+        data class ChangeSelectedMap(val selectedDesert: Desert) : InitScreenEvent()
         data class UpdatePlayerData(val playerData: Player, val index: Int) : InitScreenEvent()
-        data class UpdatePlayerStartingField(val fieldId: String, val index: Int) : InitScreenEvent()
+        data class UpdatePlayerStartingField(
+            val fieldId: String,
+            val index: Int,
+        ) : InitScreenEvent()
     }
 }

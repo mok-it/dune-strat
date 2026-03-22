@@ -9,4 +9,7 @@ sealed class Screen {
 
     @Serializable
     data object TestData : Screen()
+
+    @Serializable
+    data object InitScreen : Screen()
 }
