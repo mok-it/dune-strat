@@ -9,7 +9,9 @@ object MapDrawer {
     private const val HEXAGON_SIZE = 200.0
     private const val INNER_HEXAGON_RATIO = 0.65
 
-    private const val STYLE = "style=\"fill:none;stroke:#000000;stroke-width:2.5px\""
+    private const val POLYGON_STYLE = "style=\"fill:none;stroke:#000000;stroke-width:2.5px\""
+    private const val BOX_STYLE =
+        "style=\"fill:#DDDDDD;fill-opacity:0.8;stroke:#000000;stroke-width:2.5px\""
 
     private val distanceToVertex = Vector2D(HEXAGON_SIZE / 2, 0.0)
 
@@ -70,7 +72,13 @@ object MapDrawer {
 
     private fun polygonSvgFromPoints(points: List<Vector2D>): String {
         val pointsString = points.joinToString(separator = " ") { "${it.x},${it.y}" }
-        return "<polygon $STYLE points=\"$pointsString\"/>\n"
+        return "<polygon $POLYGON_STYLE points=\"$pointsString\"/>\n"
+    }
+
+    private fun boxSvgFromPoints(points: List<Vector2D>): String {
+        val pointsString = points.joinToString(separator = " ") { "${it.x},${it.y}" }
+        val style = "style=\"fill:#DDDDDD;fill-opacity:0.8;stroke:#000000;stroke-width:2.5px\""
+        return "<polygon $style points=\"$pointsString\"/>\n"
     }
 
     private fun getWeaponBoxSvg(offset: Vector2D): String {
@@ -80,7 +88,7 @@ object MapDrawer {
             innerHexagonVertices[2],
             hexagonVertices[2],
         ).map { it + offset }
-        return polygonSvgFromPoints(points)
+        return boxSvgFromPoints(points)
     }
 
     private fun getWaterBoxSvg(offset: Vector2D): String {
@@ -90,7 +98,7 @@ object MapDrawer {
             innerHexagonVertices[3],
             hexagonVertices[3],
         ).map { it + offset }
-        return polygonSvgFromPoints(points)
+        return boxSvgFromPoints(points)
     }
 
     private fun getSpiceBoxSvg(offset: Vector2D): String {
@@ -100,7 +108,7 @@ object MapDrawer {
             innerHexagonVertices[1],
             hexagonVertices[1],
         ).map { it + offset }
-        return polygonSvgFromPoints(points)
+        return boxSvgFromPoints(points)
     }
 
     private fun getCoordinateCircleSvg(offset: Vector2D): String {
@@ -109,7 +117,7 @@ object MapDrawer {
         val d = "M ${center.x - radius} ${center.y} " +
             "A $radius $radius 0 0 0 " +
             "${center.x + radius} ${center.y}"
-        return "<path d=\"$d\" $STYLE />\n"
+        return "<path d=\"$d\" $BOX_STYLE />\n"
     }
 
     private val backgroundOffset =
@@ -124,6 +132,32 @@ object MapDrawer {
             return "<use href=\"#desert\" x=\"${fullOffset.x}\" y=\"${fullOffset.y}\" />\n"
         }
         return "<use href=\"#mountain\" x=\"${fullOffset.x}\" y=\"${fullOffset.y}\" />\n"
+    }
+
+    private fun getWaterTextSvg(
+        value: Int,
+        offset: Vector2D,
+    ): String {
+        val center =
+            ((hexagonVertices[2] + hexagonVertices[3]) / 2) * (1 + INNER_HEXAGON_RATIO) / 2 + offset
+        val position = "x=\"${center.x}\" y=\"${center.y}\""
+        val font = "font-size=\"20\" font-family=\"Times New Roman\""
+        val align = "dominant-baseline=\"middle\" text-anchor=\"middle\""
+        val rotate = "transform=\"rotate(60,${center.x},${center.y})\""
+        return "<text $position $align $font $rotate>$value</text>\n"
+    }
+
+    private fun getSpiceTextSvg(
+        value: Int,
+        offset: Vector2D,
+    ): String {
+        val center =
+            (hexagonVertices[0] + hexagonVertices[1]) / 2 * (1 + INNER_HEXAGON_RATIO) / 2 + offset
+        val position = "x=\"${center.x}\" y=\"${center.y}\""
+        val font = "font-size=\"20\" font-family=\"Times New Roman\""
+        val align = "dominant-baseline=\"middle\" text-anchor=\"middle\""
+        val transform = "transform=\"rotate(-60,${center.x},${center.y})\""
+        return "<text $position $align $font $transform>$value</text>\n"
     }
 
     fun getDesertSvg(desert: Desert): String {
@@ -145,11 +179,13 @@ object MapDrawer {
             fieldBuilder.append(getBackgroundSvg(field.water < 0, offset))
 
             fieldBuilder.append(getHexagonSvg(offset))
-            fieldBuilder.append(getFieldTextSvg(field.id, offset))
             fieldBuilder.append(getWeaponBoxSvg(offset))
             fieldBuilder.append(getCoordinateCircleSvg(offset))
+            fieldBuilder.append(getFieldTextSvg(field.id, offset))
             fieldBuilder.append(getWaterBoxSvg(offset))
             fieldBuilder.append(getSpiceBoxSvg(offset))
+            fieldBuilder.append(getWaterTextSvg(field.water, offset))
+            fieldBuilder.append(getSpiceTextSvg(field.spice, offset))
 
             fieldBuilder.toString()
         }
