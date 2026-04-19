@@ -265,7 +265,7 @@ class PlayerStepInputViewModel(
     }
 
     data class EnterStepsUIState(
-        val stepId: Int = -1,
+        val stepId: Int = -1, //TODO: find latest player step here
         val playerId: String = "",
         val leaveFields: SnapshotStateList<Pair<String, Validation?>> =
             mutableStateListOf(Pair("", null)),

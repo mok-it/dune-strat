@@ -1,10 +1,7 @@
 package hu.mokegyesulet.it.dunestrat.backend
 
-import hu.mokegyesulet.it.dunestrat.getPlatform
-import io.github.jan.supabase.SupabaseClient
+import hu.mokegyesulet.it.dunestrat.getUrlLauncher
 import io.github.jan.supabase.annotations.SupabaseExperimental
-import io.github.jan.supabase.auth.Auth
-import io.github.jan.supabase.auth.UrlLauncher
 import io.github.jan.supabase.createSupabaseClient
 import io.github.jan.supabase.postgrest.Postgrest
 import io.github.jan.supabase.realtime.Realtime
@@ -15,14 +12,9 @@ object SupabaseClientProvider {
         supabaseUrl = "https://lnwvuwepwaexwybselsf.supabase.co",
         supabaseKey = "sb_publishable_Y8MlS_tbyIRvvsvbHvb1_g_wbyg6EfI",
     ) {
-        install(Auth) {
-            urlLauncher = object : UrlLauncher {
-                override suspend fun openUrl(
-                    supabase: SupabaseClient,
-                    url: String,
-                ) {
-                    getPlatform().openUrl(url)
-                }
+        install(io.github.jan.supabase.auth.Auth) {
+            getUrlLauncher()?.let {
+                urlLauncher = it
             }
         }
         install(Postgrest)
