@@ -7,15 +7,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.filled.QuestionMark
-import androidx.compose.material3.Button
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.PrimaryScrollableTabRow
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Tab
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -25,159 +17,171 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import hu.mokegyesulet.it.dunestrat.model.Weapon
 import hu.mokegyesulet.it.dunestrat.ui.tabKeyNavigable
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PlayerStepInputScreen(gameId: Int) {
+fun PlayerStepInputScreen(
+    gameId: Int,
+    onBack: () -> Unit,
+) {
     val viewModel = viewModel { PlayerStepInputViewModel(gameId) }
     val tabIndex by viewModel.tabIndex
     val members by viewModel.members
 
-    val game by viewModel.game.collectAsStateWithLifecycle()
-    val playerIds = game.teams.map { it.playerId }
+    val game by viewModel.game
+    val gameState by viewModel.gameState
 
-    val leaveFields: List<Pair<String, PlayerStepInputViewModel.Validation?>>
-        by viewModel.leaveFields
-
-    val enterFields: List<Pair<String, PlayerStepInputViewModel.Validation?>>
-        by viewModel.enterFields
-
-    val purchaseWeapons: Map<Weapon, Int> by viewModel.purchaseWeapons
-
-    val uiState by viewModel.uiState
-    val purchaseHarvester by uiState.purchaseHarvester
-
-    val gameState by viewModel.gameState.collectAsStateWithLifecycle()
-
-    val saveOnLostFocus: (FocusState) -> Unit = {
-        if (!it.isFocused) {
-            println("Focus lost")
-            viewModel.onEvent(
-                PlayerStepInputViewModel.Event.SaveToDatabase,
-            )
-        }
-    }
-
-    Scaffold(
-        modifier = Modifier.fillMaxSize(),
-        topBar = {
-            TopAppBar(
-                title = {},
-                actions = {
-                    Button(
-                        onClick = {
-                            viewModel.onEvent(
-                                PlayerStepInputViewModel.Event.RunTurn,
-                            )
-                        },
-                    ) {
-                        Text(text = "Kör futtatása")
-                    }
-                },
-            )
-        },
-        bottomBar = {
-            PrimaryScrollableTabRow(
-                selectedTabIndex = tabIndex,
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                playerIds.forEachIndexed { index, playerId ->
-                    Tab(
-                        selected = index == tabIndex,
-                        onClick = {
-                            viewModel.onEvent(PlayerStepInputViewModel.Event.TabSelected(index))
-                        },
-                        text = {
-                            Text(text = playerId)
-                        },
-                    )
-                }
-            }
-        },
-    ) { paddingValues ->
+    if (game == null || gameState == null) {
         Box(
-            modifier = Modifier.padding(paddingValues).fillMaxSize(),
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center,
         ) {
-            Column {
-                Text("Field count: ${gameState.fields.size}")
-                Row {
-                    FieldInputColumn(
-                        title = "Lelépés",
-                        fields = leaveFields,
-                        onValueChange = { index, value ->
-                            viewModel.onEvent(
-                                PlayerStepInputViewModel.Event.LeaveField(index, value),
-                            )
-                        },
-                        onFocusChanged = saveOnLostFocus,
-                        modifier = Modifier.weight(1f),
-                    )
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text("Vásárlás")
-                        Weapon.entries.forEach { weapon ->
-                            Row {
-                                Text(
-                                    text = when (weapon) {
-                                        Weapon.PISTOL -> "MPT: "
-                                        Weapon.LASGUN -> "LSG: "
-                                        Weapon.CRYSKNIFE -> "CRK: "
-                                        Weapon.LEGION -> "Légió: "
-                                    },
+            Text(text = "Loading...")
+        }
+    } else {
+        val playerIds = game!!.teams.map { it.playerId }
+
+        val leaveFields: List<Pair<String, PlayerStepInputViewModel.Validation?>>
+            by viewModel.leaveFields
+
+        val enterFields: List<Pair<String, PlayerStepInputViewModel.Validation?>>
+            by viewModel.enterFields
+
+        val purchaseWeapons: Map<Weapon, Int> by viewModel.purchaseWeapons
+
+        val uiState by viewModel.uiState
+        val purchaseHarvester by uiState.purchaseHarvester
+
+        val saveOnLostFocus: (FocusState) -> Unit = {
+            if (!it.isFocused) {
+                viewModel.onEvent(
+                    PlayerStepInputViewModel.Event.SaveToDatabase,
+                )
+            }
+        }
+
+        Scaffold(
+            modifier = Modifier.fillMaxSize(),
+            topBar = {
+                TopAppBar(
+                    title = {},
+                    actions = {
+                        Button(
+                            onClick = {
+                                viewModel.onEvent(
+                                    PlayerStepInputViewModel.Event.RunTurn,
                                 )
-                                TextField(
-                                    value = if ((purchaseWeapons[weapon] ?: 0) != 0) {
-                                        (purchaseWeapons[weapon] ?: 0).toString()
-                                    } else {
-                                        ""
-                                    },
-                                    placeholder = {
-                                        Text(text = "0")
-                                    },
+                                onBack()
+                            },
+                        ) {
+                            Text(text = "Kör futtatása")
+                        }
+                    },
+                )
+            },
+            bottomBar = {
+                PrimaryScrollableTabRow(
+                    selectedTabIndex = tabIndex,
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    playerIds.forEachIndexed { index, playerId ->
+                        Tab(
+                            selected = index == tabIndex,
+                            onClick = {
+                                viewModel.onEvent(PlayerStepInputViewModel.Event.TabSelected(index))
+                            },
+                            text = {
+                                Text(text = playerId)
+                            },
+                        )
+                    }
+                }
+            },
+        ) { paddingValues ->
+            Box(
+                modifier = Modifier.padding(paddingValues).fillMaxSize(),
+            ) {
+                Column {
+                    Text("Field count: ${gameState!!.fields.size}")
+                    Text("GameStateId: ${gameState!!.id}")
+                    Row {
+                        FieldInputColumn(
+                            title = "Lelépés",
+                            fields = leaveFields,
+                            onValueChange = { index, value ->
+                                viewModel.onEvent(
+                                    PlayerStepInputViewModel.Event.LeaveField(index, value),
+                                )
+                            },
+                            onFocusChanged = saveOnLostFocus,
+                            modifier = Modifier.weight(1f),
+                        )
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text("Vásárlás")
+                            Weapon.entries.forEach { weapon ->
+                                Row {
+                                    Text(
+                                        text = when (weapon) {
+                                            Weapon.PISTOL -> "MPT: "
+                                            Weapon.LASGUN -> "LSG: "
+                                            Weapon.CRYSKNIFE -> "CRK: "
+                                            Weapon.LEGION -> "Légió: "
+                                        },
+                                    )
+                                    TextField(
+                                        value = if ((purchaseWeapons[weapon] ?: 0) != 0) {
+                                            (purchaseWeapons[weapon] ?: 0).toString()
+                                        } else {
+                                            ""
+                                        },
+                                        placeholder = {
+                                            Text(text = "0")
+                                        },
+                                        onValueChange = {
+                                            viewModel.onEvent(
+                                                PlayerStepInputViewModel.Event.PurchaseWeapon(
+                                                    weapon = weapon,
+                                                    value = it,
+                                                ),
+                                            )
+                                        },
+                                        modifier = Modifier.onFocusChanged(saveOnLostFocus),
+                                    )
+                                }
+                            }
+                            Row {
+                                Text("Harvester: ")
+                                FieldRow(
+                                    value = purchaseHarvester.first,
                                     onValueChange = {
                                         viewModel.onEvent(
-                                            PlayerStepInputViewModel.Event.PurchaseWeapon(
-                                                weapon = weapon,
-                                                value = it,
-                                            ),
+                                            PlayerStepInputViewModel.Event.PurchaseHarvester(it),
                                         )
                                     },
+                                    validation = purchaseHarvester.second,
                                     modifier = Modifier.onFocusChanged(saveOnLostFocus),
                                 )
                             }
                         }
-                        Row {
-                            Text("Harvester: ")
-                            FieldRow(
-                                value = purchaseHarvester.first,
-                                onValueChange = {
-                                    viewModel.onEvent(
-                                        PlayerStepInputViewModel.Event.PurchaseHarvester(it),
-                                    )
-                                },
-                                validation = purchaseHarvester.second,
-                                modifier = Modifier.onFocusChanged(saveOnLostFocus),
-                            )
-                        }
+                        FieldInputColumn(
+                            title = "Rálépés",
+                            fields = enterFields,
+                            onValueChange = { index, value ->
+                                viewModel.onEvent(
+                                    PlayerStepInputViewModel.Event.EnterField(index, value),
+                                )
+                            },
+                            onFocusChanged = saveOnLostFocus,
+                            modifier = Modifier.weight(1f),
+                        )
                     }
-                    FieldInputColumn(
-                        title = "Rálépés",
-                        fields = enterFields,
-                        onValueChange = { index, value ->
-                            viewModel.onEvent(
-                                PlayerStepInputViewModel.Event.EnterField(index, value),
-                            )
-                        },
-                        onFocusChanged = saveOnLostFocus,
-                        modifier = Modifier.weight(1f),
-                    )
-                }
 
-                Spacer(Modifier.weight(1f))
-                Text("Csapattagok: $members")
+                    Spacer(Modifier.weight(1f))
+                    Text("Csapattagok: $members")
+                }
             }
         }
     }

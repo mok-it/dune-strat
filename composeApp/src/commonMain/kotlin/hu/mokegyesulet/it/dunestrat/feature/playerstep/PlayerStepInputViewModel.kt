@@ -8,11 +8,10 @@ import androidx.compose.ui.text.toUpperCase
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import hu.mokegyesulet.it.dunestrat.backend.SupabaseRepository
-import hu.mokegyesulet.it.dunestrat.model.*
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.mapNotNull
-import kotlinx.coroutines.flow.stateIn
+import hu.mokegyesulet.it.dunestrat.model.Game
+import hu.mokegyesulet.it.dunestrat.model.GameState
+import hu.mokegyesulet.it.dunestrat.model.PlayerStep
+import hu.mokegyesulet.it.dunestrat.model.Weapon
 import kotlinx.coroutines.launch
 
 class PlayerStepInputViewModel(
@@ -20,86 +19,64 @@ class PlayerStepInputViewModel(
 ) : ViewModel() {
 
     val tabIndex = mutableStateOf(0)
-    val game = SupabaseRepository.getGames().mapNotNull { list ->
-        list.find { it.id == gameId }
-    }.stateIn(
-        viewModelScope,
-        SharingStarted.WhileSubscribed(5000),
-        Game(
-            name = "",
-            teams = listOf(Team("", emptyList())),
-            desertId = -1,
-        ),
-    )
-    val gameState = SupabaseRepository.getLatestGameStateByGameId(
-        gameId,
-    ).stateIn(
-        viewModelScope,
-        SharingStarted.Eagerly,
-        GameState(
-            gameId = -1,
-            index = -1,
-            players = emptySet(),
-            fields = emptySet(),
-        ),
-    )
 
-    // Expose members as a stored derived State (not a getter) so Compose tracks it properly
-    val members = derivedStateOf {
-        game.value.teams.getOrNull(tabIndex.value)?.students?.joinToString { it.name } ?: ""
-    }
+    val game = mutableStateOf<Game?>(null)
+    val gameState = mutableStateOf<GameState?>(null)
+    val playerSteps = mutableStateOf(listOf<PlayerStep>())
 
-    val uiStates = mutableStateOf(
-        (1..12).map {
-            EnterStepsUIState(
-                playerId = it.toString(),
-            )
-        },
-    )
-
-    private val _uiStates = SupabaseRepository.getPlayerStepsByGameStateId(
-        gameState.value.id,
-    ).map { list ->
-        if (list.isEmpty()) {
-//            gameState.value.players.map {
-//                EnterStepsUIState(
-//                    playerId = it.id,
-//                )
-//            }
-            (1..12).map {
-                EnterStepsUIState(
-                    playerId = it.toString(),
-                )
-            }
-        } else {
-            list.map { step ->
-
-                val purchaseWeapons = mutableStateMapOf<Weapon, Int>()
-                purchaseWeapons.putAll(step.purchaseWeapons)
-
-                EnterStepsUIState(
-                    stepId = step.id,
-                    playerId = step.playerId,
-                    leaveFields = step.leaveFields.map { it to null }.toMutableStateList(),
-                    enterFields = step.enterFields.map { it to null }.toMutableStateList(),
-                    purchaseWeapons = purchaseWeapons,
-                    purchaseHarvester = mutableStateOf(
-                        if (step.buildHarvesters.isNotEmpty()) {
-                            step.buildHarvesters.first() to null
-                        } else {
-                            "" to null
-                        },
-                    ),
-                )
-            }
-        }
+    val loaded = derivedStateOf {
+        game.value != null && gameState.value != null && playerSteps.value.isNotEmpty()
     }
 
     init {
         viewModelScope.launch {
-            _uiStates.collect {
-                uiStates.value = it
+            game.value = SupabaseRepository.getGameById(gameId)
+            gameState.value = SupabaseRepository.getLatestGameStateByGameId(gameId)
+            val playerStepFlow = SupabaseRepository.getPlayerStepsByGameStateId(
+                gameState.value!!.id,
+            )
+            playerStepFlow.collect { list ->
+                playerSteps.value = list.ifEmpty {
+                    game.value!!.teams.map {
+                        PlayerStep(
+                            gameStateId = gameState.value!!.id,
+                            playerId = it.playerId,
+                            leaveFields = emptySet(),
+                            enterFields = emptySet(),
+                            purchaseWeapons = emptyMap(),
+                            buildHarvesters = emptySet(),
+                        )
+                    }
+                }
             }
+        }
+    }
+
+    // Expose members as a stored derived State (not a getter) so Compose tracks it properly
+    val members = derivedStateOf {
+        game.value?.teams?.getOrNull(tabIndex.value)?.students?.joinToString { it.name } ?: ""
+    }
+
+    val uiStates = derivedStateOf {
+        playerSteps.value.map { playerStep ->
+
+            val purchaseWeapons = mutableStateMapOf<Weapon, Int>()
+            purchaseWeapons.putAll(playerStep.purchaseWeapons)
+
+            EnterStepsUIState(
+                stepId = playerStep.id,
+                playerId = playerStep.playerId,
+                leaveFields = (playerStep.leaveFields + "").map {
+                    it to null
+                }.toMutableStateList(),
+                enterFields = (playerStep.enterFields + "").map {
+                    it to null
+                }.toMutableStateList(),
+                purchaseWeapons = purchaseWeapons,
+                purchaseHarvester = mutableStateOf(
+                    (playerStep.buildHarvesters.firstOrNull() ?: "") to null,
+                ),
+            )
         }
     }
 
@@ -123,7 +100,11 @@ class PlayerStepInputViewModel(
     }
 
     fun onEvent(event: Event) {
-        val gameState = gameState.value
+        if (!loaded.value) {
+            return
+        }
+        val gameState =
+            gameState.value ?: throw IllegalStateException("Game state is not loaded yet!")
         when (event) {
             is Event.TabSelected -> tabIndex.value = event.index
 
@@ -225,14 +206,16 @@ class PlayerStepInputViewModel(
     }
 
     private fun getPlayerSteps(): MutableSet<PlayerStep> {
-        val gameState = gameState.value
+        val gameState =
+            gameState.value ?: throw IllegalStateException("Game state is not loaded yet!")
         return uiStates.value.map {
             it.toPlayerStep(gameState)
         }.toMutableSet()
     }
 
     private fun isFieldIdInGame(fieldId: String): Boolean {
-        val gameState = gameState.value
+        val gameState =
+            gameState.value ?: throw IllegalStateException("Game state is not loaded yet!")
         return gameState.fields.map { it.id }.contains(fieldId)
     }
 
@@ -240,7 +223,8 @@ class PlayerStepInputViewModel(
         fieldId: String,
         playerId: String,
     ): Boolean {
-        val gameState = gameState.value
+        val gameState =
+            gameState.value ?: throw IllegalStateException("Game state is not loaded yet!")
         val player = gameState.players.find { it.id == playerId }
         if (player == null) {
             return false
@@ -252,7 +236,8 @@ class PlayerStepInputViewModel(
         fieldId: String,
         playerId: String,
     ): Boolean {
-        val gameState = gameState.value
+        val gameState =
+            gameState.value ?: throw IllegalStateException("Game state is not loaded yet!")
         val player = gameState.players.find { it.id == playerId }
         if (player == null) {
             return false
@@ -265,7 +250,7 @@ class PlayerStepInputViewModel(
     }
 
     data class EnterStepsUIState(
-        val stepId: Int = -1, //TODO: find latest player step here
+        val stepId: Int = -1, // TODO: find latest player step here
         val playerId: String = "",
         val leaveFields: SnapshotStateList<Pair<String, Validation?>> =
             mutableStateListOf(Pair("", null)),
