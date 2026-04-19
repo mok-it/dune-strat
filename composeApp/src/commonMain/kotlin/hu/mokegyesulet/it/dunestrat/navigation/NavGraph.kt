@@ -41,7 +41,13 @@ fun NavGraph(navController: NavHostController = rememberNavController()) {
 
             val navigationObject: Screen.PlayerStepInput = backStackEntry.toRoute()
 
-            PlayerStepInputScreen(navigationObject.gameId)
+            PlayerStepInputScreen(
+                gameId = navigationObject.gameId,
+                onBack = {
+                    navController.popBackStack()
+                    navController.navigate(Screen.PlayerStepInput(navigationObject.gameId))
+                },
+            )
         }
     }
 }

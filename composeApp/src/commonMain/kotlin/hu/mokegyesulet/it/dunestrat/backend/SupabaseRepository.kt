@@ -31,6 +31,11 @@ object SupabaseRepository : Repository {
             select()
         }.decodeSingle<GameDatabaseEntity>().toGame()
 
+    override suspend fun getGameById(gameId: Int): Game = supabase.from(GAME_TABLE)
+        .select { filter { GameDatabaseEntity::id eq gameId } }
+        .decodeList<GameDatabaseEntity>().firstOrNull() ?.toGame()
+        ?: throw IllegalStateException("No game found with id: $gameId")
+
     @OptIn(SupabaseExperimental::class)
     override fun getGameStates(): Flow<List<GameState>> =
         supabase.from(GAME_STATE_TABLE).selectAsFlow(GameStateDatabaseEntity::id).map { list ->
@@ -38,19 +43,20 @@ object SupabaseRepository : Repository {
         }
 
     @OptIn(SupabaseExperimental::class)
-    override fun getLatestGameStateByGameId(gameId: Int): Flow<GameState> =
-        supabase.from(GAME_STATE_TABLE).selectAsFlow(
-            GameStateDatabaseEntity::id,
-            filter = FilterOperation("game_id", FilterOperator.EQ, gameId),
-        ).map { list ->
-            list.map { it.toGameState() }.maxByOrNull { it.index }
-                ?: throw IllegalStateException("No game state found for game id: $gameId")
-        }
-
     override suspend fun saveGameState(gameState: GameState): GameState =
         supabase.from(GAME_STATE_TABLE).insert(gameState.toDatabaseEntry()) {
             select()
         }.decodeSingle<GameStateDatabaseEntity>().toGameState()
+
+    override suspend fun getLatestGameStateByGameId(gameId: Int): GameState =
+        supabase.from(GAME_STATE_TABLE)
+            .select {
+                filter {
+                    GameStateDatabaseEntity::gameId eq gameId
+                }
+            }
+            .decodeList<GameStateDatabaseEntity>().maxByOrNull { it.index }?.toGameState()
+            ?: throw IllegalStateException("No game state found for game id: $gameId")
 
     @OptIn(SupabaseExperimental::class)
     override fun getPlayerSteps(): Flow<List<PlayerStep>> =
