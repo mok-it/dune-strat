@@ -4,6 +4,7 @@ import hu.mokegyesulet.it.dunestrat.model.Desert
 import hu.mokegyesulet.it.dunestrat.model.Game
 import hu.mokegyesulet.it.dunestrat.model.GameState
 import hu.mokegyesulet.it.dunestrat.model.PlayerStep
+import io.github.jan.supabase.annotations.SupabaseExperimental
 import kotlinx.coroutines.flow.Flow
 
 interface Repository {
