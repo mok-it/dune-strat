@@ -105,8 +105,6 @@ fun PlayerStepInputScreen(
                 modifier = Modifier.padding(paddingValues).fillMaxSize(),
             ) {
                 Column {
-                    Text("Field count: ${gameState!!.fields.size}")
-                    Text("GameStateId: ${gameState!!.id}")
                     Row {
                         FieldInputColumn(
                             title = "Lelépés",

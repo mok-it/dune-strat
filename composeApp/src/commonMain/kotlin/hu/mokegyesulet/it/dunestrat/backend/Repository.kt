@@ -18,6 +18,10 @@ interface Repository {
     suspend fun savePlayerStep(playerStep: PlayerStep)
     fun getPlayerSteps(): Flow<List<PlayerStep>>
     fun getPlayerStepsByGameStateId(gameStateId: Int): Flow<List<PlayerStep>>
+    fun getPlayerStep(
+        gameStateId: Int,
+        playerId: String,
+    ): Flow<PlayerStep>
 
     suspend fun saveDesert(desert: Desert)
     fun getDeserts(): Flow<List<Desert>>
