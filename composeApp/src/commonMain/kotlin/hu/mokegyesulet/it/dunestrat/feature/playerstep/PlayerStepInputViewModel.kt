@@ -22,31 +22,30 @@ class PlayerStepInputViewModel(
 
     val game = mutableStateOf<Game?>(null)
     val gameState = mutableStateOf<GameState?>(null)
-    val playerSteps = mutableStateOf(listOf<PlayerStep>())
+    val playerSteps = mutableListOf<MutableState<PlayerStep>>()
 
     val loaded = derivedStateOf {
-        game.value != null && gameState.value != null && playerSteps.value.isNotEmpty()
+        game.value != null && gameState.value != null && playerSteps.isNotEmpty()
     }
 
     init {
         viewModelScope.launch {
             game.value = SupabaseRepository.getGameById(gameId)
             gameState.value = SupabaseRepository.getLatestGameStateByGameId(gameId)
-            val playerStepFlow = SupabaseRepository.getPlayerStepsByGameStateId(
-                gameState.value!!.id,
-            )
-            playerStepFlow.collect { list ->
-                playerSteps.value = list.ifEmpty {
-                    game.value!!.teams.map {
+            playerSteps.addAll(
+                game.value!!.teams.map { team ->
+                    mutableStateOf(
                         PlayerStep(
                             gameStateId = gameState.value!!.id,
-                            playerId = it.playerId,
-                            leaveFields = emptySet(),
-                            enterFields = emptySet(),
-                            purchaseWeapons = emptyMap(),
-                            buildHarvesters = emptySet(),
-                        )
-                    }
+                            playerId = team.playerId,
+                        ),
+                    )
+                },
+            )
+            game.value!!.teams.forEachIndexed { index, team ->
+                val flow = SupabaseRepository.getPlayerStep(gameState.value!!.id, team.playerId)
+                flow.collect { playerStep ->
+                    playerSteps[index].value = playerStep
                 }
             }
         }
@@ -58,7 +57,9 @@ class PlayerStepInputViewModel(
     }
 
     val uiStates = derivedStateOf {
-        playerSteps.value.map { playerStep ->
+        playerSteps.map { mutableState ->
+
+            val playerStep = mutableState.value
 
             val purchaseWeapons = mutableStateMapOf<Weapon, Int>()
             purchaseWeapons.putAll(playerStep.purchaseWeapons)
@@ -67,14 +68,15 @@ class PlayerStepInputViewModel(
                 stepId = playerStep.id,
                 playerId = playerStep.playerId,
                 leaveFields = (playerStep.leaveFields + "").map {
-                    it to null
+                    it to validateLeaveField(it)
                 }.toMutableStateList(),
                 enterFields = (playerStep.enterFields + "").map {
-                    it to null
+                    it to validateEnterField(it)
                 }.toMutableStateList(),
                 purchaseWeapons = purchaseWeapons,
                 purchaseHarvester = mutableStateOf(
-                    (playerStep.buildHarvesters.firstOrNull() ?: "") to null,
+                    (playerStep.buildHarvesters.firstOrNull() ?: "") to
+                        validatePurchaseHarvester(playerStep.buildHarvesters.firstOrNull() ?: ""),
                 ),
             )
         }
@@ -117,50 +119,24 @@ class PlayerStepInputViewModel(
             }
 
             is Event.LeaveField -> {
-                println(event.value)
-
-                val lf = uiStates.value[tabIndex.value].leaveFields
+                val leaveFields = uiStates.value[tabIndex.value].leaveFields
                 val fieldId = event.value.toFieldId()
-                val validation = when {
-                    fieldId == "" -> null
-
-                    !gameState.fields.map {
-                        it.id
-                    }.contains(fieldId) -> Validation.NO_SUCH_FIELD
-
-                    !isFieldOwnedByPlayer(
-                        fieldId,
-                        uiStates.value[tabIndex.value].playerId,
-                    ) -> Validation.UNOWNED_FIELD
-
-                    else -> null
-                }
-                lf[event.index] =
+                val validation = validateLeaveField(fieldId)
+                leaveFields[event.index] =
                     fieldId to validation
-                if (!lf.contains("" to null)) {
-                    lf.add("" to null)
+                if (!leaveFields.contains("" to null)) {
+                    leaveFields.add("" to null)
                 }
             }
 
             is Event.EnterField -> {
-                val ef = uiStates.value[tabIndex.value].enterFields
+                val enterFields = uiStates.value[tabIndex.value].enterFields
                 val fieldId = event.value.toFieldId()
-                val validation = when {
-                    fieldId == "" -> null
-
-                    !isFieldIdInGame(fieldId) -> Validation.NO_SUCH_FIELD
-
-                    !isFieldReachableByPlayer(
-                        fieldId,
-                        uiStates.value[tabIndex.value].playerId,
-                    ) -> Validation.UNREACHABLE_FIELD
-
-                    else -> null
-                }
-                ef[event.index] =
+                val validation = validateEnterField(fieldId)
+                enterFields[event.index] =
                     fieldId to validation
-                if (!ef.contains("" to null)) {
-                    ef.add("" to null)
+                if (!enterFields.contains("" to null)) {
+                    enterFields.add("" to null)
                 }
             }
 
@@ -178,18 +154,7 @@ class PlayerStepInputViewModel(
 
             is Event.PurchaseHarvester -> {
                 val fieldId = event.value.toFieldId()
-                val validation = when {
-                    fieldId == "" -> null
-
-                    !isFieldIdInGame(fieldId) -> Validation.NO_SUCH_FIELD
-
-                    !isFieldOwnedByPlayer(
-                        fieldId,
-                        uiStates.value[tabIndex.value].playerId,
-                    ) -> Validation.UNOWNED_FIELD
-
-                    else -> null
-                }
+                val validation = validatePurchaseHarvester(fieldId)
 
                 uiStates.value[tabIndex.value].purchaseHarvester.value = fieldId to validation
             }
@@ -249,8 +214,56 @@ class PlayerStepInputViewModel(
         it.isUpperCase() || it.isDigit()
     }
 
+    private fun validateLeaveField(fieldId: String): Validation? {
+        val game = game.value ?: throw IllegalStateException("Game is not loaded yet!")
+        return when {
+            fieldId == "" -> null
+
+            !isFieldIdInGame(fieldId) -> Validation.NO_SUCH_FIELD
+
+            !isFieldReachableByPlayer(
+                fieldId,
+                game.teams[tabIndex.value].playerId,
+            ) -> Validation.UNREACHABLE_FIELD
+
+            else -> null
+        }
+    }
+
+    private fun validateEnterField(fieldId: String): Validation? {
+        val game = game.value ?: throw IllegalStateException("Game is not loaded yet!")
+        return when {
+            fieldId == "" -> null
+
+            !isFieldIdInGame(fieldId) -> Validation.NO_SUCH_FIELD
+
+            !isFieldReachableByPlayer(
+                fieldId,
+                game.teams[tabIndex.value].playerId,
+            ) -> Validation.UNREACHABLE_FIELD
+
+            else -> null
+        }
+    }
+
+    private fun validatePurchaseHarvester(fieldId: String): Validation? {
+        val game = game.value ?: throw IllegalStateException("Game is not loaded yet!")
+        return when {
+            fieldId == "" -> null
+
+            !isFieldIdInGame(fieldId) -> Validation.NO_SUCH_FIELD
+
+            !isFieldOwnedByPlayer(
+                fieldId,
+                game.teams[tabIndex.value].playerId,
+            ) -> Validation.UNOWNED_FIELD
+
+            else -> null
+        }
+    }
+
     data class EnterStepsUIState(
-        val stepId: Int = -1, // TODO: find latest player step here
+        val stepId: Int = -1,
         val playerId: String = "",
         val leaveFields: SnapshotStateList<Pair<String, Validation?>> =
             mutableStateListOf(Pair("", null)),

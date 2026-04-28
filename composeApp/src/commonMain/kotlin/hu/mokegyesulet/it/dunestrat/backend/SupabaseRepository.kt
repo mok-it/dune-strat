@@ -73,6 +73,16 @@ object SupabaseRepository : Repository {
             list.map { it.toPlayerStep() }
         }
 
+    override fun getPlayerStep(
+        gameStateId: Int,
+        playerId: String,
+    ): Flow<PlayerStep> = getPlayerStepsByGameStateId(gameStateId).map {
+        it.find { step -> step.playerId == playerId } ?: PlayerStep(
+            gameStateId = gameStateId,
+            playerId = playerId,
+        )
+    }
+
     override suspend fun savePlayerStep(playerStep: PlayerStep) {
         supabase.from(STEP_TABLE).upsert(playerStep.toDatabaseEntry())
     }
