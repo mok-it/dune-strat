@@ -2,6 +2,7 @@ package hu.mokegyesulet.it.dunestrat.util.drawmap
 
 import dune_strat.composeapp.generated.resources.Res
 import hu.mokegyesulet.it.dunestrat.model.Desert
+import hu.mokegyesulet.it.dunestrat.model.DesertField
 import hu.mokegyesulet.it.dunestrat.model.Weapon
 import kotlin.math.PI
 
@@ -32,6 +33,9 @@ object MapDrawer {
     private lateinit var lasgunSVG: String
     private lateinit var crysknifeSVG: String
 
+    private lateinit var waterSVG: String
+    private lateinit var spiceSVG: String
+
     suspend fun loadResources() {
         val desertBytes = Res.readBytes("drawable/svg/desert.svg")
         desertSVG = desertBytes.decodeToString().replace("cls-", "desert-cls-")
@@ -43,6 +47,10 @@ object MapDrawer {
         lasgunSVG = lasgunBytes.decodeToString().replace("cls-", "lasgun-cls-")
         val crysknifeBytes = Res.readBytes("drawable/svg/crysknife.svg")
         crysknifeSVG = crysknifeBytes.decodeToString().replace("cls-", "crysknife-cls-")
+        val waterBytes = Res.readBytes("drawable/svg/water.svg")
+        waterSVG = waterBytes.decodeToString().replace("cls-", "water-cls-")
+        val spiceBytes = Res.readBytes("drawable/svg/spice.svg")
+        spiceSVG = spiceBytes.decodeToString().replace("cls-", "spice-cls-")
     }
 
     private fun getDefinitions(): String {
@@ -67,6 +75,14 @@ object MapDrawer {
 
         builder.append("<g id=\"crysknife\">\n")
         builder.append(crysknifeSVG)
+        builder.append("</g>\n")
+
+        builder.append("<g id=\"water\">\n")
+        builder.append(waterSVG)
+        builder.append("</g>\n")
+
+        builder.append("<g id=\"spice\" transform=\"scale(0.15)\">\n")
+        builder.append(spiceSVG)
         builder.append("</g>\n")
 
         builder.append("</defs>\n")
@@ -173,17 +189,24 @@ object MapDrawer {
         return "<text $position $align $font $rotate>$value</text>\n"
     }
 
-    private fun getSpiceTextSvg(
+    private fun getSpiceSvg(
         value: Int,
         offset: Vector2D,
     ): String {
-        val center =
-            (hexagonVertices[0] + hexagonVertices[1]) / 2 * (1 + INNER_HEXAGON_RATIO) / 2 + offset
-        val position = "x=\"${center.x}\" y=\"${center.y}\""
+        val totalOffset = offset + innerHexagonVertices[1]
+        val position = "x=\"${totalOffset.x}\" y=\"${totalOffset.y}\""
         val font = "font-size=\"20\" font-family=\"Times New Roman\""
         val align = "dominant-baseline=\"middle\" text-anchor=\"middle\""
-        val transform = "transform=\"rotate(-60,${center.x},${center.y})\""
-        return "<text $position $align $font $transform>$value</text>\n"
+        val transform = "transform=\"rotate(-60,${totalOffset.x},${totalOffset.y})\""
+
+        val svg = StringBuilder()
+
+        svg.append("<g $position $transform>\n")
+        svg.append("<use href=\"#spice\" x=\"0\" y=\"0\" />\n")
+        svg.append("<text x=\"60\" y=\"30\" $align $font>$value</text>\n")
+        svg.append("</g>\n")
+
+        return svg.toString()
     }
 
     private val weaponOffset = innerHexagonVertices[2]
@@ -237,7 +260,7 @@ object MapDrawer {
             fieldBuilder.append(getWaterBoxSvg(offset))
             fieldBuilder.append(getSpiceBoxSvg(offset))
             fieldBuilder.append(getWaterTextSvg(field.water, offset))
-            fieldBuilder.append(getSpiceTextSvg(field.spice, offset))
+            fieldBuilder.append(getSpiceSvg(field.spice, offset))
             fieldBuilder.append(getWeaponSvg(field.effectiveWeapon, offset))
 
             fieldBuilder.toString()
@@ -259,7 +282,18 @@ object MapDrawer {
 }
 
 suspend fun main() {
-    val desert = Desert.create12PlayerHexagon()
+    val desert = Desert(
+        fields = setOf(
+            DesertField(
+                id = "A1",
+                water = -3,
+                spice = 11,
+                effectiveWeapon = Weapon.PISTOL,
+                startingField = false,
+                neighbours = mutableSetOf(),
+            ),
+        ),
+    )
 
     MapDrawer.loadResources()
 
