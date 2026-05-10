@@ -1,25 +1,22 @@
 package hu.mokegyesulet.it.dunestrat.model
 
-import kotlin.collections.forEach
 import kotlin.math.pow
-import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 
-@Serializable
 data class Player(
     val id: String,
     var water: Int,
     var spice: Int,
     var harvestersPurchased: Int,
-    private val weapons: MutableMap<Weapon, Int>,
+    val weapons: MutableMap<Weapon, Int>,
     val ownedFields: MutableSet<GameStateField>,
     @Transient
     var inDebt: Boolean = false,
 ) {
     fun getWeaponCount(weapon: Weapon): Int = weapons[weapon] ?: 0
 
-    fun leaveFields(fields: Set<GameStateField>) {
-        ownedFields.removeAll(fields)
+    fun leaveFields(fields: Set<String>) {
+        ownedFields.removeAll { field -> field.id in fields }
     }
 
     fun waterConsumption(): Boolean {
@@ -31,7 +28,7 @@ data class Player(
         if (water >= 0) {
             return false
         }
-        leaveFields(ownedFields.filter { field -> field.water < 0 }.toSet())
+        ownedFields.removeAll { field -> field.water < 0 }
         water = 0
         return true
     }

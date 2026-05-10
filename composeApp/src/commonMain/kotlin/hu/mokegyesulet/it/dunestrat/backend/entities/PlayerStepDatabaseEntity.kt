@@ -12,12 +12,14 @@ class PlayerStepDatabaseEntity(
     val id: Int = -1,
     @SerialName("game_state_id")
     val gameStateId: Int,
+    @SerialName("player_id")
+    val playerId: String,
     val json: String,
 ) {
 
     fun toPlayerStep(): PlayerStep {
         val playerStep = Json.decodeFromString<PlayerStep>(json)
-        return playerStep.copy(id = id, gameStateId = gameStateId)
+        return playerStep.copy(id = id, gameStateId = gameStateId, playerId = playerId)
     }
 
     companion object {
@@ -28,5 +30,6 @@ class PlayerStepDatabaseEntity(
 fun PlayerStep.toDatabaseEntry(): PlayerStepDatabaseEntity = PlayerStepDatabaseEntity(
     id = id,
     gameStateId = gameStateId,
+    playerId = playerId,
     json = Json.encodeToString(this),
 )
