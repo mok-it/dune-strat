@@ -53,7 +53,9 @@ fun CreatePlayerCard(
                 NumericTextField(
                     value = player.getWeaponCount(weapon),
                     onValueChange = { newValue ->
-                        val newWeapons = Weapon.entries.associateWith { player.getWeaponCount(it) }.toMutableMap()
+                        val newWeapons = Weapon.entries.associateWith {
+                            player.getWeaponCount(it)
+                        }.toMutableMap()
                         newWeapons[weapon] = newValue
                         onChange(player.copy(weapons = newWeapons), index)
                     },
@@ -72,8 +74,12 @@ fun CreatePlayerCard(
                     onValueChange = {},
                     readOnly = true,
                     label = { Text("Kezdő mező") },
-                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-                    modifier = Modifier.menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable).fillMaxWidth(),
+                    trailingIcon = {
+                        ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
+                    },
+                    modifier = Modifier.menuAnchor(
+                        ExposedDropdownMenuAnchorType.PrimaryNotEditable,
+                    ).fillMaxWidth(),
                     isError = isFieldDuplicate || startingFieldId.isBlank(),
                 )
 
@@ -133,4 +139,3 @@ private fun NumericTextField(
         isError = value < 0,
     )
 }
-
