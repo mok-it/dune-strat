@@ -13,8 +13,8 @@ import kotlinx.coroutines.flow.stateIn
 
 class InitViewModel() : ViewModel() {
 
-    private fun createDefaultPlayer() = Player(
-        id = "",
+    private fun createDefaultPlayer(index: Int) = Player(
+        id = index,
         water = 0,
         spice = 10,
         weapons = mutableMapOf(
@@ -33,8 +33,8 @@ class InitViewModel() : ViewModel() {
     init {
         val startingPlayers = mutableListOf<Player>()
         val emptyFieldIds = mutableListOf<String>()
-        repeat(12) {
-            startingPlayers.add(createDefaultPlayer())
+        repeat(12) { index ->
+            startingPlayers.add(createDefaultPlayer(index))
             emptyFieldIds.add("")
         }
         playerList = mutableStateOf(startingPlayers)
@@ -84,8 +84,7 @@ class InitViewModel() : ViewModel() {
     private fun validateForm() {
         // Minden mezőnek ki kell lennie töltve
         isFormValid.value = playerList.value.zip(startingFieldIds.value).all { (player, fieldId) ->
-            player.id.isNotBlank() &&
-                fieldId.isNotBlank() &&
+            fieldId.isNotBlank() &&
                 player.water >= 0 &&
                 player.spice >= 0 &&
                 player.getWeaponCount(Weapon.PISTOL) >= 0 &&
@@ -103,8 +102,8 @@ class InitViewModel() : ViewModel() {
             playerList.value = currentList.take(newCount)
             startingFieldIds.value = currentFields.take(newCount)
         } else {
-            repeat(newCount - currentList.size) {
-                playerList.value += createDefaultPlayer()
+            repeat(newCount - currentList.size) { offset ->
+                playerList.value += createDefaultPlayer(currentList.size + offset)
                 startingFieldIds.value += ""
             }
         }

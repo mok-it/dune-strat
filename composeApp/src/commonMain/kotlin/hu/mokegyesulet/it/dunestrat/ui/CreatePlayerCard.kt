@@ -14,174 +14,86 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 @Composable
 @Preview
 fun CreatePlayerCard(
-    index : Int,
+    index: Int,
     modifier: Modifier,
     player: Player,
     onChange: (Player, Int) -> Unit,
     startingFieldId: String,
-    onStartingFieldChange: (String) -> Unit
+    onStartingFieldChange: (String) -> Unit,
 ) {
+    val weaponLabels = mapOf(
+        Weapon.PISTOL to "Pisztoly",
+        Weapon.LASGUN to "Lasgun",
+        Weapon.CRYSKNIFE to "Crysknife",
+        Weapon.LEGION to "Légió",
+    )
+
     Card(
-        modifier = modifier.padding(20.dp)
+        modifier = modifier.padding(20.dp),
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            TextField(
-                value = player.id,
-                onValueChange = { onChange(player.copy(id = it), index) },
-                label = { Text("Játékos ID") },
-                isError = player.id.isBlank()
+            NumericTextField(
+                value = player.water,
+                onValueChange = { onChange(player.copy(water = it), index) },
+                label = "Víz készlet",
             )
-            if (player.id.isBlank()) {
-                Text(
-                    text = "Ez a mező kötelező!",
-                    color = Color.Red,
-                    style = MaterialTheme.typography.bodySmall,
-                    modifier = Modifier.padding(start = 16.dp, top = 4.dp)
+
+            NumericTextField(
+                value = player.spice,
+                onValueChange = { onChange(player.copy(spice = it), index) },
+                label = "Fűszer készlet",
+                defaultValue = 10,
+            )
+
+            Weapon.entries.forEach { weapon ->
+                NumericTextField(
+                    value = player.getWeaponCount(weapon),
+                    onValueChange = { newValue ->
+                        val newWeapons = Weapon.entries.associateWith { player.getWeaponCount(it) }.toMutableMap()
+                        newWeapons[weapon] = newValue
+                        onChange(player.copy(weapons = newWeapons), index)
+                    },
+                    label = weaponLabels[weapon] ?: weapon.name,
                 )
             }
-
-            TextField(
-                value = player.water.toString(),
-                onValueChange = { input ->
-                    val value = input.toIntOrNull()
-                    if (value != null && value >= 0) {
-                        onChange(player.copy(water = value), index)
-                    } else if (input.isEmpty()) {
-                        onChange(player.copy(water = 0), index)
-                    }
-                },
-                label = { Text("Víz készlet") },
-                isError = player.water < 0
-            )
-
-            TextField(
-                value = player.spice.toString(),
-                onValueChange = { input ->
-                    val value = input.toIntOrNull()
-                    if (value != null && value >= 0) {
-                        onChange(player.copy(spice = value), index)
-                    } else if (input.isEmpty()) {
-                        onChange(player.copy(spice = 10), index)
-                    }
-                },
-                label = { Text("Fűszer készlet") },
-                isError = player.spice < 0
-            )
-
-            TextField(
-                value = player.getWeaponCount(Weapon.PISTOL).toString(),
-                onValueChange = { input ->
-                    val value = input.toIntOrNull()
-                    if (value != null && value >= 0) {
-                        val currentWeapons = mutableMapOf(
-                            Weapon.PISTOL to value,
-                            Weapon.LASGUN to player.getWeaponCount(Weapon.LASGUN),
-                            Weapon.CRYSKNIFE to player.getWeaponCount(Weapon.CRYSKNIFE),
-                            Weapon.LEGION to player.getWeaponCount(Weapon.LEGION)
-                        )
-                        onChange(player.copy(weapons = currentWeapons), index)
-                    } else if (input.isEmpty()) {
-                        val currentWeapons = mutableMapOf(
-                            Weapon.PISTOL to 0,
-                            Weapon.LASGUN to player.getWeaponCount(Weapon.LASGUN),
-                            Weapon.CRYSKNIFE to player.getWeaponCount(Weapon.CRYSKNIFE),
-                            Weapon.LEGION to player.getWeaponCount(Weapon.LEGION)
-                        )
-                        onChange(player.copy(weapons = currentWeapons), index)
-                    }
-                },
-                label = { Text("Pisztoly") }
-            )
-
-            TextField(
-                value = player.getWeaponCount(Weapon.LASGUN).toString(),
-                onValueChange = { input ->
-                    val value = input.toIntOrNull()
-                    if (value != null && value >= 0) {
-                        val currentWeapons = mutableMapOf(
-                            Weapon.PISTOL to player.getWeaponCount(Weapon.PISTOL),
-                            Weapon.LASGUN to value,
-                            Weapon.CRYSKNIFE to player.getWeaponCount(Weapon.CRYSKNIFE),
-                            Weapon.LEGION to player.getWeaponCount(Weapon.LEGION)
-                        )
-                        onChange(player.copy(weapons = currentWeapons), index)
-                    } else if (input.isEmpty()) {
-                        val currentWeapons = mutableMapOf(
-                            Weapon.PISTOL to player.getWeaponCount(Weapon.PISTOL),
-                            Weapon.LASGUN to 0,
-                            Weapon.CRYSKNIFE to player.getWeaponCount(Weapon.CRYSKNIFE),
-                            Weapon.LEGION to player.getWeaponCount(Weapon.LEGION)
-                        )
-                        onChange(player.copy(weapons = currentWeapons), index)
-                    }
-                },
-                label = { Text("Lasgun") }
-            )
-
-            TextField(
-                value = player.getWeaponCount(Weapon.CRYSKNIFE).toString(),
-                onValueChange = { input ->
-                    val value = input.toIntOrNull()
-                    if (value != null && value >= 0) {
-                        val currentWeapons = mutableMapOf(
-                            Weapon.PISTOL to player.getWeaponCount(Weapon.PISTOL),
-                            Weapon.LASGUN to player.getWeaponCount(Weapon.LASGUN),
-                            Weapon.CRYSKNIFE to value,
-                            Weapon.LEGION to player.getWeaponCount(Weapon.LEGION)
-                        )
-                        onChange(player.copy(weapons = currentWeapons), index)
-                    } else if (input.isEmpty()) {
-                        val currentWeapons = mutableMapOf(
-                            Weapon.PISTOL to player.getWeaponCount(Weapon.PISTOL),
-                            Weapon.LASGUN to player.getWeaponCount(Weapon.LASGUN),
-                            Weapon.CRYSKNIFE to 0,
-                            Weapon.LEGION to player.getWeaponCount(Weapon.LEGION)
-                        )
-                        onChange(player.copy(weapons = currentWeapons), index)
-                    }
-                },
-                label = { Text("Crysknife") }
-            )
-
-            TextField(
-                value = player.getWeaponCount(Weapon.LEGION).toString(),
-                onValueChange = { input ->
-                    val value = input.toIntOrNull()
-                    if (value != null && value >= 0) {
-                        val currentWeapons = mutableMapOf(
-                            Weapon.PISTOL to player.getWeaponCount(Weapon.PISTOL),
-                            Weapon.LASGUN to player.getWeaponCount(Weapon.LASGUN),
-                            Weapon.CRYSKNIFE to player.getWeaponCount(Weapon.CRYSKNIFE),
-                            Weapon.LEGION to value
-                        )
-                        onChange(player.copy(weapons = currentWeapons), index)
-                    } else if (input.isEmpty()) {
-                        val currentWeapons = mutableMapOf(
-                            Weapon.PISTOL to player.getWeaponCount(Weapon.PISTOL),
-                            Weapon.LASGUN to player.getWeaponCount(Weapon.LASGUN),
-                            Weapon.CRYSKNIFE to player.getWeaponCount(Weapon.CRYSKNIFE),
-                            Weapon.LEGION to 0
-                        )
-                        onChange(player.copy(weapons = currentWeapons), index)
-                    }
-                },
-                label = { Text("Légió") }
-            )
 
             TextField(
                 value = startingFieldId,
                 onValueChange = onStartingFieldChange,
                 label = { Text("Kezdő mező") },
-                isError = startingFieldId.isBlank()
+                isError = startingFieldId.isBlank(),
             )
             if (startingFieldId.isBlank()) {
                 Text(
                     text = "Ez a mező kötelező!",
                     color = Color.Red,
                     style = MaterialTheme.typography.bodySmall,
-                    modifier = Modifier.padding(start = 16.dp, top = 4.dp)
+                    modifier = Modifier.padding(start = 16.dp, top = 4.dp),
                 )
             }
         }
     }
 }
+
+@Composable
+private fun NumericTextField(
+    value: Int,
+    onValueChange: (Int) -> Unit,
+    label: String,
+    defaultValue: Int = 0,
+) {
+    TextField(
+        value = value.toString(),
+        onValueChange = { input ->
+            val newValue = input.toIntOrNull()
+            if (newValue != null && newValue >= 0) {
+                onValueChange(newValue)
+            } else if (input.isEmpty()) {
+                onValueChange(defaultValue)
+            }
+        },
+        label = { Text(label) },
+        isError = value < 0,
+    )
+}
+

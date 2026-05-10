@@ -22,6 +22,7 @@ class TestDataViewModel : ViewModel() {
     private var players = (1..12).map { initPlayer(it) }
 
     init {
+        players = (0..11).map { initPlayer(it) }
         viewModelScope.launch {
             games.collect { list ->
                 println("Games from Supabase: $list")
