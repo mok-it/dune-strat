@@ -14,6 +14,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuAnchorType
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults.TrailingIcon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
@@ -46,7 +47,7 @@ fun InitScreen() {
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         // Dropdown
-        Box(
+        Column(
             modifier = Modifier.fillMaxWidth(0.7f),
         ) {
             ExposedDropdownMenuBox(
@@ -70,6 +71,7 @@ fun InitScreen() {
                     readOnly = true,
                     label = { Text("Térkép kiválasztása") },
                     trailingIcon = { TrailingIcon(expanded = expanded) },
+                    isError = selectedDesert == null,
                 )
 
                 ExposedDropdownMenu(
@@ -99,6 +101,14 @@ fun InitScreen() {
                     }
                 }
             }
+            if (selectedDesert == null) {
+                Text(
+                    text = "A térkép kiválasztása kötelező!",
+                    color = androidx.compose.ui.graphics.Color.Red,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.padding(top = 4.dp),
+                )
+            }
         }
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -107,7 +117,8 @@ fun InitScreen() {
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            for (playerNumber in 1..playerCount) {
+            if (selectedDesert != null) {
+                for (playerNumber in 1..playerCount) {
                 val index = playerNumber - 1
 
                 item { Text("$playerNumber. játékos") }
@@ -141,6 +152,7 @@ fun InitScreen() {
                     Spacer(modifier = Modifier.height(8.dp))
                 }
             }
+        }
 
             // Mentés gomb
             item {

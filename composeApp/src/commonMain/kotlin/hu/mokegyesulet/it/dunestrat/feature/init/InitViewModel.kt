@@ -86,15 +86,16 @@ class InitViewModel() : ViewModel() {
     }
 
     private fun validateForm() {
-        // Minden mezőnek ki kell lennie töltve és a kezdő mezőknek egyedinek kell lenniük
+        val desertSelected = selectedDesert.value != null
         val allFieldsAssigned = startingFieldIds.value.all { it.isNotBlank() }
         val uniqueFields = startingFieldIds.value.distinct().size == startingFieldIds.value.size
 
-        isFormValid.value = allFieldsAssigned && uniqueFields && playerList.value.all { player ->
-            player.water >= 0 &&
-                player.spice >= 0 &&
-                Weapon.entries.all { player.getWeaponCount(it) >= 0 }
-        }
+        isFormValid.value =
+            desertSelected && allFieldsAssigned && uniqueFields && playerList.value.all { player ->
+                player.water >= 0 &&
+                    player.spice >= 0 &&
+                    Weapon.entries.all { player.getWeaponCount(it) >= 0 }
+            }
     }
 
     private fun resizePlayerList(newCount: Int) {
