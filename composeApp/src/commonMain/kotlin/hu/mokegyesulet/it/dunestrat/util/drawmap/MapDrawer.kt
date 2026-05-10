@@ -186,13 +186,13 @@ object MapDrawer {
         return "<text $position $align $font $transform>$value</text>\n"
     }
 
-    private val weaponOffset = Vector2D(innerHexagonVertices[2].x, hexagonVertices[2].y)
+    private val weaponOffset = innerHexagonVertices[2]
 
     private fun getWeaponSvg(
         weapon: Weapon,
         offset: Vector2D,
     ): String {
-        val totalOffset = offset
+        val totalOffset = offset + weaponOffset
         return when (weapon) {
             Weapon.PISTOL -> {
                 "<use href=\"#pistol\" x=\"${totalOffset.x}\" y=\"${totalOffset.y}\" />\n"
