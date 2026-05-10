@@ -1,4 +1,4 @@
-package hu.mokegyesulet.it.dunestrat.feature.drawmap
+package hu.mokegyesulet.it.dunestrat.util.drawmap
 
 import dune_strat.composeapp.generated.resources.Res
 import hu.mokegyesulet.it.dunestrat.model.Desert

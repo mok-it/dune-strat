@@ -1,4 +1,4 @@
-package hu.mokegyesulet.it.dunestrat.feature.drawmap
+package hu.mokegyesulet.it.dunestrat.util.drawmap
 
 import kotlin.math.cos
 import kotlin.math.sin
