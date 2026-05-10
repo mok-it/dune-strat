@@ -2,6 +2,7 @@ package hu.mokegyesulet.it.dunestrat.feature.drawmap
 
 import dune_strat.composeapp.generated.resources.Res
 import hu.mokegyesulet.it.dunestrat.model.Desert
+import hu.mokegyesulet.it.dunestrat.model.Weapon
 import kotlin.math.PI
 
 object MapDrawer {
@@ -27,22 +28,47 @@ object MapDrawer {
     private lateinit var desertSVG: String
     private lateinit var mountainSVG: String
 
+    private lateinit var pistolSVG: String
+    private lateinit var lasgunSVG: String
+    private lateinit var crysknifeSVG: String
+
     suspend fun loadResources() {
         val desertBytes = Res.readBytes("drawable/svg/desert.svg")
         desertSVG = desertBytes.decodeToString().replace("cls-", "desert-cls-")
         val mountainBytes = Res.readBytes("drawable/svg/mountain.svg")
         mountainSVG = mountainBytes.decodeToString().replace("cls-", "mountain-cls-")
+        val pistolBytes = Res.readBytes("drawable/svg/pistol.svg")
+        pistolSVG = pistolBytes.decodeToString().replace("cls-", "pistol-cls-")
+        val lasgunBytes = Res.readBytes("drawable/svg/lasgun.svg")
+        lasgunSVG = lasgunBytes.decodeToString().replace("cls-", "lasgun-cls-")
+        val crysknifeBytes = Res.readBytes("drawable/svg/crysknife.svg")
+        crysknifeSVG = crysknifeBytes.decodeToString().replace("cls-", "crysknife-cls-")
     }
 
     private fun getDefinitions(): String {
         val builder = StringBuilder()
         builder.append("<defs>\n")
+
         builder.append("<g id=\"desert\" transform=\"scale(0.6660724856)\">\n")
         builder.append(desertSVG)
         builder.append("</g>\n")
+
         builder.append("<g id=\"mountain\" transform=\"scale(0.6660724856)\">\n")
         builder.append(mountainSVG)
         builder.append("</g>\n")
+
+        builder.append("<g id=\"pistol\">\n")
+        builder.append(pistolSVG)
+        builder.append("</g>\n")
+
+        builder.append("<g id=\"lasgun\">\n")
+        builder.append(lasgunSVG)
+        builder.append("</g>\n")
+
+        builder.append("<g id=\"crysknife\">\n")
+        builder.append(crysknifeSVG)
+        builder.append("</g>\n")
+
         builder.append("</defs>\n")
         return builder.toString()
     }
@@ -160,6 +186,32 @@ object MapDrawer {
         return "<text $position $align $font $transform>$value</text>\n"
     }
 
+    private val weaponOffset = Vector2D(innerHexagonVertices[2].x, hexagonVertices[2].y)
+
+    private fun getWeaponSvg(
+        weapon: Weapon,
+        offset: Vector2D,
+    ): String {
+        val totalOffset = offset
+        return when (weapon) {
+            Weapon.PISTOL -> {
+                "<use href=\"#pistol\" x=\"${totalOffset.x}\" y=\"${totalOffset.y}\" />\n"
+            }
+
+            Weapon.LASGUN -> {
+                "<use href=\"#lasgun\" x=\"${totalOffset.x}\" y=\"${totalOffset.y}\" />\n"
+            }
+
+            Weapon.CRYSKNIFE -> {
+                "<use href=\"#crysknife\" x=\"${totalOffset.x}\" y=\"${totalOffset.y}\" />\n"
+            }
+
+            Weapon.LEGION -> {
+                ""
+            }
+        }
+    }
+
     fun getDesertSvg(desert: Desert): String {
         var minX = 0.0
         var maxX = 0.0
@@ -186,6 +238,7 @@ object MapDrawer {
             fieldBuilder.append(getSpiceBoxSvg(offset))
             fieldBuilder.append(getWaterTextSvg(field.water, offset))
             fieldBuilder.append(getSpiceTextSvg(field.spice, offset))
+            fieldBuilder.append(getWeaponSvg(field.effectiveWeapon, offset))
 
             fieldBuilder.toString()
         }
