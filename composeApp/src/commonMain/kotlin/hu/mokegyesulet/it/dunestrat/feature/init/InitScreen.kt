@@ -25,7 +25,8 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import hu.mokegyesulet.it.dunestrat.model.Desert
-import hu.mokegyesulet.it.dunestrat.ui.CreatePlayerCard
+import hu.mokegyesulet.it.dunestrat.ui.GlobalStartingConditionsCard
+import hu.mokegyesulet.it.dunestrat.ui.PlayerStartingFieldCard
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -39,6 +40,7 @@ fun InitScreen() {
     val startingFieldIds by viewModel.startingFieldIds
     val isFormValid by viewModel.isFormValid
     val selectedDesert by viewModel.selectedDesert
+    val basePlayer by viewModel.basePlayerState
 
     Column(
         modifier = Modifier
@@ -118,25 +120,29 @@ fun InitScreen() {
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             if (selectedDesert != null) {
-                for (playerNumber in 1..playerCount) {
-                val index = playerNumber - 1
-
-                item { Text("$playerNumber. játékos") }
-
                 item {
-                    val currentFieldId = startingFieldIds[index]
-                    val isDuplicate = startingFieldIds.count { it == currentFieldId && it.isNotBlank() } > 1
-                    val availableFields = selectedDesert?.fields?.filter { it.startingField }?.map { it.id } ?: emptyList()
-
-                    CreatePlayerCard(
-                        index = index,
-                        modifier = Modifier.fillMaxWidth(0.45f),
-                        player = playerList[index],
-                        onChange = { player, i ->
+                    GlobalStartingConditionsCard(
+                        modifier = Modifier.fillMaxWidth(0.9f),
+                        player = basePlayer,
+                        onChange = {
                             viewModel.onEvent(
-                                InitViewModel.InitScreenEvent.UpdatePlayerData(player, i),
+                                InitViewModel.InitScreenEvent.UpdateGlobalStartingConditions(it),
                             )
                         },
+                    )
+                }
+
+                items(playerCount) { index ->
+                    val currentFieldId = startingFieldIds[index]
+                    val isDuplicate =
+                        startingFieldIds.count { it == currentFieldId && it.isNotBlank() } > 1
+                    val availableFields =
+                        selectedDesert?.fields?.filter { it.startingField }?.map { it.id }
+                            ?: emptyList()
+
+                    PlayerStartingFieldCard(
+                        index = index,
+                        modifier = Modifier.fillMaxWidth(0.45f),
                         startingFieldId = currentFieldId,
                         onStartingFieldChange = { fieldId ->
                             viewModel.onEvent(
@@ -149,10 +155,8 @@ fun InitScreen() {
                         availableStartingFields = availableFields,
                         isFieldDuplicate = isDuplicate,
                     )
-                    Spacer(modifier = Modifier.height(8.dp))
                 }
             }
-        }
 
             // Mentés gomb
             item {

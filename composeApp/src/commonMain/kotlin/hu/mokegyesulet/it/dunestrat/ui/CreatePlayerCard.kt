@@ -13,15 +13,10 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 @Composable
 @Preview
 @OptIn(ExperimentalMaterial3Api::class)
-fun CreatePlayerCard(
-    index: Int,
-    modifier: Modifier,
+fun GlobalStartingConditionsCard(
+    modifier: Modifier = Modifier,
     player: Player,
-    onChange: (Player, Int) -> Unit,
-    startingFieldId: String,
-    onStartingFieldChange: (String) -> Unit,
-    availableStartingFields: List<String>,
-    isFieldDuplicate: Boolean,
+    onChange: (Player) -> Unit,
 ) {
     val weaponLabels = mapOf(
         Weapon.PISTOL to "Pisztoly",
@@ -30,21 +25,23 @@ fun CreatePlayerCard(
         Weapon.LEGION to "Légió",
     )
 
-    var expanded by remember { mutableStateOf(false) }
-
     Card(
-        modifier = modifier.padding(20.dp),
+        modifier = modifier.wrapContentSize()
+            .padding(20.dp),
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
+            Text("Kezdő állapot", style = MaterialTheme.typography.titleMedium)
+            Spacer(modifier = Modifier.height(16.dp))
+
             NumericTextField(
                 value = player.water,
-                onValueChange = { onChange(player.copy(water = it), index) },
+                onValueChange = { onChange(player.copy(water = it)) },
                 label = "Víz készlet",
             )
 
             NumericTextField(
                 value = player.spice,
-                onValueChange = { onChange(player.copy(spice = it), index) },
+                onValueChange = { onChange(player.copy(spice = it)) },
                 label = "Fűszer készlet",
                 defaultValue = 10,
             )
@@ -57,13 +54,33 @@ fun CreatePlayerCard(
                             player.getWeaponCount(it)
                         }.toMutableMap()
                         newWeapons[weapon] = newValue
-                        onChange(player.copy(weapons = newWeapons), index)
+                        onChange(player.copy(weapons = newWeapons))
                     },
                     label = weaponLabels[weapon] ?: weapon.name,
                 )
             }
+        }
+    }
+}
 
-            Spacer(modifier = Modifier.height(16.dp))
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun PlayerStartingFieldCard(
+    index: Int,
+    modifier: Modifier = Modifier,
+    startingFieldId: String,
+    onStartingFieldChange: (String) -> Unit,
+    availableStartingFields: List<String>,
+    isFieldDuplicate: Boolean,
+) {
+    var expanded by remember { mutableStateOf(false) }
+
+    Card(
+        modifier = modifier.padding(horizontal = 20.dp, vertical = 8.dp),
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text("${index + 1}. játékos kezdő mezője", style = MaterialTheme.typography.labelLarge)
+            Spacer(modifier = Modifier.height(8.dp))
 
             ExposedDropdownMenuBox(
                 expanded = expanded,
