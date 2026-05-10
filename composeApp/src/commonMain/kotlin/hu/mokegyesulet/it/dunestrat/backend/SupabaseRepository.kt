@@ -10,6 +10,7 @@ import io.github.jan.supabase.postgrest.from
 import io.github.jan.supabase.postgrest.query.filter.FilterOperation
 import io.github.jan.supabase.postgrest.query.filter.FilterOperator
 import io.github.jan.supabase.realtime.selectAsFlow
+import io.github.jan.supabase.realtime.selectSingleValueAsFlow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
@@ -73,23 +74,26 @@ object SupabaseRepository : Repository {
             list.map { it.toPlayerStep() }
         }
 
+    @OptIn(SupabaseExperimental::class)
     override fun getPlayerStep(
         gameStateId: Int,
-        playerId: String,
-    ): Flow<PlayerStep> = getPlayerStepsByGameStateId(gameStateId).map {
-        it.find { step -> step.playerId == playerId } ?: PlayerStep(
-            gameStateId = gameStateId,
-            playerId = playerId,
-        )
-    }
+        playerId: Int,
+    ): Flow<PlayerStep> = supabase.from(STEP_TABLE).selectSingleValueAsFlow(
+        PlayerStepDatabaseEntity::id,
+    ) {
+        PlayerStepDatabaseEntity::gameStateId eq gameStateId
+        PlayerStepDatabaseEntity::playerId eq playerId
+    }.map { it.toPlayerStep() }
 
-    override suspend fun savePlayerStep(playerStep: PlayerStep) {
-        supabase.from(STEP_TABLE).upsert(playerStep.toDatabaseEntry())
-    }
+    override suspend fun savePlayerStep(playerStep: PlayerStep): PlayerStep =
+        supabase.from(STEP_TABLE).upsert(playerStep.toDatabaseEntry()) {
+            select()
+        }.decodeSingle<PlayerStepDatabaseEntity>().toPlayerStep()
 
-    override suspend fun saveDesert(desert: Desert) {
-        supabase.from(DESERT_TABLE).insert(desert.toDatabaseEntity())
-    }
+    override suspend fun saveDesert(desert: Desert): Desert =
+        supabase.from(DESERT_TABLE).insert(desert.toDatabaseEntity()) {
+            select()
+        }.decodeSingle<DesertDatabaseEntity>().toDesert()
 
     @OptIn(SupabaseExperimental::class)
     override fun getDeserts(): Flow<List<Desert>> =

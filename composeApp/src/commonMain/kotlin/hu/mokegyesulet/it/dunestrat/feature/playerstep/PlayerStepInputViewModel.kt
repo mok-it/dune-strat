@@ -43,9 +43,11 @@ class PlayerStepInputViewModel(
                 },
             )
             game.value!!.teams.forEachIndexed { index, team ->
-                val flow = SupabaseRepository.getPlayerStep(gameState.value!!.id, team.playerId)
-                flow.collect { playerStep ->
-                    playerSteps[index].value = playerStep
+                launch {
+                    val flow = SupabaseRepository.getPlayerStep(gameState.value!!.id, team.playerId)
+                    flow.collect { playerStep ->
+                        playerSteps[index].value = playerStep
+                    }
                 }
             }
         }
@@ -113,8 +115,17 @@ class PlayerStepInputViewModel(
             is Event.RunTurn -> {
                 viewModelScope.launch {
                     val playerSteps = getPlayerSteps()
-                    val newGameState = gameState.runTurn(playerSteps)
-                    SupabaseRepository.saveGameState(newGameState)
+                    var newGameState = gameState.runTurn(playerSteps)
+                    newGameState = SupabaseRepository.saveGameState(newGameState)
+
+                    newGameState.players.forEach { player ->
+                        SupabaseRepository.savePlayerStep(
+                            PlayerStep(
+                                gameStateId = newGameState.id,
+                                playerId = player.id,
+                            ),
+                        )
+                    }
                 }
             }
 
@@ -162,7 +173,7 @@ class PlayerStepInputViewModel(
             is Event.SaveToDatabase -> {
                 viewModelScope.launch {
                     val playerStep = uiStates.value[tabIndex.value].toPlayerStep(gameState)
-                    if (playerStep.gameStateId != -1) {
+                    if (playerStep.id != -1) {
                         SupabaseRepository.savePlayerStep(playerStep)
                     }
                 }
@@ -186,7 +197,7 @@ class PlayerStepInputViewModel(
 
     private fun isFieldOwnedByPlayer(
         fieldId: String,
-        playerId: String,
+        playerId: Int,
     ): Boolean {
         val gameState =
             gameState.value ?: throw IllegalStateException("Game state is not loaded yet!")
@@ -199,7 +210,7 @@ class PlayerStepInputViewModel(
 
     private fun isFieldReachableByPlayer(
         fieldId: String,
-        playerId: String,
+        playerId: Int,
     ): Boolean {
         val gameState =
             gameState.value ?: throw IllegalStateException("Game state is not loaded yet!")
@@ -264,7 +275,7 @@ class PlayerStepInputViewModel(
 
     data class EnterStepsUIState(
         val stepId: Int = -1,
-        val playerId: String = "",
+        val playerId: Int = -1,
         val leaveFields: SnapshotStateList<Pair<String, Validation?>> =
             mutableStateListOf(Pair("", null)),
         val enterFields: SnapshotStateList<Pair<String, Validation?>> =

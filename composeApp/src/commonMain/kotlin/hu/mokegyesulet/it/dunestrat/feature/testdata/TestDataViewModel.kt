@@ -124,4 +124,18 @@ class TestDataViewModel : ViewModel() {
             player.ownedFields.add(fields.first { it.id == coordinate })
         }
     }
+
+    fun initPlayerSteps(gameState: GameState) {
+        val playerSteps = gameState.players.map { player ->
+            PlayerStep(
+                gameStateId = gameState.id,
+                playerId = player.id,
+            )
+        }
+        viewModelScope.launch {
+            playerSteps.forEach {
+                SupabaseRepository.savePlayerStep(it)
+            }
+        }
+    }
 }
