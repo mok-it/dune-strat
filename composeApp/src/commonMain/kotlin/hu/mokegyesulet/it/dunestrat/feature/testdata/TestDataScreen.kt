@@ -52,9 +52,12 @@ fun TestDataScreen() {
             }
         }
         Button(onClick = { viewModel.initDesert() }) { Text("Init test desert") }
-        Button(onClick = { viewModel.initGame(deserts[0]) }) { Text("Init test game") }
+        Button(onClick = { viewModel.initGame(deserts.last()) }) { Text("Init test game") }
         Button(onClick = {
-            viewModel.initGameState(deserts[0], games[0])
+            viewModel.initGameState(deserts.last(), games.last())
         }) { Text("Init test gamestate") }
+        Button(onClick = {
+            viewModel.initPlayerSteps(gameStates.last())
+        }) { Text("Init test steps") }
     }
 }

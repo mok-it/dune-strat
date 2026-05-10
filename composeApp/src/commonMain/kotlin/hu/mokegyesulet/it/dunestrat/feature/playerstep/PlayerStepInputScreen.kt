@@ -9,6 +9,7 @@ import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.filled.QuestionMark
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -17,6 +18,7 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import hu.mokegyesulet.it.dunestrat.model.Weapon
 import hu.mokegyesulet.it.dunestrat.ui.tabKeyNavigable
@@ -63,12 +65,27 @@ fun PlayerStepInputScreen(
             }
         }
 
+        val lifecycleOwner = LocalLifecycleOwner.current
+        DisposableEffect(lifecycleOwner) {
+            onDispose { viewModel.onEvent(PlayerStepInputViewModel.Event.SaveToDatabase) }
+        }
+
         Scaffold(
             modifier = Modifier.fillMaxSize(),
             topBar = {
                 TopAppBar(
                     title = {},
                     actions = {
+                        Button(
+                            onClick = {
+                                viewModel.onEvent(
+                                    PlayerStepInputViewModel.Event.SaveToDatabase,
+                                )
+                            },
+                        ) {
+                            Text(text = "Mentés")
+                        }
+
                         Button(
                             onClick = {
                                 viewModel.onEvent(
@@ -94,7 +111,7 @@ fun PlayerStepInputScreen(
                                 viewModel.onEvent(PlayerStepInputViewModel.Event.TabSelected(index))
                             },
                             text = {
-                                Text(text = playerId)
+                                Text(text = playerId.toString())
                             },
                         )
                     }
@@ -119,6 +136,9 @@ fun PlayerStepInputScreen(
                         )
                         Column(modifier = Modifier.weight(1f)) {
                             Text("Vásárlás")
+
+                            val focusManager = LocalFocusManager.current
+
                             Weapon.entries.forEach { weapon ->
                                 Row {
                                     Text(
@@ -146,7 +166,9 @@ fun PlayerStepInputScreen(
                                                 ),
                                             )
                                         },
-                                        modifier = Modifier.onFocusChanged(saveOnLostFocus),
+                                        modifier = Modifier.onFocusChanged(
+                                            saveOnLostFocus,
+                                        ).tabKeyNavigable(focusManager),
                                     )
                                 }
                             }
@@ -160,7 +182,9 @@ fun PlayerStepInputScreen(
                                         )
                                     },
                                     validation = purchaseHarvester.second,
-                                    modifier = Modifier.onFocusChanged(saveOnLostFocus),
+                                    modifier = Modifier.onFocusChanged(
+                                        saveOnLostFocus,
+                                    ).tabKeyNavigable(focusManager),
                                 )
                             }
                         }
