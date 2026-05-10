@@ -4,6 +4,6 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 class Team(
-    val playerId: String,
+    val playerId: Int,
     val students: List<Student>,
 )
