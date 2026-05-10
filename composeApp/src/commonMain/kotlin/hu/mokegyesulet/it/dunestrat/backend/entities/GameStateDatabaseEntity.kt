@@ -63,6 +63,7 @@ class GameStateDatabaseEntity(
             players = players.toSet(),
         )
     }
+
     companion object {
         const val TABLE_NAME = "game_state"
     }

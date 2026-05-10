@@ -26,9 +26,10 @@ object SupabaseRepository : Repository {
             list.map { it.toGame() }
         }
 
-    override suspend fun saveGame(game: Game) {
-        supabase.from(GAME_TABLE).insert(game.toDatabaseEntry())
-    }
+    override suspend fun saveGame(game: Game): Game =
+        supabase.from(GAME_TABLE).insert(game.toDatabaseEntry()) {
+            select()
+        }.decodeSingle<GameDatabaseEntity>().toGame()
 
     @OptIn(SupabaseExperimental::class)
     override fun getGameStates(): Flow<List<GameState>> =
@@ -46,9 +47,10 @@ object SupabaseRepository : Repository {
                 ?: throw IllegalStateException("No game state found for game id: $gameId")
         }
 
-    override suspend fun saveGameState(gameState: GameState) {
-        supabase.from(GAME_STATE_TABLE).insert(gameState.toDatabaseEntry())
-    }
+    override suspend fun saveGameState(gameState: GameState): GameState =
+        supabase.from(GAME_STATE_TABLE).insert(gameState.toDatabaseEntry()) {
+            select()
+        }.decodeSingle<GameStateDatabaseEntity>().toGameState()
 
     @OptIn(SupabaseExperimental::class)
     override fun getPlayerSteps(): Flow<List<PlayerStep>> =
