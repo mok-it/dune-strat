@@ -106,7 +106,7 @@ fun GameStateField.toGameStateFieldWithIdList() = GameStateFieldWithIdList(
 
 @Serializable
 class PlayerWithFieldIdList(
-    val id: String,
+    val id: Int,
     val water: Int,
     val spice: Int,
     val harvesterPurchased: Int,

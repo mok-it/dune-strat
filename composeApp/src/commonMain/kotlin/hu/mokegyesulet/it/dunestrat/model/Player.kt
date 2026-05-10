@@ -4,7 +4,7 @@ import kotlin.math.pow
 import kotlinx.serialization.Transient
 
 data class Player(
-    val id: String,
+    val id: Int,
     var water: Int,
     var spice: Int,
     var harvestersPurchased: Int,

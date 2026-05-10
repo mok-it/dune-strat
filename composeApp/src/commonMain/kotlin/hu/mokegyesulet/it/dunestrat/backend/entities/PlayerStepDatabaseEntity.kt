@@ -13,7 +13,7 @@ class PlayerStepDatabaseEntity(
     @SerialName("game_state_id")
     val gameStateId: Int,
     @SerialName("player_id")
-    val playerId: String,
+    val playerId: Int,
     val json: String,
 ) {
 

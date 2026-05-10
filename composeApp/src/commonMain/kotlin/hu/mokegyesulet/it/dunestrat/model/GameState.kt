@@ -52,7 +52,7 @@ data class GameState(
     }
 
     fun getPlayerStepById(
-        playerId: String,
+        playerId: Int,
         playerSteps: Set<PlayerStep>,
     ): PlayerStep = playerSteps.find { playerStep ->
         playerStep.playerId == playerId

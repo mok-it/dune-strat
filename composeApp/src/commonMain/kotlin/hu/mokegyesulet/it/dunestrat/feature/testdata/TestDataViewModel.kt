@@ -3,16 +3,7 @@ package hu.mokegyesulet.it.dunestrat.feature.testdata
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import hu.mokegyesulet.it.dunestrat.backend.SupabaseRepository
-import hu.mokegyesulet.it.dunestrat.model.Desert
-import hu.mokegyesulet.it.dunestrat.model.Game
-import hu.mokegyesulet.it.dunestrat.model.GameProgress
-import hu.mokegyesulet.it.dunestrat.model.GameState
-import hu.mokegyesulet.it.dunestrat.model.GameStateField
-import hu.mokegyesulet.it.dunestrat.model.Player
-import hu.mokegyesulet.it.dunestrat.model.Student
-import hu.mokegyesulet.it.dunestrat.model.Team
-import hu.mokegyesulet.it.dunestrat.model.Weapon
-import hu.mokegyesulet.it.dunestrat.model.toGameStateFields
+import hu.mokegyesulet.it.dunestrat.model.*
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -28,23 +19,9 @@ class TestDataViewModel : ViewModel() {
     val gameStates = SupabaseRepository.getGameStates()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
-    private var players: List<Player>
+    private var players = (1..12).map { initPlayer(it) }
 
     init {
-        players = listOf(
-            initPlayer("1"),
-            initPlayer("2"),
-            initPlayer("3"),
-            initPlayer("4"),
-            initPlayer("5"),
-            initPlayer("6"),
-            initPlayer("7"),
-            initPlayer("8"),
-            initPlayer("9"),
-            initPlayer("10"),
-            initPlayer("11"),
-            initPlayer("12"),
-        )
         viewModelScope.launch {
             games.collect { list ->
                 println("Games from Supabase: $list")
@@ -118,7 +95,7 @@ class TestDataViewModel : ViewModel() {
         }
     }
 
-    private fun initPlayer(id: String): Player = Player(
+    private fun initPlayer(id: Int): Player = Player(
         id,
         0,
         0,

@@ -10,7 +10,7 @@ data class PlayerStep(
     @Transient
     val gameStateId: Int = -1,
     @Transient
-    val playerId: String = "",
+    val playerId: Int = -1,
     var leaveFields: Set<String> = emptySet(),
     var enterFields: Set<String> = emptySet(),
     var purchaseWeapons: Map<Weapon, Int> = emptyMap(),
