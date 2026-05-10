@@ -113,6 +113,10 @@ fun InitScreen() {
                 item { Text("$playerNumber. játékos") }
 
                 item {
+                    val currentFieldId = startingFieldIds[index]
+                    val isDuplicate = startingFieldIds.count { it == currentFieldId && it.isNotBlank() } > 1
+                    val availableFields = selectedDesert?.fields?.filter { it.startingField }?.map { it.id } ?: emptyList()
+
                     CreatePlayerCard(
                         index = index,
                         modifier = Modifier.fillMaxWidth(0.45f),
@@ -122,6 +126,7 @@ fun InitScreen() {
                                 InitViewModel.InitScreenEvent.UpdatePlayerData(player, i),
                             )
                         },
+                        startingFieldId = currentFieldId,
                         onStartingFieldChange = { fieldId ->
                             viewModel.onEvent(
                                 InitViewModel.InitScreenEvent.UpdatePlayerStartingField(
@@ -130,7 +135,8 @@ fun InitScreen() {
                                 ),
                             )
                         },
-                        startingFieldId = startingFieldIds[index],
+                        availableStartingFields = availableFields,
+                        isFieldDuplicate = isDuplicate,
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                 }

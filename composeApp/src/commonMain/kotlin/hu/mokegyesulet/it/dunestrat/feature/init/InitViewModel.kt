@@ -58,9 +58,13 @@ class InitViewModel() : ViewModel() {
             is InitScreenEvent.ChangeSelectedMap -> {
                 selectedDesert.value = event.selectedDesert
 
-                playerCount.value = selectedDesert.value?.fields?.count { it.startingField } ?: 0
+                val startingFields = event.selectedDesert.fields.filter { it.startingField }
+                playerCount.value = startingFields.size
                 dropdownExpanded.value = false
                 resizePlayerList(playerCount.value)
+
+                startingFieldIds.value = startingFields.map { it.id }
+                validateForm()
             }
 
             is InitScreenEvent.UpdatePlayerData -> {
@@ -82,15 +86,14 @@ class InitViewModel() : ViewModel() {
     }
 
     private fun validateForm() {
-        // Minden mezőnek ki kell lennie töltve
-        isFormValid.value = playerList.value.zip(startingFieldIds.value).all { (player, fieldId) ->
-            fieldId.isNotBlank() &&
-                player.water >= 0 &&
+        // Minden mezőnek ki kell lennie töltve és a kezdő mezőknek egyedinek kell lenniük
+        val allFieldsAssigned = startingFieldIds.value.all { it.isNotBlank() }
+        val uniqueFields = startingFieldIds.value.distinct().size == startingFieldIds.value.size
+
+        isFormValid.value = allFieldsAssigned && uniqueFields && playerList.value.all { player ->
+            player.water >= 0 &&
                 player.spice >= 0 &&
-                player.getWeaponCount(Weapon.PISTOL) >= 0 &&
-                player.getWeaponCount(Weapon.LASGUN) >= 0 &&
-                player.getWeaponCount(Weapon.CRYSKNIFE) >= 0 &&
-                player.getWeaponCount(Weapon.LEGION) >= 0
+                Weapon.entries.all { player.getWeaponCount(it) >= 0 }
         }
     }
 
