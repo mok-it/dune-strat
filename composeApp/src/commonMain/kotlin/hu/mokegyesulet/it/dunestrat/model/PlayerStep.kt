@@ -9,9 +9,10 @@ data class PlayerStep(
     val id: Int = -1,
     @Transient
     val gameStateId: Int = -1,
-    val playerId: String,
-    var leaveFields: Set<GameStateField>,
-    var enterFields: Set<GameStateField>,
-    var purchaseWeapons: Map<Weapon, Int>,
-    var buildHarvesters: Set<GameStateField>,
+    @Transient
+    val playerId: String = "",
+    var leaveFields: Set<String> = emptySet(),
+    var enterFields: Set<String> = emptySet(),
+    var purchaseWeapons: Map<Weapon, Int> = emptyMap(),
+    var buildHarvesters: Set<String> = emptySet(),
 )

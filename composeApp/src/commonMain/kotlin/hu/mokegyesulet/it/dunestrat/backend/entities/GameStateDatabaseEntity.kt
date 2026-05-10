@@ -2,6 +2,7 @@ package hu.mokegyesulet.it.dunestrat.backend.entities
 
 import hu.mokegyesulet.it.dunestrat.model.GameState
 import hu.mokegyesulet.it.dunestrat.model.GameStateField
+import hu.mokegyesulet.it.dunestrat.model.Player
 import hu.mokegyesulet.it.dunestrat.model.Weapon
 import kotlinx.serialization.EncodeDefault
 import kotlinx.serialization.SerialName
@@ -17,11 +18,10 @@ class GameStateDatabaseEntity(
     val index: Int,
     @SerialName("field_jsons")
     val fieldJsons: List<String>,
-    val json: String,
+    @SerialName("player_jsons")
+    val playersJsons: List<String>,
 ) {
     fun toGameState(): GameState {
-        val gameState = Json.decodeFromString<GameState>(json)
-
         val fieldsWithIdList = fieldJsons.map { fieldJson ->
             Json.decodeFromString<GameStateFieldWithIdList>(fieldJson)
         }
@@ -40,11 +40,27 @@ class GameStateDatabaseEntity(
             }
         }
 
-        return gameState.copy(
+        val players = playersJsons.map { playerJson ->
+            val playerWithFieldIdList = Json.decodeFromString<PlayerWithFieldIdList>(playerJson)
+            val ownedFields = playerWithFieldIdList.ownedFieldsId.map { fieldId ->
+                fields[fieldId]!!
+            }
+            Player(
+                id = playerWithFieldIdList.id,
+                water = playerWithFieldIdList.water,
+                spice = playerWithFieldIdList.spice,
+                harvestersPurchased = playerWithFieldIdList.harvesterPurchased,
+                weapons = playerWithFieldIdList.weapons.toMutableMap(),
+                ownedFields = ownedFields.toMutableSet(),
+            )
+        }
+
+        return GameState(
             id = id,
             gameId = gameId,
             index = index,
             fields = fields.values.toSet(),
+            players = players.toSet(),
         )
     }
     companion object {
@@ -57,7 +73,7 @@ fun GameState.toDatabaseEntry(): GameStateDatabaseEntity = GameStateDatabaseEnti
     gameId = gameId,
     index = index,
     fieldJsons = fields.map { Json.encodeToString(it.toGameStateFieldWithIdList()) },
-    json = Json.encodeToString(this),
+    playersJsons = players.map { Json.encodeToString(it.toPlayerWithFieldIdList()) },
 )
 
 @Serializable
@@ -86,4 +102,32 @@ fun GameStateField.toGameStateFieldWithIdList() = GameStateFieldWithIdList(
     effectiveWeapon = effectiveWeapon,
     harvester = harvester,
     neighboursId = neighbours.map { it.id },
+)
+
+@Serializable
+class PlayerWithFieldIdList(
+    val id: String,
+    val water: Int,
+    val spice: Int,
+    val harvesterPurchased: Int,
+    val weapons: Map<Weapon, Int>,
+    val ownedFieldsId: Set<String>,
+) {
+    fun toPlayer() = Player(
+        id = id,
+        water = water,
+        spice = spice,
+        harvestersPurchased = harvesterPurchased,
+        weapons = weapons.toMutableMap(),
+        ownedFields = mutableSetOf(),
+    )
+}
+
+fun Player.toPlayerWithFieldIdList() = PlayerWithFieldIdList(
+    id = id,
+    water = water,
+    spice = spice,
+    harvesterPurchased = harvestersPurchased,
+    weapons = weapons.toMap(),
+    ownedFieldsId = ownedFields.map { it.id }.toSet(),
 )

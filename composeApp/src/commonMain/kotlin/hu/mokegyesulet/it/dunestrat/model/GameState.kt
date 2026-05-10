@@ -1,23 +1,14 @@
 package hu.mokegyesulet.it.dunestrat.model
 
-import kotlin.collections.setOf
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.Transient
-
-@Serializable
 data class GameState(
-    @Transient
     val id: Int = -1,
-    @Transient
-    val gameId: Int = -1,
-    @Transient
-    val index: Int = -1,
-    @Transient
-    val fields: Set<GameStateField> = setOf(),
+    val gameId: Int,
+    var index: Int,
+    val fields: Set<GameStateField>,
     val players: Set<Player>,
 ) {
 
-    fun runTurn(playerSteps: MutableSet<PlayerStep>) {
+    fun runTurn(playerSteps: MutableSet<PlayerStep>): GameState {
         this.leaveFields(playerSteps)
         this.waterConsumption(playerSteps)
         this.checkPurchases(playerSteps)
@@ -26,6 +17,14 @@ data class GameState(
         this.produceResources()
         this.expansions(playerSteps)
         this.deliverWeapons(playerSteps)
+        index++
+
+        return GameState(
+            gameId = gameId,
+            index = index,
+            fields = fields,
+            players = players,
+        )
     }
 
     fun leaveFields(playerSteps: Set<PlayerStep>) {
@@ -40,6 +39,7 @@ data class GameState(
                 playerSteps.removeAll { it.playerId == player.id }
                 playerSteps.add(
                     PlayerStep(
+                        gameStateId = -1,
                         playerId = player.id,
                         leaveFields = setOf(),
                         enterFields = setOf(),
@@ -57,6 +57,7 @@ data class GameState(
     ): PlayerStep = playerSteps.find { playerStep ->
         playerStep.playerId == playerId
     } ?: PlayerStep(
+        gameStateId = -1,
         playerId = playerId,
         leaveFields = setOf(),
         enterFields = setOf(),
@@ -73,10 +74,11 @@ data class GameState(
 
     fun buildHarvesters(playerSteps: Set<PlayerStep>) {
         players.filter { !it.inDebt }.forEach { player ->
-            getPlayerStepById(player.id, playerSteps).buildHarvesters.forEach { field ->
-                if (field in player.ownedFields) {
-                    player.purchaseHarvester(field)
-                }
+            getPlayerStepById(player.id, playerSteps).buildHarvesters.forEach { fieldId ->
+                val field =
+                    player.ownedFields.find { field -> field.id == fieldId } ?: return@forEach
+
+                player.purchaseHarvester(field)
             }
         }
     }
@@ -117,7 +119,12 @@ data class GameState(
         players.filter { !it.inDebt }
             .forEach { player ->
                 getPlayerStepById(player.id, playerSteps).enterFields
-                    .filter { field -> player.isFieldReachable(field) }
+                    .mapNotNull { fieldId ->
+                        fields.find { field -> field.id == fieldId }
+                    }
+                    .filter { field ->
+                        player.isFieldReachable(field)
+                    }
                     .forEach { field -> chosenFields[field]?.add(player) }
             }
 
