@@ -1,9 +1,8 @@
 package hu.mokegyesulet.it.dunestrat.ui
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -13,6 +12,7 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
 @Preview
+@OptIn(ExperimentalMaterial3Api::class)
 fun CreatePlayerCard(
     index: Int,
     modifier: Modifier,
@@ -20,6 +20,8 @@ fun CreatePlayerCard(
     onChange: (Player, Int) -> Unit,
     startingFieldId: String,
     onStartingFieldChange: (String) -> Unit,
+    availableStartingFields: List<String>,
+    isFieldDuplicate: Boolean,
 ) {
     val weaponLabels = mapOf(
         Weapon.PISTOL to "Pisztoly",
@@ -27,6 +29,8 @@ fun CreatePlayerCard(
         Weapon.CRYSKNIFE to "Crysknife",
         Weapon.LEGION to "Légió",
     )
+
+    var expanded by remember { mutableStateOf(false) }
 
     Card(
         modifier = modifier.padding(20.dp),
@@ -57,13 +61,46 @@ fun CreatePlayerCard(
                 )
             }
 
-            TextField(
-                value = startingFieldId,
-                onValueChange = onStartingFieldChange,
-                label = { Text("Kezdő mező") },
-                isError = startingFieldId.isBlank(),
-            )
-            if (startingFieldId.isBlank()) {
+            Spacer(modifier = Modifier.height(16.dp))
+
+            ExposedDropdownMenuBox(
+                expanded = expanded,
+                onExpandedChange = { expanded = it },
+            ) {
+                OutlinedTextField(
+                    value = startingFieldId,
+                    onValueChange = {},
+                    readOnly = true,
+                    label = { Text("Kezdő mező") },
+                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                    modifier = Modifier.menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable).fillMaxWidth(),
+                    isError = isFieldDuplicate || startingFieldId.isBlank(),
+                )
+
+                ExposedDropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false },
+                ) {
+                    availableStartingFields.forEach { fieldId ->
+                        DropdownMenuItem(
+                            text = { Text(fieldId) },
+                            onClick = {
+                                onStartingFieldChange(fieldId)
+                                expanded = false
+                            },
+                        )
+                    }
+                }
+            }
+
+            if (isFieldDuplicate) {
+                Text(
+                    text = "Ez a mező már ki van választva!",
+                    color = Color.Red,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.padding(start = 16.dp, top = 4.dp),
+                )
+            } else if (startingFieldId.isBlank()) {
                 Text(
                     text = "Ez a mező kötelező!",
                     color = Color.Red,
