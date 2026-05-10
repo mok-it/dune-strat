@@ -5,11 +5,18 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import hu.mokegyesulet.it.dunestrat.backend.SupabaseRepository
-import hu.mokegyesulet.it.dunestrat.model.Desert
-import hu.mokegyesulet.it.dunestrat.model.Player
-import hu.mokegyesulet.it.dunestrat.model.Weapon
+import hu.mokegyesulet.it.dunestrat.model.*
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
+
+enum class InitializationPhase {
+    STARTING_CONDITIONS,
+    TEAMS,
+}
 
 class InitViewModel() : ViewModel() {
 
@@ -27,9 +34,14 @@ class InitViewModel() : ViewModel() {
         harvestersPurchased = 0,
     )
 
+    val currentPhase = mutableStateOf(InitializationPhase.STARTING_CONDITIONS)
     val basePlayerState: MutableState<Player> = mutableStateOf(createDefaultPlayer(-1))
     val playerList: MutableState<List<Player>>
     val startingFieldIds: MutableState<List<String>>
+    val teams: MutableState<List<Team>> = mutableStateOf(emptyList())
+
+    private val _navigationEvent = MutableSharedFlow<Unit>()
+    val navigationEvent: SharedFlow<Unit> = _navigationEvent.asSharedFlow()
 
     init {
         val startingPlayers = mutableListOf<Player>()
@@ -80,23 +92,76 @@ class InitViewModel() : ViewModel() {
                 validateForm()
             }
 
+            is InitScreenEvent.ProceedToTeams -> {
+                if (teams.value.isEmpty() || teams.value.size != playerList.value.size) {
+                    teams.value = playerList.value.map { player ->
+                        Team(player.id, listOf(Student("")))
+                    }
+                }
+                currentPhase.value = InitializationPhase.TEAMS
+                validateForm()
+            }
+
+            is InitScreenEvent.BackToConditions -> {
+                currentPhase.value = InitializationPhase.STARTING_CONDITIONS
+                validateForm()
+            }
+
+            is InitScreenEvent.AddStudent -> {
+                val newTeams = teams.value.toMutableList()
+                val team = newTeams[event.teamIndex]
+                val newStudents = team.students.toMutableList()
+                newStudents.add(Student(""))
+                newTeams[event.teamIndex] = Team(team.playerId, newStudents)
+                teams.value = newTeams
+                validateForm()
+            }
+
+            is InitScreenEvent.RemoveStudent -> {
+                val newTeams = teams.value.toMutableList()
+                val team = newTeams[event.teamIndex]
+                if (team.students.size > 1) {
+                    val newStudents = team.students.toMutableList()
+                    newStudents.removeAt(event.studentIndex)
+                    newTeams[event.teamIndex] = Team(team.playerId, newStudents)
+                    teams.value = newTeams
+                    validateForm()
+                }
+            }
+
+            is InitScreenEvent.UpdateStudent -> {
+                val newTeams = teams.value.toMutableList()
+                val team = newTeams[event.teamIndex]
+                val newStudents = team.students.toMutableList()
+                newStudents[event.studentIndex] = event.student
+                newTeams[event.teamIndex] = Team(team.playerId, newStudents)
+                teams.value = newTeams
+                validateForm()
+            }
+
             is InitScreenEvent.InitPlayerOnMap -> {}
             is InitScreenEvent.UpdatePlayerData -> {}
         }
     }
 
     private fun validateForm() {
-        val desertSelected = selectedDesert.value != null
-        val allFieldsAssigned = startingFieldIds.value.all { it.isNotBlank() }
-        val uniqueFields = startingFieldIds.value.distinct().size == startingFieldIds.value.size
+        if (currentPhase.value == InitializationPhase.STARTING_CONDITIONS) {
+            val desertSelected = selectedDesert.value != null
+            val allFieldsAssigned = startingFieldIds.value.all { it.isNotBlank() }
+            val uniqueFields = startingFieldIds.value.distinct().size == startingFieldIds.value.size
 
-        val basePlayer = basePlayerState.value
-        val baseConditionsValid = basePlayer.water >= 0 &&
-            basePlayer.spice >= 0 &&
-            Weapon.entries.all { basePlayer.getWeaponCount(it) >= 0 }
+            val basePlayer = basePlayerState.value
+            val baseConditionsValid = basePlayer.water >= 0 &&
+                basePlayer.spice >= 0 &&
+                Weapon.entries.all { basePlayer.getWeaponCount(it) >= 0 }
 
-        isFormValid.value =
-            desertSelected && allFieldsAssigned && uniqueFields && baseConditionsValid
+            isFormValid.value =
+                desertSelected && allFieldsAssigned && uniqueFields && baseConditionsValid
+        } else {
+            isFormValid.value = teams.value.all { team ->
+                team.students.all { student -> student.name.isNotBlank() }
+            }
+        }
     }
 
     private fun resizePlayerList(newCount: Int) {
@@ -113,22 +178,49 @@ class InitViewModel() : ViewModel() {
             }
         }
         playerCount.value = newCount
+        teams.value = emptyList() // Reset teams when count changes
         validateForm()
     }
 
     fun savePlayers() {
-        // TODO: implementálni a mentést
-        println("Játékosok mentése...")
+        val desert = selectedDesert.value ?: return
         val base = basePlayerState.value
-        val finalPlayers = playerList.value.map { player ->
-            player.copy(
-                water = base.water,
-                spice = base.spice,
-                weapons = Weapon.entries.associateWith { base.getWeaponCount(it) }.toMutableMap()
+        val finalTeams = teams.value
+
+        viewModelScope.launch {
+            println("Játékosok mentése...")
+
+            val gameTemplate = Game(
+                name = "Játék - ${desert.name}",
+                progress = GameProgress.INITIALIZED,
+                teams = finalTeams,
+                desertId = desert.id,
             )
-        }
-        finalPlayers.forEachIndexed { index, player ->
-            println("${index + 1}. Jatekos: $player, Kezdo mezo: ${startingFieldIds.value[index]}")
+            val savedGame = SupabaseRepository.saveGame(gameTemplate)
+
+            val stateFields = desert.fields.toGameStateFields()
+
+            val initialPlayers = playerList.value.mapIndexed { index, player ->
+                val fieldId = startingFieldIds.value[index]
+                player.copy(
+                    water = base.water,
+                    spice = base.spice,
+                    weapons = Weapon.entries.associateWith { base.getWeaponCount(it) }.toMutableMap(),
+                    ownedFields = mutableSetOf(stateFields.first { it.id == fieldId }),
+                )
+            }
+
+            val firstState = GameState(
+                id = -1,
+                gameId = savedGame.id,
+                index = 0,
+                fields = stateFields,
+                players = initialPlayers.toSet(),
+            )
+            SupabaseRepository.saveGameState(firstState)
+
+            println("Játék és kezdeti állapot sikeresen mentve! Game ID: ${savedGame.id}")
+            _navigationEvent.emit(Unit)
         }
     }
 
@@ -141,6 +233,16 @@ class InitViewModel() : ViewModel() {
         data class UpdatePlayerStartingField(
             val fieldId: String,
             val index: Int,
+        ) : InitScreenEvent()
+
+        data object ProceedToTeams : InitScreenEvent()
+        data object BackToConditions : InitScreenEvent()
+        data class AddStudent(val teamIndex: Int) : InitScreenEvent()
+        data class RemoveStudent(val teamIndex: Int, val studentIndex: Int) : InitScreenEvent()
+        data class UpdateStudent(
+            val teamIndex: Int,
+            val studentIndex: Int,
+            val student: Student,
         ) : InitScreenEvent()
     }
 }

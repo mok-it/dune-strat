@@ -24,6 +24,12 @@ fun NavGraph(navController: NavHostController = rememberNavController()) {
         }
 
         composable<Screen.TestData> { TestDataScreen() }
-        composable<Screen.InitScreen> { InitScreen() }
+        composable<Screen.InitScreen> {
+            InitScreen(onNavigateBack = {
+                navController.navigate(Screen.MainMenu) {
+                    popUpTo(Screen.MainMenu) { inclusive = true }
+                }
+            })
+        }
     }
 }

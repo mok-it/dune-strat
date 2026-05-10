@@ -7,10 +7,10 @@ import hu.mokegyesulet.it.dunestrat.model.PlayerStep
 import kotlinx.coroutines.flow.Flow
 
 interface Repository {
-    suspend fun saveGame(game: Game)
+    suspend fun saveGame(game: Game): Game
     fun getGames(): Flow<List<Game>>
 
-    suspend fun saveGameState(gameState: GameState)
+    suspend fun saveGameState(gameState: GameState): GameState
     fun getGameStates(): Flow<List<GameState>>
     fun getLatestGameStateByGameId(gameId: String): Flow<GameState>
 
