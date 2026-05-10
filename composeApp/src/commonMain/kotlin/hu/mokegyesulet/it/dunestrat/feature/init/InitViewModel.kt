@@ -27,6 +27,7 @@ class InitViewModel() : ViewModel() {
         harvestersPurchased = 0,
     )
 
+    val basePlayerState: MutableState<Player> = mutableStateOf(createDefaultPlayer(-1))
     val playerList: MutableState<List<Player>>
     val startingFieldIds: MutableState<List<String>>
 
@@ -67,10 +68,8 @@ class InitViewModel() : ViewModel() {
                 validateForm()
             }
 
-            is InitScreenEvent.UpdatePlayerData -> {
-                val newPlayerList = playerList.value.toMutableList()
-                newPlayerList[event.index] = event.playerData
-                playerList.value = newPlayerList
+            is InitScreenEvent.UpdateGlobalStartingConditions -> {
+                basePlayerState.value = event.playerData
                 validateForm()
             }
 
@@ -82,6 +81,7 @@ class InitViewModel() : ViewModel() {
             }
 
             is InitScreenEvent.InitPlayerOnMap -> {}
+            is InitScreenEvent.UpdatePlayerData -> {}
         }
     }
 
@@ -90,12 +90,13 @@ class InitViewModel() : ViewModel() {
         val allFieldsAssigned = startingFieldIds.value.all { it.isNotBlank() }
         val uniqueFields = startingFieldIds.value.distinct().size == startingFieldIds.value.size
 
+        val basePlayer = basePlayerState.value
+        val baseConditionsValid = basePlayer.water >= 0 &&
+            basePlayer.spice >= 0 &&
+            Weapon.entries.all { basePlayer.getWeaponCount(it) >= 0 }
+
         isFormValid.value =
-            desertSelected && allFieldsAssigned && uniqueFields && playerList.value.all { player ->
-                player.water >= 0 &&
-                    player.spice >= 0 &&
-                    Weapon.entries.all { player.getWeaponCount(it) >= 0 }
-            }
+            desertSelected && allFieldsAssigned && uniqueFields && baseConditionsValid
     }
 
     private fun resizePlayerList(newCount: Int) {
@@ -118,7 +119,15 @@ class InitViewModel() : ViewModel() {
     fun savePlayers() {
         // TODO: implementálni a mentést
         println("Játékosok mentése...")
-        playerList.value.forEachIndexed { index, player ->
+        val base = basePlayerState.value
+        val finalPlayers = playerList.value.map { player ->
+            player.copy(
+                water = base.water,
+                spice = base.spice,
+                weapons = Weapon.entries.associateWith { base.getWeaponCount(it) }.toMutableMap()
+            )
+        }
+        finalPlayers.forEachIndexed { index, player ->
             println("${index + 1}. Jatekos: $player, Kezdo mezo: ${startingFieldIds.value[index]}")
         }
     }
@@ -127,6 +136,7 @@ class InitViewModel() : ViewModel() {
         data object InitPlayerOnMap : InitScreenEvent()
         data class ChangeMapDropdownExpanded(val expanded: Boolean) : InitScreenEvent()
         data class ChangeSelectedMap(val selectedDesert: Desert) : InitScreenEvent()
+        data class UpdateGlobalStartingConditions(val playerData: Player) : InitScreenEvent()
         data class UpdatePlayerData(val playerData: Player, val index: Int) : InitScreenEvent()
         data class UpdatePlayerStartingField(
             val fieldId: String,
