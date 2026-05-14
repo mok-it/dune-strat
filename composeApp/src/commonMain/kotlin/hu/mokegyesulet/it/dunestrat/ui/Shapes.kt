@@ -1,15 +1,8 @@
 package hu.mokegyesulet.it.dunestrat.ui
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.shape.GenericShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonColors
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Shapes
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
 
 val hexagonalRectangle = GenericShape { size, _ ->

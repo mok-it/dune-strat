@@ -87,7 +87,9 @@ fun InitScreen(onNavigateBack: () -> Unit) {
                                 text = {
                                     Text(
                                         text = map.name.ifBlank {
-                                            "${map.fields.count { it.startingField }} játékos térkép"
+                                            "${map.fields.count {
+                                                it.startingField
+                                            }} játékos térkép"
                                         },
                                     )
                                 },
@@ -125,7 +127,9 @@ fun InitScreen(onNavigateBack: () -> Unit) {
                             player = basePlayer,
                             onChange = {
                                 viewModel.onEvent(
-                                    InitViewModel.InitScreenEvent.UpdateGlobalStartingConditions(it),
+                                    InitViewModel.InitScreenEvent.UpdateGlobalStartingConditions(
+                                        it,
+                                    ),
                                 )
                             },
                         )
@@ -158,7 +162,9 @@ fun InitScreen(onNavigateBack: () -> Unit) {
 
                     item {
                         Button(
-                            onClick = { viewModel.onEvent(InitViewModel.InitScreenEvent.ProceedToTeams) },
+                            onClick = {
+                                viewModel.onEvent(InitViewModel.InitScreenEvent.ProceedToTeams)
+                            },
                             enabled = isFormValid,
                             modifier = Modifier.padding(16.dp),
                         ) {
@@ -179,10 +185,15 @@ fun InitScreen(onNavigateBack: () -> Unit) {
                     TeamConfigurationCard(
                         teamIndex = teamIndex,
                         team = teams[teamIndex],
-                        onAddStudent = { viewModel.onEvent(InitViewModel.InitScreenEvent.AddStudent(teamIndex)) },
+                        onAddStudent = {
+                            viewModel.onEvent(InitViewModel.InitScreenEvent.AddStudent(teamIndex))
+                        },
                         onRemoveStudent = { studentIndex ->
                             viewModel.onEvent(
-                                InitViewModel.InitScreenEvent.RemoveStudent(teamIndex, studentIndex),
+                                InitViewModel.InitScreenEvent.RemoveStudent(
+                                    teamIndex,
+                                    studentIndex,
+                                ),
                             )
                         },
                         onUpdateStudent = { studentIndex, student ->
@@ -201,7 +212,9 @@ fun InitScreen(onNavigateBack: () -> Unit) {
                 item {
                     Row(modifier = Modifier.padding(16.dp)) {
                         OutlinedButton(
-                            onClick = { viewModel.onEvent(InitViewModel.InitScreenEvent.BackToConditions) },
+                            onClick = {
+                                viewModel.onEvent(InitViewModel.InitScreenEvent.BackToConditions)
+                            },
                             modifier = Modifier.padding(end = 8.dp),
                         ) {
                             Text("Vissza")

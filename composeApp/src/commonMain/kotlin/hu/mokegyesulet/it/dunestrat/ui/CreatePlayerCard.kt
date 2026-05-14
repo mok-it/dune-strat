@@ -198,7 +198,9 @@ fun TeamConfigurationCard(
                         Column(modifier = Modifier.weight(1f)) {
                             OutlinedTextField(
                                 value = student.name,
-                                onValueChange = { onUpdateStudent(studentIndex, student.copy(name = it)) },
+                                onValueChange = {
+                                    onUpdateStudent(studentIndex, student.copy(name = it))
+                                },
                                 label = { Text("Név") },
                                 isError = student.name.isBlank(),
                                 modifier = Modifier.fillMaxWidth(),
@@ -213,7 +215,9 @@ fun TeamConfigurationCard(
                             Spacer(modifier = Modifier.height(4.dp))
                             OutlinedTextField(
                                 value = student.batkabankId,
-                                onValueChange = { onUpdateStudent(studentIndex, student.copy(batkabankId = it)) },
+                                onValueChange = {
+                                    onUpdateStudent(studentIndex, student.copy(batkabankId = it))
+                                },
                                 label = { Text("BatkaBank ID (opcionális)") },
                                 modifier = Modifier.fillMaxWidth(),
                             )

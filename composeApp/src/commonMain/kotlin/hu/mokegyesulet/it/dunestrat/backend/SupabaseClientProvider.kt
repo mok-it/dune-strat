@@ -2,12 +2,12 @@ package hu.mokegyesulet.it.dunestrat.backend
 
 import hu.mokegyesulet.it.dunestrat.getPlatform
 import io.github.jan.supabase.SupabaseClient
+import io.github.jan.supabase.annotations.SupabaseExperimental
 import io.github.jan.supabase.auth.Auth
 import io.github.jan.supabase.auth.UrlLauncher
 import io.github.jan.supabase.createSupabaseClient
 import io.github.jan.supabase.postgrest.Postgrest
 import io.github.jan.supabase.realtime.Realtime
-import io.github.jan.supabase.annotations.SupabaseExperimental
 
 object SupabaseClientProvider {
     @OptIn(SupabaseExperimental::class)
@@ -17,7 +17,10 @@ object SupabaseClientProvider {
     ) {
         install(Auth) {
             urlLauncher = object : UrlLauncher {
-                override suspend fun openUrl(supabase: SupabaseClient, url: String) {
+                override suspend fun openUrl(
+                    supabase: SupabaseClient,
+                    url: String,
+                ) {
                     getPlatform().openUrl(url)
                 }
             }
