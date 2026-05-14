@@ -8,7 +8,9 @@ class JVMPlatform : Platform {
     override fun openUrl(url: String) {
         val uri = URI(url)
         try {
-            if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
+            if (Desktop.isDesktopSupported() &&
+                Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)
+            ) {
                 Desktop.getDesktop().browse(uri)
             } else {
                 fallbackBrowse(url)

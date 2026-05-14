@@ -156,7 +156,10 @@ class InitViewModel() : ViewModel() {
                 Weapon.entries.all { basePlayer.getWeaponCount(it) >= 0 }
 
             isFormValid.value =
-                desertSelected && allFieldsAssigned && uniqueFields && baseConditionsValid
+                desertSelected &&
+                allFieldsAssigned &&
+                uniqueFields &&
+                baseConditionsValid
         } else {
             isFormValid.value = teams.value.all { team ->
                 team.students.all { student -> student.name.isNotBlank() }
@@ -205,7 +208,9 @@ class InitViewModel() : ViewModel() {
                 player.copy(
                     water = base.water,
                     spice = base.spice,
-                    weapons = Weapon.entries.associateWith { base.getWeaponCount(it) }.toMutableMap(),
+                    weapons = Weapon.entries.associateWith {
+                        base.getWeaponCount(it)
+                    }.toMutableMap(),
                     ownedFields = mutableSetOf(stateFields.first { it.id == fieldId }),
                 )
             }
