@@ -19,7 +19,7 @@ import hu.mokegyesulet.it.dunestrat.ui.TeamConfigurationCard
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun InitScreen(onNavigateBack: () -> Unit) {
-    val viewModel = viewModel { InitViewModel() }
+    val viewModel: InitViewModel = viewModel { InitViewModel() }
     val phase by viewModel.currentPhase
     val expanded by viewModel.dropdownExpanded
 //    val selectedMap by viewModel.selectedMap
@@ -31,6 +31,7 @@ fun InitScreen(onNavigateBack: () -> Unit) {
     val isFormValid by viewModel.isFormValid
     val selectedDesert by viewModel.selectedDesert
     val basePlayer by viewModel.basePlayerState
+    val gameName by viewModel.gameName
 
     LaunchedEffect(Unit) {
         viewModel.navigationEvent.collect {
@@ -121,6 +122,28 @@ fun InitScreen(onNavigateBack: () -> Unit) {
         ) {
             if (phase == InitializationPhase.STARTING_CONDITIONS) {
                 if (selectedDesert != null) {
+                    item {
+                        Column(modifier = Modifier.padding(16.dp)) {
+                            Card(
+                                modifier = Modifier.wrapContentSize()
+                                    .padding(20.dp),
+                            ) {
+                                Spacer(modifier = Modifier.height(16.dp))
+
+                                TextField(
+                                    value = gameName,
+                                    onValueChange = { input ->
+                                        viewModel.onEvent(
+                                            InitViewModel.InitScreenEvent.ChangeGameName(input),
+                                        )
+                                    },
+                                    label = { Text("Játék neve") },
+                                    isError = gameName == "",
+                                )
+                            }
+                        }
+                    }
+
                     item {
                         GlobalStartingConditionsCard(
                             modifier = Modifier.fillMaxWidth(0.9f),
