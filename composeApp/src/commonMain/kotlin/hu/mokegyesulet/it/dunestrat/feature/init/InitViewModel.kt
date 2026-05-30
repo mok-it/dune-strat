@@ -39,6 +39,7 @@ class InitViewModel() : ViewModel() {
     val playerList: MutableState<List<Player>>
     val startingFieldIds: MutableState<List<String>>
     val teams: MutableState<List<Team>> = mutableStateOf(emptyList())
+    val gameName = mutableStateOf("")
 
     private val _navigationEvent = MutableSharedFlow<Unit>()
     val navigationEvent: SharedFlow<Unit> = _navigationEvent.asSharedFlow()
@@ -66,6 +67,10 @@ class InitViewModel() : ViewModel() {
         when (event) {
             is InitScreenEvent.ChangeMapDropdownExpanded -> {
                 dropdownExpanded.value = event.expanded
+            }
+
+            is InitScreenEvent.ChangeGameName -> {
+                gameName.value = event.name
             }
 
             is InitScreenEvent.ChangeSelectedMap -> {
@@ -140,6 +145,7 @@ class InitViewModel() : ViewModel() {
             }
 
             is InitScreenEvent.InitPlayerOnMap -> {}
+
             is InitScreenEvent.UpdatePlayerData -> {}
         }
     }
@@ -194,7 +200,7 @@ class InitViewModel() : ViewModel() {
             println("Játékosok mentése...")
 
             val gameTemplate = Game(
-                name = "Játék - ${desert.name}",
+                name = gameName.value,
                 progress = GameProgress.INITIALIZED,
                 teams = finalTeams,
                 desertId = desert.id,
@@ -232,6 +238,7 @@ class InitViewModel() : ViewModel() {
     sealed class InitScreenEvent {
         data object InitPlayerOnMap : InitScreenEvent()
         data class ChangeMapDropdownExpanded(val expanded: Boolean) : InitScreenEvent()
+        data class ChangeGameName(val name: String) : InitScreenEvent()
         data class ChangeSelectedMap(val selectedDesert: Desert) : InitScreenEvent()
         data class UpdateGlobalStartingConditions(val playerData: Player) : InitScreenEvent()
         data class UpdatePlayerData(val playerData: Player, val index: Int) : InitScreenEvent()
