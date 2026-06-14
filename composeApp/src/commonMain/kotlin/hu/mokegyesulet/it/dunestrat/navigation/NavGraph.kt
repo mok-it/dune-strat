@@ -19,12 +19,10 @@ fun NavGraph(navController: NavHostController = rememberNavController()) {
     ) {
         composable<Screen.MainMenu> {
             MainMenu(
-                onInputMoves = {},
-                onStat = {},
+                onInputMoves = { navController.navigate(Screen.PlayerStepInput) },
+                onStat = { navController.navigate(Screen.TestData) },
             )
         }
-
-        composable<Screen.TestData> { TestDataScreen() }
 
         composable<Screen.InitScreen> {
             InitScreen(
@@ -47,5 +45,6 @@ fun NavGraph(navController: NavHostController = rememberNavController()) {
                 },
             )
         }
+        composable<Screen.TestData> { TestDataScreen(onTestBack = { navController.navigateUp() }) }
     }
 }
