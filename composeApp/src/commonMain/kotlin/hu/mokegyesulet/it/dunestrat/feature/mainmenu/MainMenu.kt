@@ -33,7 +33,7 @@ fun MainMenu(
             }
 
             Button(
-                onClick = onPlaceholder2,
+                onClick = {},
             ) {
                 Text(text = "Placeholder 2")
             }

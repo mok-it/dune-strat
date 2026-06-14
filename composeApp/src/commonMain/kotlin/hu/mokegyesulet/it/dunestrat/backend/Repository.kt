@@ -11,7 +11,7 @@ interface Repository {
     fun getGames(): Flow<List<Game>>
     suspend fun getGameById(gameId: Int): Game
 
-    suspend fun saveGameState(gameState: GameState): GameState
+    suspend fun saveGameState(gameState: GameState)
     fun getGameStates(): Flow<List<GameState>>
     suspend fun getLatestGameStateByGameId(gameId: Int): GameState
 

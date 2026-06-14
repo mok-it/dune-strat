@@ -7,8 +7,10 @@ import hu.mokegyesulet.it.dunestrat.model.GameState
 import hu.mokegyesulet.it.dunestrat.model.PlayerStep
 import io.github.jan.supabase.annotations.SupabaseExperimental
 import io.github.jan.supabase.postgrest.from
+import io.github.jan.supabase.postgrest.postgrest
 import io.github.jan.supabase.postgrest.query.filter.FilterOperation
 import io.github.jan.supabase.postgrest.query.filter.FilterOperator
+import io.github.jan.supabase.postgrest.rpc
 import io.github.jan.supabase.realtime.selectAsFlow
 import io.github.jan.supabase.realtime.selectSingleValueAsFlow
 import kotlinx.coroutines.flow.Flow
@@ -28,7 +30,7 @@ object SupabaseRepository : Repository {
         }
 
     override suspend fun saveGame(game: Game): Game =
-        supabase.from(GAME_TABLE).insert(game.toDatabaseEntry()) {
+        supabase.from(GAME_TABLE).insert(game.toDatabaseEntity()) {
             select()
         }.decodeSingle<GameDatabaseEntity>().toGame()
 
@@ -44,10 +46,17 @@ object SupabaseRepository : Repository {
         }
 
     @OptIn(SupabaseExperimental::class)
-    override suspend fun saveGameState(gameState: GameState): GameState =
-        supabase.from(GAME_STATE_TABLE).insert(gameState.toDatabaseEntry()) {
-            select()
-        }.decodeSingle<GameStateDatabaseEntity>().toGameState()
+    override suspend fun saveGameState(gameState: GameState) {
+        supabase.postgrest.rpc(
+            function = "save_gamestate",
+            parameters = GameStateSaveDatabaseEntity(
+                gameState.toDatabaseEntity(),
+                gameState.players.map {
+                    it.id
+                },
+            ),
+        )
+    }
 
     override suspend fun getLatestGameStateByGameId(gameId: Int): GameState =
         supabase.from(GAME_STATE_TABLE)
@@ -86,7 +95,7 @@ object SupabaseRepository : Repository {
     }.map { it.toPlayerStep() }
 
     override suspend fun savePlayerStep(playerStep: PlayerStep): PlayerStep =
-        supabase.from(STEP_TABLE).upsert(playerStep.toDatabaseEntry()) {
+        supabase.from(STEP_TABLE).upsert(playerStep.toDatabaseEntity()) {
             select()
         }.decodeSingle<PlayerStepDatabaseEntity>().toPlayerStep()
 
