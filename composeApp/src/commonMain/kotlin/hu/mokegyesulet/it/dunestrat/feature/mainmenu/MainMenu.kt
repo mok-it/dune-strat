@@ -4,12 +4,16 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import dune_strat.composeapp.generated.resources.Res
 import dune_strat.composeapp.generated.resources.grid
@@ -22,11 +26,9 @@ fun MainMenu(
     onStat: () -> Unit,
 ) {
     val viewModel = viewModel { MainMenuViewModel() }
-    val gameCount by viewModel.gameCount
-    val games by viewModel.games.collectAsState(emptyList())
-    var showMenu by remember { mutableStateOf(false) }
-    var isExpanded by remember { mutableStateOf(false) }
-    var gameOpened by remember { mutableStateOf("") }
+    val games by viewModel.games.collectAsStateWithLifecycle()
+    val gameCount = 0
+    var isExpanded by remember { viewModel.isExpanded }
     Row {
         Column(
             Modifier.padding(10.dp),
@@ -47,7 +49,7 @@ fun MainMenu(
             ) {
                 TextField(
                     label = { Text("Játék kiválasztása") },
-                    value = gameOpened,
+                    value = /* gameOpened?.name ?: */ "",
                     onValueChange = {},
                     readOnly = true,
                     trailingIcon = {

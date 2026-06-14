@@ -6,11 +6,7 @@ import androidx.lifecycle.viewModelScope
 import hu.mokegyesulet.it.dunestrat.backend.AuthStatus
 import hu.mokegyesulet.it.dunestrat.backend.SupabaseAuth
 import hu.mokegyesulet.it.dunestrat.backend.SupabaseRepository
-import hu.mokegyesulet.it.dunestrat.backend.SupabaseRepository.supabase
-import hu.mokegyesulet.it.dunestrat.backend.entities.GameStateDatabaseEntity
 import hu.mokegyesulet.it.dunestrat.model.Game
-import io.github.jan.supabase.postgrest.from
-import io.github.jan.supabase.realtime.selectAsFlow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
@@ -46,11 +42,11 @@ class MainMenuViewModel : ViewModel() {
     )
     val isExpanded = mutableStateOf(false)
 
-    val waterAmount = SupabaseRepository.getLatestGameStateByGameId().stateIn(
-        viewModelScope,
-        SharingStarted.Eagerly,
-        initialValue = emptyList(),
-    )
+//    val waterAmount = SupabaseRepository.getLatestGameStateByGameId().stateIn(
+//        viewModelScope,
+//        SharingStarted.Eagerly,
+//        initialValue = emptyList(),
+//    )
 
     sealed class Event() {
         data object CreateGame : Event()
