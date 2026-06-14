@@ -77,6 +77,7 @@ fun PlayerStepInputScreen(
                     title = {},
                     actions = {
                         Button(
+                            modifier = Modifier.padding(horizontal = 4.dp),
                             onClick = {
                                 viewModel.onEvent(
                                     PlayerStepInputViewModel.Event.SaveToDatabase,
@@ -87,6 +88,7 @@ fun PlayerStepInputScreen(
                         }
 
                         Button(
+                            modifier = Modifier.padding(horizontal = 4.dp),
                             onClick = {
                                 viewModel.onEvent(
                                     PlayerStepInputViewModel.Event.RunTurn,
@@ -132,61 +134,65 @@ fun PlayerStepInputScreen(
                                 )
                             },
                             onFocusChanged = saveOnLostFocus,
-                            modifier = Modifier.weight(1f),
+                            modifier = Modifier.weight(1f).padding(horizontal = 16.dp),
                         )
-                        Column(modifier = Modifier.weight(1f)) {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            modifier = Modifier.weight(1f).padding(horizontal = 16.dp),
+                        ) {
                             Text("Vásárlás")
 
                             val focusManager = LocalFocusManager.current
 
                             Weapon.entries.forEach { weapon ->
-                                Row {
-                                    Text(
-                                        text = when (weapon) {
-                                            Weapon.PISTOL -> "MPT: "
-                                            Weapon.LASGUN -> "LSG: "
-                                            Weapon.CRYSKNIFE -> "CRK: "
-                                            Weapon.LEGION -> "Légió: "
-                                        },
-                                    )
-                                    TextField(
-                                        value = if ((purchaseWeapons[weapon] ?: 0) != 0) {
-                                            (purchaseWeapons[weapon] ?: 0).toString()
-                                        } else {
-                                            ""
-                                        },
-                                        placeholder = {
-                                            Text(text = "0")
-                                        },
-                                        onValueChange = {
-                                            viewModel.onEvent(
-                                                PlayerStepInputViewModel.Event.PurchaseWeapon(
-                                                    weapon = weapon,
-                                                    value = it,
-                                                ),
-                                            )
-                                        },
-                                        modifier = Modifier.onFocusChanged(
-                                            saveOnLostFocus,
-                                        ).tabKeyNavigable(focusManager),
-                                    )
-                                }
-                            }
-                            Row {
-                                Text("Harvester: ")
-                                FieldRow(
-                                    value = purchaseHarvester.first,
-                                    onValueChange = {
-                                        viewModel.onEvent(
-                                            PlayerStepInputViewModel.Event.PurchaseHarvester(it),
+                                TextField(
+                                    label = {
+                                        Text(
+                                            text = when (weapon) {
+                                                Weapon.PISTOL -> "MPT"
+                                                Weapon.LASGUN -> "LSG"
+                                                Weapon.CRYSKNIFE -> "CRK"
+                                                Weapon.LEGION -> "Légió"
+                                            },
+
                                         )
                                     },
-                                    validation = purchaseHarvester.second,
+                                    value = if ((purchaseWeapons[weapon] ?: 0) != 0) {
+                                        (purchaseWeapons[weapon] ?: 0).toString()
+                                    } else {
+                                        ""
+                                    },
+                                    placeholder = {
+                                        Text(text = "0")
+                                    },
+                                    onValueChange = {
+                                        viewModel.onEvent(
+                                            PlayerStepInputViewModel.Event.PurchaseWeapon(
+                                                weapon = weapon,
+                                                value = it,
+                                            ),
+                                        )
+                                    },
                                     modifier = Modifier.onFocusChanged(
                                         saveOnLostFocus,
-                                    ).tabKeyNavigable(focusManager),
+                                    ).tabKeyNavigable(focusManager)
+                                        .padding(horizontal = 4.dp, vertical = 6.dp),
                                 )
                             }
+                            FieldRow(
+                                value = purchaseHarvester.first,
+                                label = "Harvester",
+                                onValueChange = {
+                                    viewModel.onEvent(
+                                        PlayerStepInputViewModel.Event.PurchaseHarvester(it),
+                                    )
+                                },
+                                validation = purchaseHarvester.second,
+                                modifier = Modifier.onFocusChanged(
+                                    saveOnLostFocus,
+                                ).tabKeyNavigable(focusManager)
+                                    .padding(horizontal = 4.dp, vertical = 26.dp),
+                            )
                         }
                         FieldInputColumn(
                             title = "Rálépés",
@@ -197,7 +203,7 @@ fun PlayerStepInputScreen(
                                 )
                             },
                             onFocusChanged = saveOnLostFocus,
-                            modifier = Modifier.weight(1f),
+                            modifier = Modifier.weight(1f).padding(horizontal = 16.dp),
                         )
                     }
 
@@ -215,18 +221,26 @@ fun FieldRow(
     onValueChange: (String) -> Unit,
     validation: PlayerStepInputViewModel.Validation?,
     modifier: Modifier = Modifier,
+    label: String? = null,
 ) {
     val focusManager = LocalFocusManager.current
 
     Row(
-        modifier = modifier.fillMaxWidth().padding(8.dp),
+        modifier = modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         TextField(
             value = value,
             onValueChange = onValueChange,
-            modifier = Modifier.weight(1f)
+            modifier = Modifier
+                .weight(1f)
+                .padding(end = 8.dp)
                 .tabKeyNavigable(focusManager),
+            label = if (label != null) {
+                { Text(text = label) }
+            } else {
+                null
+            },
         )
         Icon(
             imageVector = when (validation?.isError) {
