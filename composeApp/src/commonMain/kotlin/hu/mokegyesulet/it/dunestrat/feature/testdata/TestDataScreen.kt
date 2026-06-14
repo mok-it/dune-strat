@@ -15,7 +15,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Composable
-fun TestDataScreen() {
+fun TestDataScreen(onTestBack: () -> Unit) {
     val viewModel = viewModel { TestDataViewModel() }
     val deserts by viewModel.deserts.collectAsStateWithLifecycle()
     val games by viewModel.games.collectAsStateWithLifecycle()
@@ -51,6 +51,7 @@ fun TestDataScreen() {
                 Text(text = it.id.toString())
             }
         }
+
         Button(onClick = { viewModel.initDesert() }) { Text("Init test desert") }
         Button(onClick = { viewModel.initGame(deserts.last()) }) { Text("Init test game") }
         Button(onClick = {
@@ -59,5 +60,6 @@ fun TestDataScreen() {
         Button(onClick = {
             viewModel.initPlayerSteps(gameStates.last())
         }) { Text("Init test steps") }
+        Button(onClick = onTestBack) { Text("Vissza") }
     }
 }
