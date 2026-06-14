@@ -3,7 +3,7 @@ package hu.mokegyesulet.it.dunestrat.ui.step
 import hu.mokegyesulet.it.dunestrat.model.Weapon
 
 data class StepCardState(
-    val playerId: String,
+    val playerId: Int,
     val leaveFields: String = "",
     val enterFields: String = "",
     val purchaseWeapons: Map<Weapon, Int> = mapOf(
