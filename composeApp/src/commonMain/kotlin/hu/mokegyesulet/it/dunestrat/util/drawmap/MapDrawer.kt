@@ -2,7 +2,6 @@ package hu.mokegyesulet.it.dunestrat.util.drawmap
 
 import dune_strat.composeapp.generated.resources.Res
 import hu.mokegyesulet.it.dunestrat.model.Desert
-import hu.mokegyesulet.it.dunestrat.model.DesertField
 import hu.mokegyesulet.it.dunestrat.model.Weapon
 import kotlin.math.PI
 
@@ -75,14 +74,6 @@ object MapDrawer {
 
         builder.append("<g id=\"crysknife\">\n")
         builder.append(crysknifeSVG)
-        builder.append("</g>\n")
-
-        builder.append("<g id=\"water\">\n")
-        builder.append(waterSVG)
-        builder.append("</g>\n")
-
-        builder.append("<g id=\"spice\" transform=\"scale(0.15)\">\n")
-        builder.append(spiceSVG)
         builder.append("</g>\n")
 
         builder.append("</defs>\n")
@@ -176,36 +167,43 @@ object MapDrawer {
         return "<use href=\"#mountain\" x=\"${fullOffset.x}\" y=\"${fullOffset.y}\" />\n"
     }
 
-    private fun getWaterTextSvg(
+    private fun getWaterSvg(
         value: Int,
         offset: Vector2D,
     ): String {
-        val center =
-            ((hexagonVertices[2] + hexagonVertices[3]) / 2) * (1 + INNER_HEXAGON_RATIO) / 2 + offset
-        val position = "x=\"${center.x}\" y=\"${center.y}\""
+        val totalOffset = offset + innerHexagonVertices[4] + Vector2D(-11.0, 17.0)
         val font = "font-size=\"20\" font-family=\"Times New Roman\""
         val align = "dominant-baseline=\"middle\" text-anchor=\"middle\""
-        val rotate = "transform=\"rotate(60,${center.x},${center.y})\""
-        return "<text $position $align $font $rotate>$value</text>\n"
+        val transform = "transform=\"rotate(60,${totalOffset.x},${totalOffset.y})\""
+
+        val svg = StringBuilder()
+        svg.append("<g $transform>\n")
+        svg.append("<g transform=\"scale(0.22)\">\n")
+        svg.append(waterSVG)
+        svg.append("</g>\n")
+        svg.append("<text x=\"30\" y=\"15\" $align $font>$value</text>\n")
+        svg.append("</g>\n")
+
+        return svg.toString()
     }
 
     private fun getSpiceSvg(
         value: Int,
         offset: Vector2D,
     ): String {
-        val totalOffset = offset + innerHexagonVertices[1]
-        val position = "x=\"${totalOffset.x}\" y=\"${totalOffset.y}\""
+        val totalOffset = offset + innerHexagonVertices[0] + Vector2D(2.0, 0.0)
         val font = "font-size=\"20\" font-family=\"Times New Roman\""
         val align = "dominant-baseline=\"middle\" text-anchor=\"middle\""
         val transform = "transform=\"rotate(-60,${totalOffset.x},${totalOffset.y})\""
 
         val svg = StringBuilder()
 
-        svg.append("<g $position $transform>\n")
-        svg.append("<use href=\"#spice\" x=\"0\" y=\"0\" />\n")
-        svg.append("<text x=\"60\" y=\"30\" $align $font>$value</text>\n")
+        svg.append("<g $transform>\n")
+        svg.append("<g transform=\"scale(0.13)\">\n")
+        svg.append(spiceSVG)
         svg.append("</g>\n")
-
+        svg.append("<text x=\"50\" y=\"15\" $align $font>$value</text>\n")
+        svg.append("</g>\n")
         return svg.toString()
     }
 
@@ -259,7 +257,7 @@ object MapDrawer {
             fieldBuilder.append(getFieldTextSvg(field.id, offset))
             fieldBuilder.append(getWaterBoxSvg(offset))
             fieldBuilder.append(getSpiceBoxSvg(offset))
-            fieldBuilder.append(getWaterTextSvg(field.water, offset))
+            fieldBuilder.append(getWaterSvg(field.water, offset))
             fieldBuilder.append(getSpiceSvg(field.spice, offset))
             fieldBuilder.append(getWeaponSvg(field.effectiveWeapon, offset))
 
@@ -282,18 +280,7 @@ object MapDrawer {
 }
 
 suspend fun main() {
-    val desert = Desert(
-        fields = setOf(
-            DesertField(
-                id = "A1",
-                water = -3,
-                spice = 11,
-                effectiveWeapon = Weapon.PISTOL,
-                startingField = false,
-                neighbours = mutableSetOf(),
-            ),
-        ),
-    )
+    val desert = Desert.create12PlayerHexagon()
 
     MapDrawer.loadResources()
 
