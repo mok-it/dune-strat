@@ -27,7 +27,7 @@ class PlayerStepDatabaseEntity(
     }
 }
 
-fun PlayerStep.toDatabaseEntry(): PlayerStepDatabaseEntity = PlayerStepDatabaseEntity(
+fun PlayerStep.toDatabaseEntity(): PlayerStepDatabaseEntity = PlayerStepDatabaseEntity(
     id = id,
     gameStateId = gameStateId,
     playerId = playerId,

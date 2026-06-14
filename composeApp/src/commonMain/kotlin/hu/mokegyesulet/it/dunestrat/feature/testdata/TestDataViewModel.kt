@@ -125,17 +125,6 @@ class TestDataViewModel : ViewModel() {
         }
     }
 
-    fun initPlayerSteps(gameState: GameState) {
-        val playerSteps = gameState.players.map { player ->
-            PlayerStep(
-                gameStateId = gameState.id,
-                playerId = player.id,
-            )
-        }
-        viewModelScope.launch {
-            playerSteps.forEach {
-                SupabaseRepository.savePlayerStep(it)
-            }
-        }
-    }
+    fun initPlayerSteps(gameState: GameState): Unit =
+        throw NotImplementedError("Not implemented yet")
 }

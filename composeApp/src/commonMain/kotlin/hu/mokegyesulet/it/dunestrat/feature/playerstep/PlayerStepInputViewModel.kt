@@ -115,17 +115,8 @@ class PlayerStepInputViewModel(
             is Event.RunTurn -> {
                 viewModelScope.launch {
                     val playerSteps = getPlayerSteps()
-                    var newGameState = gameState.runTurn(playerSteps)
-                    newGameState = SupabaseRepository.saveGameState(newGameState)
-
-                    newGameState.players.forEach { player ->
-                        SupabaseRepository.savePlayerStep(
-                            PlayerStep(
-                                gameStateId = newGameState.id,
-                                playerId = player.id,
-                            ),
-                        )
-                    }
+                    val newGameState = gameState.runTurn(playerSteps)
+                    SupabaseRepository.saveGameState(newGameState)
                 }
             }
 

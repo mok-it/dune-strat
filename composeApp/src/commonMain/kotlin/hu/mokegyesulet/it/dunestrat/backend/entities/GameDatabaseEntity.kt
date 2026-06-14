@@ -26,7 +26,7 @@ class GameDatabaseEntity(
     }
 }
 
-fun Game.toDatabaseEntry(): GameDatabaseEntity = GameDatabaseEntity(
+fun Game.toDatabaseEntity(): GameDatabaseEntity = GameDatabaseEntity(
     id = id,
     this.progress.ordinal,
     json = Json.encodeToString(this),

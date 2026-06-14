@@ -69,7 +69,7 @@ class GameStateDatabaseEntity(
     }
 }
 
-fun GameState.toDatabaseEntry(): GameStateDatabaseEntity = GameStateDatabaseEntity(
+fun GameState.toDatabaseEntity(): GameStateDatabaseEntity = GameStateDatabaseEntity(
     id = id,
     gameId = gameId,
     index = index,
@@ -132,3 +132,24 @@ fun Player.toPlayerWithFieldIdList() = PlayerWithFieldIdList(
     weapons = weapons.toMap(),
     ownedFieldsId = ownedFields.map { it.id }.toSet(),
 )
+
+@Serializable
+class GameStateSaveDatabaseEntity(
+    @SerialName("game_id")
+    val gameId: Int,
+    val index: Int,
+    @SerialName("field_jsons")
+    val fieldJsons: List<String>,
+    @SerialName("player_jsons")
+    val playersJsons: List<String>,
+    @SerialName("player_ids")
+    val playersIds: List<Int>,
+) {
+    constructor(gameStateDatabaseEntity: GameStateDatabaseEntity, playersIds: List<Int>) : this(
+        gameId = gameStateDatabaseEntity.gameId,
+        index = gameStateDatabaseEntity.index,
+        fieldJsons = gameStateDatabaseEntity.fieldJsons,
+        playersJsons = gameStateDatabaseEntity.playersJsons,
+        playersIds = playersIds,
+    )
+}
