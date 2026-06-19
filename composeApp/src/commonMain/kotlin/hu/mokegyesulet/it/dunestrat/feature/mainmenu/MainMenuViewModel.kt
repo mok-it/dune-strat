@@ -1,15 +1,15 @@
 package hu.mokegyesulet.it.dunestrat.feature.mainmenu
 
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import hu.mokegyesulet.it.dunestrat.backend.AuthStatus
 import hu.mokegyesulet.it.dunestrat.backend.SupabaseAuth
 import hu.mokegyesulet.it.dunestrat.backend.SupabaseRepository
 import hu.mokegyesulet.it.dunestrat.model.Game
+import hu.mokegyesulet.it.dunestrat.model.GameState
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
@@ -36,36 +36,36 @@ class MainMenuViewModel : ViewModel() {
             it is AuthStatus.Authenticated
         }
 
-    val gameCount = mutableStateOf(0)
     val games = SupabaseRepository.getGames().stateIn(
         viewModelScope,
         SharingStarted.WhileSubscribed(),
         emptyList(),
     )
-    val isExpanded = mutableStateOf(false)
 
-//    val waterAmount = SupabaseRepository.getLatestGameStateByGameId().stateIn(
-//        viewModelScope,
-//        SharingStarted.Eagerly,
-//        initialValue = emptyList(),
-//    )
-    val deserts = SupabaseRepository.getDeserts().stateIn(
-        viewModelScope,
-        SharingStarted.WhileSubscribed(),
-        emptyList(),
-    )
-    val selectedGame = MutableStateFlow<Game?>(null)
+    val selectedGame = mutableStateOf<Game?>(null)
 
-    sealed class Event() {
-        data object CreateGame : Event()
-        data object ExpandMenu : Event()
+    val latestGameState = mutableStateOf<GameState?>(null)
+
+    val players = derivedStateOf {
+        latestGameState.value?.players ?: emptySet()
+    }
+
+    sealed class Event {
         data class SelectGame(val game: Game) : Event()
     }
     fun onEvent(event: Event) {
         when (event) {
-            is Event.CreateGame -> gameCount.value += 1
-            is Event.ExpandMenu -> isExpanded.value = !isExpanded.value
-            is Event.SelectGame -> selectedGame.value = event.game
+            is Event.SelectGame -> {
+                if (selectedGame.value != event.game) {
+                    selectedGame.value = event.game
+                    viewModelScope.launch {
+                        latestGameState.value = SupabaseRepository.getLatestGameStateByGameId(event.game.id)
+                    }
+                } else {
+                    selectedGame.value = null
+                    latestGameState.value = null
+                }
+            }
         }
     }
 }
