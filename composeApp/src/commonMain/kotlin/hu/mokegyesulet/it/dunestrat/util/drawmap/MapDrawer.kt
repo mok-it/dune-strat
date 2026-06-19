@@ -2,6 +2,7 @@ package hu.mokegyesulet.it.dunestrat.util.drawmap
 
 import dune_strat.composeapp.generated.resources.Res
 import hu.mokegyesulet.it.dunestrat.model.Desert
+import hu.mokegyesulet.it.dunestrat.model.GameState
 import hu.mokegyesulet.it.dunestrat.model.Weapon
 import kotlin.math.PI
 
@@ -35,21 +36,35 @@ object MapDrawer {
     private lateinit var waterSVG: String
     private lateinit var spiceSVG: String
 
-    suspend fun loadResources() {
-        val desertBytes = Res.readBytes("drawable/svg/desert.svg")
-        desertSVG = desertBytes.decodeToString().replace("cls-", "desert-cls-")
-        val mountainBytes = Res.readBytes("drawable/svg/mountain.svg")
-        mountainSVG = mountainBytes.decodeToString().replace("cls-", "mountain-cls-")
+    suspend fun loadResources(blackAndWhite: Boolean = false) {
+        val desertBytes = if (blackAndWhite) {
+            Res.readBytes("drawable/svg/desert_bnw.svg")
+        } else {
+            Res.readBytes("drawable/svg/desert.svg")
+        }
+        desertSVG = desertBytes.decodeToString().replace("cls-", "desert-cls-") + "\n"
+
+        val mountainBytes = if (blackAndWhite) {
+            Res.readBytes("drawable/svg/mountain_bnw.svg")
+        } else {
+            Res.readBytes("drawable/svg/mountain.svg")
+        }
+        mountainSVG = mountainBytes.decodeToString().replace("cls-", "mountain-cls-") + "\n"
+
         val pistolBytes = Res.readBytes("drawable/svg/pistol.svg")
-        pistolSVG = pistolBytes.decodeToString().replace("cls-", "pistol-cls-")
+        pistolSVG = pistolBytes.decodeToString().replace("cls-", "pistol-cls-") + "\n"
+
         val lasgunBytes = Res.readBytes("drawable/svg/lasgun.svg")
-        lasgunSVG = lasgunBytes.decodeToString().replace("cls-", "lasgun-cls-")
+        lasgunSVG = lasgunBytes.decodeToString().replace("cls-", "lasgun-cls-") + "\n"
+
         val crysknifeBytes = Res.readBytes("drawable/svg/crysknife.svg")
-        crysknifeSVG = crysknifeBytes.decodeToString().replace("cls-", "crysknife-cls-")
+        crysknifeSVG = crysknifeBytes.decodeToString().replace("cls-", "crysknife-cls-") + "\n"
+
         val waterBytes = Res.readBytes("drawable/svg/water.svg")
-        waterSVG = waterBytes.decodeToString().replace("cls-", "water-cls-")
+        waterSVG = waterBytes.decodeToString().replace("cls-", "water-cls-") + "\n"
+
         val spiceBytes = Res.readBytes("drawable/svg/spice.svg")
-        spiceSVG = spiceBytes.decodeToString().replace("cls-", "spice-cls-")
+        spiceSVG = spiceBytes.decodeToString().replace("cls-", "spice-cls-") + "\n"
     }
 
     private fun getDefinitions(): String {
@@ -171,17 +186,22 @@ object MapDrawer {
         value: Int,
         offset: Vector2D,
     ): String {
-        val totalOffset = offset + innerHexagonVertices[4] + Vector2D(-11.0, 17.0)
+        val midpoint = (hexagonVertices[1] + innerHexagonVertices[2]) / 2
+        val totalOffset = offset + midpoint
+
         val font = "font-size=\"20\" font-family=\"Times New Roman\""
         val align = "dominant-baseline=\"middle\" text-anchor=\"middle\""
-        val transform = "transform=\"rotate(60,${totalOffset.x},${totalOffset.y})\""
+
+        val rotate = "rotate(60,${offset.x},${offset.y})"
+        val translate = "translate(${totalOffset.x}, ${totalOffset.y})"
+        val transform = "transform=\"$rotate $translate\""
 
         val svg = StringBuilder()
         svg.append("<g $transform>\n")
-        svg.append("<g transform=\"scale(0.22)\">\n")
+        svg.append("<g transform=\"translate(-28, -12) scale(0.22)\">\n")
         svg.append(waterSVG)
         svg.append("</g>\n")
-        svg.append("<text x=\"30\" y=\"15\" $align $font>$value</text>\n")
+        svg.append("<text x=\"2\" y=\"0\" $align $font>$value</text>\n")
         svg.append("</g>\n")
 
         return svg.toString()
@@ -191,19 +211,22 @@ object MapDrawer {
         value: Int,
         offset: Vector2D,
     ): String {
-        val totalOffset = offset + innerHexagonVertices[0] + Vector2D(2.0, 0.0)
+        val midpoint = (hexagonVertices[1] + innerHexagonVertices[2]) / 2
+        val totalOffset = offset + midpoint
+
         val font = "font-size=\"20\" font-family=\"Times New Roman\""
         val align = "dominant-baseline=\"middle\" text-anchor=\"middle\""
-        val transform = "transform=\"rotate(-60,${totalOffset.x},${totalOffset.y})\""
+
+        val transform = "transform=\"rotate(-60,${offset.x},${offset.y}) translate(${totalOffset.x}, ${totalOffset.y})\""
 
         val svg = StringBuilder()
-
         svg.append("<g $transform>\n")
-        svg.append("<g transform=\"scale(0.13)\">\n")
+        svg.append("<g transform=\"translate(-43, -8.5) scale(0.13)\">\n")
         svg.append(spiceSVG)
         svg.append("</g>\n")
-        svg.append("<text x=\"50\" y=\"15\" $align $font>$value</text>\n")
+        svg.append("<text x=\"17\" y=\"7.5\" $align $font>$value</text>\n")
         svg.append("</g>\n")
+
         return svg.toString()
     }
 
@@ -213,7 +236,7 @@ object MapDrawer {
         weapon: Weapon,
         offset: Vector2D,
     ): String {
-        val totalOffset = offset + weaponOffset
+        var totalOffset = offset + weaponOffset
         return when (weapon) {
             Weapon.PISTOL -> {
                 "<use href=\"#pistol\" x=\"${totalOffset.x}\" y=\"${totalOffset.y}\" />\n"
@@ -224,6 +247,7 @@ object MapDrawer {
             }
 
             Weapon.CRYSKNIFE -> {
+                totalOffset += Vector2D(0.0, 3.0)
                 "<use href=\"#crysknife\" x=\"${totalOffset.x}\" y=\"${totalOffset.y}\" />\n"
             }
 
@@ -275,12 +299,93 @@ object MapDrawer {
         val definitions = getDefinitions()
 
         val svgEnd = "</svg>"
-        return svgOpening + definitions + fieldSvgs.joinToString(separator = "") { it } + svgEnd
+        return svgOpening + definitions + fieldSvgs.joinToString(separator = "") + svgEnd
+    }
+
+    fun getGameStateSvg(gameState: GameState): String {
+        var minX = 0.0
+        var maxX = 0.0
+        var minY = 0.0
+        var maxY = 0.0
+
+        val fieldSvgs = gameState.fields.map { field ->
+            val offset = getOffsetVector(field.id)
+
+            minX = minOf(minX, offset.x)
+            maxX = maxOf(maxX, offset.x)
+            minY = minOf(minY, offset.y)
+            maxY = maxOf(maxY, offset.y)
+
+            val fieldBuilder = StringBuilder()
+
+            fieldBuilder.append(getBackgroundSvg(field.water < 0, offset))
+
+            fieldBuilder.append(getHexagonSvg(offset))
+            fieldBuilder.append(getWeaponBoxSvg(offset))
+            fieldBuilder.append(getCoordinateCircleSvg(offset))
+            fieldBuilder.append(getFieldTextSvg(field.id, offset))
+            fieldBuilder.append(getWaterBoxSvg(offset))
+            fieldBuilder.append(getSpiceBoxSvg(offset))
+            fieldBuilder.append(getWaterSvg(field.water, offset))
+            fieldBuilder.append(getSpiceSvg(field.spice, offset))
+            fieldBuilder.append(getWeaponSvg(field.effectiveWeapon, offset))
+
+            fieldBuilder.toString()
+        }
+
+        val width = maxX - minX + 300
+        val height = maxY - minY + 300
+
+        val viewbox = "viewBox=\"${minX - 150} ${minY - 150} $width $height\""
+
+        val svgOpening = "<svg width=\"$width\" height=\"$height\" $viewbox " +
+            "xmlns=\"http://www.w3.org/2000/svg\">\n"
+
+        val definitions = getDefinitions()
+
+        val svgEnd = "</svg>"
+        return svgOpening + definitions + fieldSvgs.joinToString(separator = "") + svgEnd
     }
 }
 
 suspend fun main() {
     val desert = Desert.create12PlayerHexagon()
+//    val desert = Desert(
+//        fields = setOf(
+//            DesertField(
+//                id = "A1",
+//                water = -3,
+//                spice = 28,
+//                effectiveWeapon = Weapon.PISTOL,
+//                neighbours = mutableSetOf(),
+//                startingField = false,
+//            ),
+//            DesertField(
+//                id = "A2",
+//                water = 7,
+//                spice = 7,
+//                effectiveWeapon = Weapon.CRYSKNIFE,
+//                neighbours = mutableSetOf(),
+//                startingField = false,
+//            ),
+//            DesertField(
+//                id = "B1",
+//                water = -10,
+//                spice = 0,
+//                effectiveWeapon = Weapon.LASGUN,
+//                neighbours = mutableSetOf(),
+//                startingField = false,
+//            ),
+//            DesertField(
+//                id = "B2",
+//                water = 11,
+//                spice = 11,
+//                effectiveWeapon = Weapon.CRYSKNIFE,
+//                neighbours = mutableSetOf(),
+//                startingField = false,
+//            ),
+//        ),
+//    )
 
     MapDrawer.loadResources()
 
