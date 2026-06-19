@@ -10,7 +10,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -29,76 +31,94 @@ fun MainMenu(
     onNewGameClick: () -> Unit,
 ) {
     val viewModel = viewModel { MainMenuViewModel() }
-    val games by viewModel.games.collectAsStateWithLifecycle()
-    val selectedGame by viewModel.selectedGame
-    val players by viewModel.players
 
-    Row(
-        modifier = Modifier.fillMaxSize(),
-        horizontalArrangement = Arrangement.SpaceBetween,
-    ) {
-        LazyColumn {
-            item {
-                Button(onClick = onNewGameClick) {
-                    Row {
-                        Icon(Icons.Filled.Add, contentDescription = "Add new game")
-                        Text(text = "Új játék")
+    val loggedIn by viewModel.isLoggedIn.collectAsState(initial = false)
+
+    if (loggedIn) {
+        val games by viewModel.games.collectAsStateWithLifecycle()
+        val selectedGame by viewModel.selectedGame
+        val players by viewModel.players
+
+        Row(
+            modifier = Modifier.fillMaxSize().padding(50.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+        ) {
+            LazyColumn {
+                item {
+                    Button(onClick = onNewGameClick) {
+                        Row {
+                            Icon(Icons.Filled.Add, contentDescription = "Add new game")
+                            Text(text = "Új játék")
+                        }
+                    }
+                }
+
+                items(games) { game: Game ->
+                    Card(
+                        border = if (selectedGame == game) {
+                            BorderStroke(2.dp, Color.Red)
+                        } else {
+                            null
+                        },
+                        modifier = Modifier.clickable {
+                            viewModel.onEvent(MainMenuViewModel.Event.SelectGame(game))
+                        }.padding(4.dp),
+                    ) {
+                        Text(
+                            text = game.name,
+                            modifier = Modifier.padding(8.dp),
+                        )
                     }
                 }
             }
-
-            items(games) { game: Game ->
-                Card(
-                    border = if (selectedGame == game) {
-                        BorderStroke(2.dp, Color.Red)
-                    } else {
-                        null
-                    },
-                    modifier = Modifier.clickable {
-                        viewModel.onEvent(MainMenuViewModel.Event.SelectGame(game))
-                    }.padding(4.dp),
+            Column(
+                modifier = Modifier.fillMaxHeight(),
+                verticalArrangement = Arrangement.Center,
+            ) {
+                Image(
+                    painterResource(Res.drawable.grid),
+                    contentDescription = "Grid image",
+                )
+            }
+            Column(
+                modifier = Modifier.fillMaxHeight(),
+                verticalArrangement = Arrangement.SpaceBetween,
+            ) {
+                Button(
+                    onClick = { onInputMovesClick(selectedGame?.id ?: -1) },
+                    enabled =
+                        selectedGame != null,
                 ) {
-                    Text(
-                        text = game.name,
-                        modifier = Modifier.padding(8.dp),
-                    )
+                    Text(text = "Lépések bevitele")
+                }
+                LazyColumn(
+                    modifier = Modifier.weight(1f)
+                        .wrapContentHeight(),
+                ) {
+                    items(players.toList()) { player ->
+                        Text(text = "${player.id}: ${player.water} víz, ${player.spice} fűszer")
+                    }
+                }
+                Button(
+                    onClick = { onStat(selectedGame?.id ?: -1) },
+                    enabled =
+                        selectedGame != null,
+                ) {
+                    Text(text = "Statisztika")
                 }
             }
         }
-        Column(
-            modifier = Modifier.fillMaxHeight(),
-            verticalArrangement = Arrangement.Center,
-        ) {
-            Image(
-                painterResource(Res.drawable.grid),
-                contentDescription = "Grid image",
-            )
-        }
-        Column(
-            modifier = Modifier.fillMaxHeight(),
-            verticalArrangement = Arrangement.SpaceBetween,
+    } else {
+        Box(
+            modifier = Modifier.fillMaxSize(),
         ) {
             Button(
-                onClick = { onInputMovesClick(selectedGame?.id ?: -1) },
-                enabled =
-                    selectedGame != null,
+                onClick = {
+                    viewModel.onLogin()
+                },
+                modifier = Modifier.align(Alignment.Center),
             ) {
-                Text(text = "Lépések bevitele")
-            }
-            LazyColumn(
-                modifier = Modifier.weight(1f)
-                    .wrapContentHeight(),
-            ) {
-                items(players.toList()) { player ->
-                    Text(text = "${player.id}: ${player.water} víz, ${player.spice} fűszer")
-                }
-            }
-            Button(
-                onClick = { onStat(selectedGame?.id ?: -1) },
-                enabled =
-                    selectedGame != null,
-            ) {
-                Text(text = "Statisztika")
+                Text(text = "Bejelentkezés")
             }
         }
     }
