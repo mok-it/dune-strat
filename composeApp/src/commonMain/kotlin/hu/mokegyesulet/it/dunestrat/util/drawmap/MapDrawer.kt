@@ -3,6 +3,7 @@ package hu.mokegyesulet.it.dunestrat.util.drawmap
 import dune_strat.composeapp.generated.resources.Res
 import hu.mokegyesulet.it.dunestrat.model.Desert
 import hu.mokegyesulet.it.dunestrat.model.GameState
+import hu.mokegyesulet.it.dunestrat.model.GameStateField
 import hu.mokegyesulet.it.dunestrat.model.Weapon
 import kotlin.math.PI
 
@@ -210,21 +211,25 @@ object MapDrawer {
     private fun getSpiceSvg(
         value: Int,
         offset: Vector2D,
+        isRed: Boolean = false,
     ): String {
         val midpoint = (hexagonVertices[1] + innerHexagonVertices[2]) / 2
         val totalOffset = offset + midpoint
 
         val font = "font-size=\"20\" font-family=\"Times New Roman\""
         val align = "dominant-baseline=\"middle\" text-anchor=\"middle\""
+        val color = if (isRed) "red" else "black"
 
-        val transform = "transform=\"rotate(-60,${offset.x},${offset.y}) translate(${totalOffset.x}, ${totalOffset.y})\""
+        val rotate = "rotate(-60,${offset.x},${offset.y})"
+        val translate = "translate(${totalOffset.x}, ${totalOffset.y})"
+        val transform = "transform=\"$rotate $translate\""
 
         val svg = StringBuilder()
         svg.append("<g $transform>\n")
-        svg.append("<g transform=\"translate(-43, -8.5) scale(0.13)\">\n")
+        svg.append("<g transform=\"translate(-43, -8.5) scale(0.13)\" fill=\"$color\">\n")
         svg.append(spiceSVG)
         svg.append("</g>\n")
-        svg.append("<text x=\"17\" y=\"7.5\" $align $font>$value</text>\n")
+        svg.append("<text x=\"17\" y=\"7.5\" $align $font fill=\"$color\">$value</text>\n")
         svg.append("</g>\n")
 
         return svg.toString()
@@ -327,7 +332,7 @@ object MapDrawer {
             fieldBuilder.append(getWaterBoxSvg(offset))
             fieldBuilder.append(getSpiceBoxSvg(offset))
             fieldBuilder.append(getWaterSvg(field.water, offset))
-            fieldBuilder.append(getSpiceSvg(field.spice, offset))
+            fieldBuilder.append(getSpiceSvg(field.spice, offset, field.harvester))
             fieldBuilder.append(getWeaponSvg(field.effectiveWeapon, offset))
 
             fieldBuilder.toString()
@@ -349,45 +354,46 @@ object MapDrawer {
 }
 
 suspend fun main() {
-    val desert = Desert.create12PlayerHexagon()
-//    val desert = Desert(
-//        fields = setOf(
-//            DesertField(
-//                id = "A1",
-//                water = -3,
-//                spice = 28,
-//                effectiveWeapon = Weapon.PISTOL,
-//                neighbours = mutableSetOf(),
-//                startingField = false,
-//            ),
-//            DesertField(
-//                id = "A2",
-//                water = 7,
-//                spice = 7,
-//                effectiveWeapon = Weapon.CRYSKNIFE,
-//                neighbours = mutableSetOf(),
-//                startingField = false,
-//            ),
-//            DesertField(
-//                id = "B1",
-//                water = -10,
-//                spice = 0,
-//                effectiveWeapon = Weapon.LASGUN,
-//                neighbours = mutableSetOf(),
-//                startingField = false,
-//            ),
-//            DesertField(
-//                id = "B2",
-//                water = 11,
-//                spice = 11,
-//                effectiveWeapon = Weapon.CRYSKNIFE,
-//                neighbours = mutableSetOf(),
-//                startingField = false,
-//            ),
-//        ),
-//    )
+//    val desert = Desert.create12PlayerHexagon()
+    val gameState = GameState(
+        fields = setOf(
+            GameStateField(
+                id = "A1",
+                water = -3,
+                spice = 28,
+                effectiveWeapon = Weapon.PISTOL,
+                neighbours = mutableSetOf(),
+                harvester = true,
+            ),
+            GameStateField(
+                id = "A2",
+                water = 7,
+                spice = 7,
+                effectiveWeapon = Weapon.CRYSKNIFE,
+                neighbours = mutableSetOf(),
+                harvester = false,
+            ),
+            GameStateField(
+                id = "B1",
+                water = -10,
+                spice = 0,
+                effectiveWeapon = Weapon.LASGUN,
+                neighbours = mutableSetOf(),
+                harvester = false,
+            ),
+            GameStateField(
+                id = "B2",
+                water = 11,
+                spice = 11,
+                effectiveWeapon = Weapon.CRYSKNIFE,
+                neighbours = mutableSetOf(),
+                harvester = false,
+            ),
+        ),
+        players = setOf(),
+    )
 
     MapDrawer.loadResources()
 
-    println(MapDrawer.getDesertSvg(desert))
+    println(MapDrawer.getGameStateSvg(gameState))
 }
