@@ -1,10 +1,7 @@
 package hu.mokegyesulet.it.dunestrat.util.drawmap
 
 import dune_strat.composeapp.generated.resources.Res
-import hu.mokegyesulet.it.dunestrat.model.Desert
-import hu.mokegyesulet.it.dunestrat.model.GameState
-import hu.mokegyesulet.it.dunestrat.model.GameStateField
-import hu.mokegyesulet.it.dunestrat.model.Weapon
+import hu.mokegyesulet.it.dunestrat.model.*
 import kotlin.math.PI
 
 object MapDrawer {
@@ -262,6 +259,21 @@ object MapDrawer {
         }
     }
 
+    private fun getPlayerMarkerSvg(
+        offset: Vector2D,
+        text: String,
+        color: String = "black",
+    ): String {
+        val textPosition = "x=\"${offset.x}\" y=\"${offset.y}\""
+        val circlePosition = "cx=\"${offset.x}\" cy=\"${offset.y}\""
+        val align = "dominant-baseline=\"middle\" text-anchor=\"middle\""
+        val font = "font-size=\"30\""
+
+        val circle = "<circle $circlePosition r=\"25\" fill=\"$color\" />\n"
+        val text = "<text $textPosition $align $font fill=\"white\">$text</text>\n"
+        return circle + text
+    }
+
     fun getDesertSvg(desert: Desert): String {
         var minX = 0.0
         var maxX = 0.0
@@ -307,6 +319,22 @@ object MapDrawer {
         return svgOpening + definitions + fieldSvgs.joinToString(separator = "") + svgEnd
     }
 
+    private const val GREEK_ALPHABET = "αβγδεζηθικλμνξοπρστυφχψω"
+    private val COLORS = listOf(
+        "tomato",
+        "steelblue",
+        "mediumseagreen",
+        "goldenrod",
+        "orchid",
+        "coral",
+        "slateblue",
+        "darkcyan",
+        "crimson",
+        "peru",
+        "teal",
+        "mediumvioletred",
+    )
+
     fun getGameStateSvg(gameState: GameState): String {
         var minX = 0.0
         var maxX = 0.0
@@ -338,6 +366,24 @@ object MapDrawer {
             fieldBuilder.toString()
         }
 
+        val playerSvgs = gameState.players.map { player ->
+            val ownedFieldsSvgs = player.ownedFields.map { field ->
+                val offset = getOffsetVector(field.id)
+                getPlayerMarkerSvg(
+                    offset,
+                    GREEK_ALPHABET[(player.id[0] - '0')].toString(),
+                    COLORS[
+                        (
+                            player.id[0] -
+                                '0'
+                            ) %
+                            COLORS.size,
+                    ],
+                )
+            }
+            ownedFieldsSvgs.joinToString(separator = "")
+        }
+
         val width = maxX - minX + 300
         val height = maxY - minY + 300
 
@@ -349,51 +395,100 @@ object MapDrawer {
         val definitions = getDefinitions()
 
         val svgEnd = "</svg>"
-        return svgOpening + definitions + fieldSvgs.joinToString(separator = "") + svgEnd
+        return svgOpening + definitions + fieldSvgs.joinToString(separator = "") +
+            playerSvgs.joinToString(separator = "") +
+            svgEnd
     }
 }
 
 suspend fun main() {
 //    val desert = Desert.create12PlayerHexagon()
+
+    val a1 = GameStateField(
+        id = "A1",
+        water = -3,
+        spice = 28,
+        effectiveWeapon = Weapon.PISTOL,
+        neighbours = mutableSetOf(),
+        harvester = true,
+    )
+    val a2 = GameStateField(
+        id = "A2",
+        water = 7,
+        spice = 7,
+        effectiveWeapon = Weapon.CRYSKNIFE,
+        neighbours = mutableSetOf(),
+        harvester = false,
+    )
+    val b1 = GameStateField(
+        id = "B1",
+        water = -10,
+        spice = 0,
+        effectiveWeapon = Weapon.LASGUN,
+        neighbours = mutableSetOf(),
+        harvester = false,
+    )
+    val b2 = GameStateField(
+        id = "B2",
+        water = 11,
+        spice = 11,
+        effectiveWeapon = Weapon.CRYSKNIFE,
+        neighbours = mutableSetOf(),
+        harvester = false,
+    )
+
     val gameState = GameState(
         fields = setOf(
-            GameStateField(
-                id = "A1",
-                water = -3,
-                spice = 28,
-                effectiveWeapon = Weapon.PISTOL,
-                neighbours = mutableSetOf(),
-                harvester = true,
+            a1,
+            a2,
+            b1,
+            b2,
+        ),
+        players = setOf(
+            Player(
+                id = "0",
+                water = 12,
+                spice = 12,
+                harvestersPurchased = 1,
+                weapons = mutableMapOf(),
+                ownedFields = mutableSetOf(a1, a2),
             ),
-            GameStateField(
-                id = "A2",
-                water = 7,
-                spice = 7,
-                effectiveWeapon = Weapon.CRYSKNIFE,
-                neighbours = mutableSetOf(),
-                harvester = false,
-            ),
-            GameStateField(
-                id = "B1",
-                water = -10,
-                spice = 0,
-                effectiveWeapon = Weapon.LASGUN,
-                neighbours = mutableSetOf(),
-                harvester = false,
-            ),
-            GameStateField(
-                id = "B2",
-                water = 11,
-                spice = 11,
-                effectiveWeapon = Weapon.CRYSKNIFE,
-                neighbours = mutableSetOf(),
-                harvester = false,
+            Player(
+                id = "1",
+                water = 12,
+                spice = 12,
+                harvestersPurchased = 1,
+                weapons = mutableMapOf(),
+                ownedFields = mutableSetOf(b1, b2),
             ),
         ),
-        players = setOf(),
+    )
+
+    val fields = (1..12).map {
+        GameStateField(
+            id = (('A'.code + (it - 1) / 3).toChar().toString() + ((it - 1) % 3 + 1).toString()),
+            0,
+            0,
+            Weapon.PISTOL,
+            false,
+            mutableSetOf(),
+        )
+    }
+    val gameState2 = GameState(
+        fields = fields.toMutableSet(),
+        players = fields.mapIndexed { index, field ->
+            Player(
+                id = (index + '0'.code).toChar().toString(),
+                water = 12,
+                spice = 12,
+                harvestersPurchased = 1,
+                weapons = mutableMapOf(),
+                ownedFields = mutableSetOf(field),
+            )
+        }.toMutableSet(),
     )
 
     MapDrawer.loadResources()
 
-    println(MapDrawer.getGameStateSvg(gameState))
+    println(MapDrawer.getGameStateSvg(gameState2))
 }
