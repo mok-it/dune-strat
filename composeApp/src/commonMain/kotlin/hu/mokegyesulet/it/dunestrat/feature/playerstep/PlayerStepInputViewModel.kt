@@ -23,34 +23,20 @@ class PlayerStepInputViewModel(
 
     val game = mutableStateOf<Game?>(null)
     val gameState = mutableStateOf<GameState?>(null)
-    val playerSteps = mutableListOf<MutableState<PlayerStep>>()
+    val playerSteps = mutableStateOf(listOf<PlayerStep>())
 
     val loaded = derivedStateOf {
-        game.value != null && gameState.value != null && playerSteps.isNotEmpty()
+        game.value != null && gameState.value != null && playerSteps.value.isNotEmpty()
     }
 
     init {
         viewModelScope.launch {
             game.value = SupabaseRepository.getGameById(gameId)
             gameState.value = SupabaseRepository.getLatestGameStateByGameId(gameId)
-            playerSteps.addAll(
+            playerSteps.value =
                 game.value!!.teams.map { team ->
-                    mutableStateOf(
-                        PlayerStep(
-                            gameStateId = gameState.value!!.id,
-                            playerId = team.playerId,
-                        ),
-                    )
-                },
-            )
-            game.value!!.teams.forEachIndexed { index, team ->
-                launch {
-                    val flow = SupabaseRepository.getPlayerStep(gameState.value!!.id, team.playerId)
-                    flow.collect { playerStep ->
-                        playerSteps[index].value = playerStep
-                    }
+                    SupabaseRepository.getPlayerStep(gameState.value!!.id, team.playerId)
                 }
-            }
         }
     }
 
@@ -60,9 +46,7 @@ class PlayerStepInputViewModel(
     }
 
     val uiStates = derivedStateOf {
-        playerSteps.map { mutableState ->
-
-            val playerStep = mutableState.value
+        playerSteps.value.map { playerStep ->
 
             val purchaseWeapons = mutableStateMapOf<Weapon, Int>()
             purchaseWeapons.putAll(playerStep.purchaseWeapons)
@@ -111,7 +95,9 @@ class PlayerStepInputViewModel(
         val gameState =
             gameState.value ?: throw IllegalStateException("Game state is not loaded yet!")
         when (event) {
-            is Event.TabSelected -> tabIndex.value = event.index
+            is Event.TabSelected -> {
+                tabIndex.value = event.index
+            }
 
             is Event.RunTurn -> {
                 viewModelScope.launch {

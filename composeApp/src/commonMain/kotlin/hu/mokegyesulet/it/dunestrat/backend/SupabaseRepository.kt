@@ -13,7 +13,6 @@ import io.github.jan.supabase.postgrest.query.filter.FilterOperation
 import io.github.jan.supabase.postgrest.query.filter.FilterOperator
 import io.github.jan.supabase.postgrest.rpc
 import io.github.jan.supabase.realtime.selectAsFlow
-import io.github.jan.supabase.realtime.selectSingleValueAsFlow
 import io.github.jan.supabase.storage.storage
 import io.ktor.http.ContentType
 import io.ktor.utils.io.core.toByteArray
@@ -29,7 +28,6 @@ object SupabaseRepository : Repository {
     const val SVG_BUCKET_NAME = "svgs"
 
     val svgBucket = supabase.storage.from(SVG_BUCKET_NAME)
-
 
     @OptIn(SupabaseExperimental::class)
     override fun getGames(): Flow<List<Game>> =
@@ -92,15 +90,16 @@ object SupabaseRepository : Repository {
         }
 
     @OptIn(SupabaseExperimental::class)
-    override fun getPlayerStep(
+    override suspend fun getPlayerStep(
         gameStateId: Int,
         playerId: Int,
-    ): Flow<PlayerStep> = supabase.from(STEP_TABLE).selectSingleValueAsFlow(
-        PlayerStepDatabaseEntity::id,
-    ) {
-        PlayerStepDatabaseEntity::gameStateId eq gameStateId
-        PlayerStepDatabaseEntity::playerId eq playerId
-    }.map { it.toPlayerStep() }
+    ): PlayerStep = supabase.from(STEP_TABLE).select {
+        filter {
+            PlayerStepDatabaseEntity::gameStateId eq gameStateId
+            PlayerStepDatabaseEntity::playerId eq playerId
+        }
+    }
+        .decodeSingle<PlayerStepDatabaseEntity>().toPlayerStep()
 
     override suspend fun savePlayerStep(playerStep: PlayerStep): PlayerStep =
         supabase.from(STEP_TABLE).upsert(playerStep.toDatabaseEntity()) {
