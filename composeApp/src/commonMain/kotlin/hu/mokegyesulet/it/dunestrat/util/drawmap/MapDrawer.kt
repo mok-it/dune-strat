@@ -270,15 +270,16 @@ object MapDrawer {
     private fun getPlayerMarkerSvg(
         offset: Vector2D,
         text: String,
-        color: String = "black",
+        circleColor: String,
+        textColor: String,
     ): String {
         val textPosition = "x=\"${offset.x}\" y=\"${offset.y}\""
         val circlePosition = "cx=\"${offset.x}\" cy=\"${offset.y}\""
         val align = "dominant-baseline=\"middle\" text-anchor=\"middle\""
         val font = "font-size=\"30\""
 
-        val circle = "<circle $circlePosition r=\"25\" fill=\"$color\" />\n"
-        val text = "<text $textPosition $align $font fill=\"white\">$text</text>\n"
+        val circle = "<circle $circlePosition r=\"25\" fill=\"$circleColor\" />\n"
+        val text = "<text $textPosition $align $font fill=\"$textColor\">$text</text>\n"
         return circle + text
     }
 
@@ -329,18 +330,18 @@ object MapDrawer {
 
     private const val GREEK_ALPHABET = "αβγδεζηθικλμνξοπρστυφχψω"
     private val COLORS = listOf(
-        "tomato",
-        "steelblue",
-        "mediumseagreen",
-        "goldenrod",
-        "orchid",
-        "coral",
-        "slateblue",
-        "darkcyan",
-        "crimson",
-        "peru",
-        "teal",
-        "mediumvioletred",
+        "darkorange" to "white",
+        "cyan" to "black",
+        "mediumseagreen" to "white",
+        "gold" to "white",
+        "deeppink" to "white",
+        "white" to "black",
+        "slateblue" to "white",
+        "darkcyan" to "white",
+        "crimson" to "white",
+        "peru" to "white",
+        "black" to "white",
+        "darkorchid" to "white",
     )
 
     fun getGameStateSvg(gameState: GameState): String {
@@ -380,7 +381,8 @@ object MapDrawer {
                 getPlayerMarkerSvg(
                     offset,
                     GREEK_ALPHABET[player.id].toString(),
-                    COLORS[player.id],
+                    COLORS[player.id].first,
+                    COLORS[player.id].second,
                 )
             }
             ownedFieldsSvgs.joinToString(separator = "")
