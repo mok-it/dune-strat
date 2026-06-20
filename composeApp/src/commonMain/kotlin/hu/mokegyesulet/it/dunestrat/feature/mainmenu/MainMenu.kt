@@ -73,7 +73,10 @@ fun MainMenu(
                 verticalArrangement = Arrangement.SpaceBetween,
             ) {
                 Button(
-                    onClick = { onInputMovesClick(selectedGame?.id ?: -1) },
+                    onClick = {
+                        onInputMovesClick(selectedGame?.id ?: -1)
+                        viewModel.onEvent(MainMenuViewModel.Event.UnSelectGame)
+                    },
                     enabled = selectedGame != null,
                 ) {
                     Text(text = "Lépések bevitele")

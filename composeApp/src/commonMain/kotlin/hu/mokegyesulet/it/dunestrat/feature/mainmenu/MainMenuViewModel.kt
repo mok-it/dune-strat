@@ -7,11 +7,9 @@ import androidx.lifecycle.viewModelScope
 import hu.mokegyesulet.it.dunestrat.backend.AuthStatus
 import hu.mokegyesulet.it.dunestrat.backend.SupabaseAuth
 import hu.mokegyesulet.it.dunestrat.backend.SupabaseRepository
-import hu.mokegyesulet.it.dunestrat.backend.SupabaseRepository.svgBucket
 import hu.mokegyesulet.it.dunestrat.model.Game
 import hu.mokegyesulet.it.dunestrat.model.GameState
 import hu.mokegyesulet.it.dunestrat.util.StringNormalizer.normalize
-import kotlin.time.Clock
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
@@ -65,6 +63,7 @@ class MainMenuViewModel : ViewModel() {
         }
     sealed class Event {
         data class SelectGame(val game: Game) : Event()
+        data object UnSelectGame : Event()
     }
     fun onEvent(event: Event) {
         when (event) {
@@ -79,6 +78,11 @@ class MainMenuViewModel : ViewModel() {
                     selectedGame.value = null
                     latestGameState.value = null
                 }
+            }
+
+            Event.UnSelectGame -> {
+                selectedGame.value = null
+                latestGameState.value = null
             }
         }
     }
