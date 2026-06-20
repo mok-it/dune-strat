@@ -45,7 +45,7 @@ data class Player(
 
     fun purchaseHarvester(purchaseField: GameStateField) {
         purchaseField.harvester = true
-        spice -= 5 * 2.toDouble().pow(harvestersPurchased++).toInt()
+        spice -= 5 * 2.0.pow(harvestersPurchased++).toInt()
     }
 
     fun calculateWeaponPrices(purchaseWeapons: Map<Weapon, Int>): Int {
@@ -57,7 +57,8 @@ data class Player(
     }
 
     fun calculateHarvesterPrice(count: Int): Int =
-        (5 * 2.toDouble().pow(harvestersPurchased) * (2.toDouble().pow(count) - 1)).toInt()
+        (5 * 2.0.pow(harvestersPurchased) * (2.0.pow(count) - 1)).toInt()
+
     fun calculatePrices(purchases: PlayerStep): Int =
         calculateWeaponPrices(purchases.purchaseWeapons) +
             calculateHarvesterPrice(purchases.buildHarvesters.size)

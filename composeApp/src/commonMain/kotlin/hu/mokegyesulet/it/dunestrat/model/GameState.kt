@@ -14,7 +14,7 @@ data class GameState(
         this.checkPurchases(playerSteps)
         this.buildHarvesters(playerSteps)
         this.purchaseWeapons(playerSteps)
-        this.produceResources()
+        this.produceSpice()
         this.expansions(playerSteps)
         this.deliverWeapons(playerSteps)
         index++
@@ -68,7 +68,7 @@ data class GameState(
     fun checkPurchases(playerSteps: Set<PlayerStep>) {
         players.forEach { player ->
             player.inDebt =
-                player.spice >= player.calculatePrices(getPlayerStepById(player.id, playerSteps))
+                player.spice < player.calculatePrices(getPlayerStepById(player.id, playerSteps))
         }
     }
 
@@ -89,11 +89,10 @@ data class GameState(
         }
     }
 
-    fun produceResources() {
+    fun produceSpice() {
         players.forEach { player ->
             player.ownedFields.forEach { field ->
                 player.spice += field.spice
-                player.water += field.water
             }
         }
     }
