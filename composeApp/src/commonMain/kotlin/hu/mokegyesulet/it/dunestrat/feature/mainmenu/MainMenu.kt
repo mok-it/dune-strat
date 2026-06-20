@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import hu.mokegyesulet.it.dunestrat.model.Game
+import hu.mokegyesulet.it.dunestrat.util.drawmap.openURL
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -76,6 +77,15 @@ fun MainMenu(
                     enabled = selectedGame != null,
                 ) {
                     Text(text = "Lépések bevitele")
+                }
+                if (selectedGame != null) {
+                    Button(
+                        onClick = {
+                            openURL(viewModel.svgDownloadUrl!!)
+                        },
+                    ) {
+                        Text(text = "Térkép letöltése")
+                    }
                 }
                 LazyColumn(
                     modifier = Modifier.weight(1f)

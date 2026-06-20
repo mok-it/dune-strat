@@ -5,6 +5,7 @@ import io.github.jan.supabase.annotations.SupabaseExperimental
 import io.github.jan.supabase.createSupabaseClient
 import io.github.jan.supabase.postgrest.Postgrest
 import io.github.jan.supabase.realtime.Realtime
+import io.github.jan.supabase.storage.Storage
 
 object SupabaseClientProvider {
     @OptIn(SupabaseExperimental::class)
@@ -19,6 +20,7 @@ object SupabaseClientProvider {
         }
         install(Postgrest)
         install(Realtime)
+        install(Storage)
     }
     val client get() = _client
 }

@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import hu.mokegyesulet.it.dunestrat.backend.SupabaseRepository
 import hu.mokegyesulet.it.dunestrat.model.*
+import hu.mokegyesulet.it.dunestrat.util.drawmap.MapDrawer
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -229,6 +230,14 @@ class InitViewModel() : ViewModel() {
                 players = initialPlayers.toSet(),
             )
             SupabaseRepository.saveGameState(firstState)
+            MapDrawer.loadResources()
+            val svg = MapDrawer.getGameStateSvg(firstState)
+            SupabaseRepository.uploadImage(
+                svg,
+                savedGame.name,
+                savedGame.id.toString(),
+                0,
+            )
 
             println("Játék és kezdeti állapot sikeresen mentve! Game ID: ${savedGame.id}")
             _navigationEvent.emit(Unit)

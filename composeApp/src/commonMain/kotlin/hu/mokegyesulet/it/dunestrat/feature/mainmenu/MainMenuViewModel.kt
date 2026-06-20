@@ -7,8 +7,11 @@ import androidx.lifecycle.viewModelScope
 import hu.mokegyesulet.it.dunestrat.backend.AuthStatus
 import hu.mokegyesulet.it.dunestrat.backend.SupabaseAuth
 import hu.mokegyesulet.it.dunestrat.backend.SupabaseRepository
+import hu.mokegyesulet.it.dunestrat.backend.SupabaseRepository.svgBucket
 import hu.mokegyesulet.it.dunestrat.model.Game
 import hu.mokegyesulet.it.dunestrat.model.GameState
+import hu.mokegyesulet.it.dunestrat.util.StringNormalizer.normalize
+import kotlin.time.Clock
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
@@ -48,6 +51,18 @@ class MainMenuViewModel : ViewModel() {
         latestGameState.value?.players ?: emptySet()
     }
 
+    val svgDownloadUrl: String?
+        get() {
+            return if (latestGameState.value == null) {
+                println("GECI TESÓ")
+                null
+            } else {
+                val name = normalize(selectedGame.value!!.name)
+                val round = latestGameState.value!!.index
+                val roundString = if (round > 9) round.toString() else "0$round"
+                "https://lnwvuwepwaexwybselsf.supabase.co/storage/v1/object/public/svgs/$name(${selectedGame.value!!.id})/$roundString.svg"
+            }
+        }
     sealed class Event {
         data class SelectGame(val game: Game) : Event()
     }

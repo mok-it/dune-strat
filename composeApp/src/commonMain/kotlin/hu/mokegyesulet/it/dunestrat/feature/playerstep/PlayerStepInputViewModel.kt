@@ -12,6 +12,7 @@ import hu.mokegyesulet.it.dunestrat.model.Game
 import hu.mokegyesulet.it.dunestrat.model.GameState
 import hu.mokegyesulet.it.dunestrat.model.PlayerStep
 import hu.mokegyesulet.it.dunestrat.model.Weapon
+import hu.mokegyesulet.it.dunestrat.util.drawmap.MapDrawer
 import kotlinx.coroutines.launch
 
 class PlayerStepInputViewModel(
@@ -117,6 +118,14 @@ class PlayerStepInputViewModel(
                     val playerSteps = getPlayerSteps()
                     val newGameState = gameState.runTurn(playerSteps)
                     SupabaseRepository.saveGameState(newGameState)
+                    MapDrawer.loadResources()
+                    val svg = MapDrawer.getGameStateSvg(newGameState)
+                    SupabaseRepository.uploadImage(
+                        svg = svg,
+                        gameName = game.value!!.name,
+                        gameId = game.value!!.id.toString(),
+                        round = newGameState.index,
+                    )
                 }
             }
 

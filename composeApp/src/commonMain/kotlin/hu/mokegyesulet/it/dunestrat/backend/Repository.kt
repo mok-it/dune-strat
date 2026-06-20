@@ -25,4 +25,11 @@ interface Repository {
 
     suspend fun saveDesert(desert: Desert): Desert
     fun getDeserts(): Flow<List<Desert>>
+
+    suspend fun uploadImage(
+        svg: String,
+        gameName: String,
+        gameId: String,
+        round: Int,
+    )
 }

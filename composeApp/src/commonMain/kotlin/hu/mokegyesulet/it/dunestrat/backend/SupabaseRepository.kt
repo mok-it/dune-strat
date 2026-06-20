@@ -5,6 +5,7 @@ import hu.mokegyesulet.it.dunestrat.model.Desert
 import hu.mokegyesulet.it.dunestrat.model.Game
 import hu.mokegyesulet.it.dunestrat.model.GameState
 import hu.mokegyesulet.it.dunestrat.model.PlayerStep
+import hu.mokegyesulet.it.dunestrat.util.StringNormalizer
 import io.github.jan.supabase.annotations.SupabaseExperimental
 import io.github.jan.supabase.postgrest.from
 import io.github.jan.supabase.postgrest.postgrest
@@ -13,6 +14,9 @@ import io.github.jan.supabase.postgrest.query.filter.FilterOperator
 import io.github.jan.supabase.postgrest.rpc
 import io.github.jan.supabase.realtime.selectAsFlow
 import io.github.jan.supabase.realtime.selectSingleValueAsFlow
+import io.github.jan.supabase.storage.storage
+import io.ktor.http.ContentType
+import io.ktor.utils.io.core.toByteArray
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
@@ -22,6 +26,10 @@ object SupabaseRepository : Repository {
     const val GAME_STATE_TABLE = GameStateDatabaseEntity.TABLE_NAME
     const val STEP_TABLE = PlayerStepDatabaseEntity.TABLE_NAME
     const val DESERT_TABLE = DesertDatabaseEntity.TABLE_NAME
+    const val SVG_BUCKET_NAME = "svgs"
+
+    val svgBucket = supabase.storage.from(SVG_BUCKET_NAME)
+
 
     @OptIn(SupabaseExperimental::class)
     override fun getGames(): Flow<List<Game>> =
@@ -109,4 +117,20 @@ object SupabaseRepository : Repository {
         supabase.from(DESERT_TABLE).selectAsFlow(DesertDatabaseEntity::id).map { list ->
             list.map { it.toDesert() }
         }
+
+    override suspend fun uploadImage(
+        svg: String,
+        gameName: String,
+        gameId: String,
+        round: Int,
+    ) {
+        val gameString = StringNormalizer.normalize(gameName)
+        val roundString = if (round > 9) round.toString() else "0$round"
+        svgBucket.upload(
+            path = "$gameString($gameId)/$roundString.svg",
+            data = svg.toByteArray(),
+        ) {
+            contentType = ContentType.Image.SVG
+        }
+    }
 }
