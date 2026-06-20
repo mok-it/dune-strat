@@ -16,8 +16,6 @@ import io.github.jan.supabase.realtime.selectAsFlow
 import io.github.jan.supabase.storage.storage
 import io.ktor.http.ContentType
 import io.ktor.utils.io.core.toByteArray
-import kotlin.time.Duration.Companion.milliseconds
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
@@ -127,17 +125,11 @@ object SupabaseRepository : Repository {
     ) {
         val gameString = StringNormalizer.normalize(gameName)
         val roundString = if (round > 9) round.toString() else "0$round"
-        while (true) {
-            svgBucket.upload(
-                path = "$gameString($gameId)/$roundString.svg",
-                data = svg.toByteArray(),
-            ) {
-                contentType = ContentType.Image.SVG
-            }
-            if (svgBucket.exists("$gameString($gameId)/$roundString.svg")) {
-                break
-            }
-            delay(1000.milliseconds)
+        svgBucket.upload(
+            path = "$gameString($gameId)/$roundString.svg",
+            data = svg.toByteArray(),
+        ) {
+            contentType = ContentType.Image.SVG
         }
     }
 }
