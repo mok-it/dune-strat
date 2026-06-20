@@ -1,7 +1,6 @@
 package hu.mokegyesulet.it.dunestrat.feature.mainmenu
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -18,10 +17,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import dune_strat.composeapp.generated.resources.Res
-import dune_strat.composeapp.generated.resources.grid
 import hu.mokegyesulet.it.dunestrat.model.Game
-import org.jetbrains.compose.resources.painterResource
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -70,15 +66,6 @@ fun MainMenu(
                         )
                     }
                 }
-            }
-            Column(
-                modifier = Modifier.fillMaxHeight(),
-                verticalArrangement = Arrangement.Center,
-            ) {
-                Image(
-                    painterResource(Res.drawable.grid),
-                    contentDescription = "Grid image",
-                )
             }
             Column(
                 modifier = Modifier.fillMaxHeight(),
