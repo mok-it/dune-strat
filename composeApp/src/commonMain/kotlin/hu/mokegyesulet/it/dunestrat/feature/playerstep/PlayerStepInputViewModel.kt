@@ -232,10 +232,10 @@ class PlayerStepInputViewModel(
 
             !isFieldIdInGame(fieldId) -> Validation.NO_SUCH_FIELD
 
-            !isFieldReachableByPlayer(
+            !isFieldOwnedByPlayer(
                 fieldId,
                 game.teams[tabIndex.value].playerId,
-            ) -> Validation.UNREACHABLE_FIELD
+            ) -> Validation.UNOWNED_FIELD
 
             else -> null
         }
