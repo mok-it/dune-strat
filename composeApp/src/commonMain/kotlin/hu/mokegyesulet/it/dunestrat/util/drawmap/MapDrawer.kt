@@ -34,7 +34,13 @@ object MapDrawer {
     private lateinit var waterSVG: String
     private lateinit var spiceSVG: String
 
+    private var resourcesLoaded = false
+
     suspend fun loadResources(blackAndWhite: Boolean = false) {
+        if (resourcesLoaded) {
+            return
+        }
+
         val desertBytes = if (blackAndWhite) {
             Res.readBytes("drawable/svg/desert_bnw.svg")
         } else {
@@ -63,6 +69,8 @@ object MapDrawer {
 
         val spiceBytes = Res.readBytes("drawable/svg/spice.svg")
         spiceSVG = spiceBytes.decodeToString().replace("cls-", "spice-cls-") + "\n"
+
+        resourcesLoaded = true
     }
 
     private fun getDefinitions(): String {
@@ -371,14 +379,8 @@ object MapDrawer {
                 val offset = getOffsetVector(field.id)
                 getPlayerMarkerSvg(
                     offset,
-                    GREEK_ALPHABET[(player.id[0] - '0')].toString(),
-                    COLORS[
-                        (
-                            player.id[0] -
-                                '0'
-                            ) %
-                            COLORS.size,
-                    ],
+                    GREEK_ALPHABET[player.id].toString(),
+                    COLORS[player.id],
                 )
             }
             ownedFieldsSvgs.joinToString(separator = "")
@@ -446,7 +448,7 @@ suspend fun main() {
         ),
         players = setOf(
             Player(
-                id = "0",
+                id = 0,
                 water = 12,
                 spice = 12,
                 harvestersPurchased = 1,
@@ -454,7 +456,7 @@ suspend fun main() {
                 ownedFields = mutableSetOf(a1, a2),
             ),
             Player(
-                id = "1",
+                id = 1,
                 water = 12,
                 spice = 12,
                 harvestersPurchased = 1,
@@ -462,6 +464,9 @@ suspend fun main() {
                 ownedFields = mutableSetOf(b1, b2),
             ),
         ),
+        id = -1,
+        gameId = -1,
+        index = -1,
     )
 
     val fields = (1..12).map {
@@ -478,7 +483,7 @@ suspend fun main() {
         fields = fields.toMutableSet(),
         players = fields.mapIndexed { index, field ->
             Player(
-                id = (index + '0'.code).toChar().toString(),
+                id = index,
                 water = 12,
                 spice = 12,
                 harvestersPurchased = 1,
@@ -486,6 +491,9 @@ suspend fun main() {
                 ownedFields = mutableSetOf(field),
             )
         }.toMutableSet(),
+        id = -1,
+        gameId = -1,
+        index = -1,
     )
 
     MapDrawer.loadResources()
