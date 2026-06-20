@@ -73,8 +73,7 @@ fun MainMenu(
             ) {
                 Button(
                     onClick = { onInputMovesClick(selectedGame?.id ?: -1) },
-                    enabled =
-                        selectedGame != null,
+                    enabled = selectedGame != null,
                 ) {
                     Text(text = "Lépések bevitele")
                 }
@@ -88,8 +87,7 @@ fun MainMenu(
                 }
                 Button(
                     onClick = { onStat(selectedGame?.id ?: -1) },
-                    enabled =
-                        selectedGame != null,
+                    enabled = selectedGame != null,
                 ) {
                     Text(text = "Statisztika")
                 }

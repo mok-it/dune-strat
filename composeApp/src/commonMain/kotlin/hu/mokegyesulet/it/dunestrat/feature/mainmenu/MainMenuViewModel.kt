@@ -17,8 +17,6 @@ import kotlinx.coroutines.launch
 
 class MainMenuViewModel : ViewModel() {
 
-    val deserts = SupabaseRepository.getDeserts()
-
     fun onLogin() {
         viewModelScope.launch {
             SupabaseAuth.logIn()
@@ -59,7 +57,8 @@ class MainMenuViewModel : ViewModel() {
                 if (selectedGame.value != event.game) {
                     selectedGame.value = event.game
                     viewModelScope.launch {
-                        latestGameState.value = SupabaseRepository.getLatestGameStateByGameId(event.game.id)
+                        latestGameState.value =
+                            SupabaseRepository.getLatestGameStateByGameId(event.game.id)
                     }
                 } else {
                     selectedGame.value = null
