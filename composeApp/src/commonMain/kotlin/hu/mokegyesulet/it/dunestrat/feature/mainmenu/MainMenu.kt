@@ -34,6 +34,7 @@ fun MainMenu(
     if (loggedIn) {
         val games by viewModel.games.collectAsStateWithLifecycle()
         val selectedGame by viewModel.selectedGame
+        val latestGameState by viewModel.latestGameState
         val players by viewModel.players
 
         Row(
@@ -62,7 +63,13 @@ fun MainMenu(
                         }.padding(4.dp),
                     ) {
                         Text(
-                            text = game.name,
+                            text = if (selectedGame ==
+                                game
+                            ) {
+                                "${game.name}(${latestGameState?.index ?: -1 }. kör)"
+                            } else {
+                                game.name
+                            },
                             modifier = Modifier.padding(8.dp),
                         )
                     }

@@ -13,7 +13,10 @@ import hu.mokegyesulet.it.dunestrat.model.GameState
 import hu.mokegyesulet.it.dunestrat.model.PlayerStep
 import hu.mokegyesulet.it.dunestrat.model.Weapon
 import hu.mokegyesulet.it.dunestrat.util.drawmap.MapDrawer
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
 
 class PlayerStepInputViewModel(
     val gameId: Int,
@@ -100,7 +103,7 @@ class PlayerStepInputViewModel(
             }
 
             is Event.RunTurn -> {
-                viewModelScope.async {
+                CoroutineScope(Dispatchers.Unconfined).launch {
                     val playerSteps = getPlayerSteps()
                     val newGameState = gameState.runTurn(playerSteps)
                     SupabaseRepository.saveGameState(newGameState)
