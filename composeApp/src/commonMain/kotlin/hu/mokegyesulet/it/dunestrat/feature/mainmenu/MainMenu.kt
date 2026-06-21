@@ -26,6 +26,7 @@ fun MainMenu(
     onInputMovesClick: (Int) -> Unit,
     onStat: (Int) -> Unit,
     onNewGameClick: () -> Unit,
+    onInventoryClick: (Int) -> Unit,
 ) {
     val viewModel = viewModel { MainMenuViewModel() }
 
@@ -95,6 +96,11 @@ fun MainMenu(
                         },
                     ) {
                         Text(text = "Térkép letöltése")
+                    }
+                    Button(
+                        onClick = { onInventoryClick(selectedGame!!.id) },
+                    ) {
+                        Text(text = "Csapatok nyersanyagai")
                     }
                 }
                 LazyColumn(

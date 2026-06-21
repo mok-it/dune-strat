@@ -15,4 +15,7 @@ sealed class Screen {
 
     @Serializable
     data class PlayerStepInput(val gameId: Int) : Screen()
+
+    @Serializable
+    data class Inventory(val gameId: Int) : Screen()
 }

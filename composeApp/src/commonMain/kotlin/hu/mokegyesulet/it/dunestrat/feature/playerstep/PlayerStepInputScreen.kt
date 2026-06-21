@@ -28,9 +28,11 @@ import hu.mokegyesulet.it.dunestrat.ui.tabKeyNavigable
 fun PlayerStepInputScreen(
     gameId: Int,
     onBack: () -> Unit,
+    onRunTurn: () -> Unit,
 ) {
     val viewModel = viewModel { PlayerStepInputViewModel(gameId) }
     val tabIndex by viewModel.tabIndex
+    val isRunningTurn by viewModel.isRunningTurn
     val members by viewModel.members
 
     val game by viewModel.game
@@ -42,6 +44,13 @@ fun PlayerStepInputScreen(
             contentAlignment = Alignment.Center,
         ) {
             Text(text = "Loading...")
+        }
+    } else if (isRunningTurn) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center,
+        ) {
+            CircularProgressIndicator()
         }
     } else {
         val playerIds = game!!.teams.map { it.playerId }
@@ -91,9 +100,10 @@ fun PlayerStepInputScreen(
                             modifier = Modifier.padding(horizontal = 4.dp),
                             onClick = {
                                 viewModel.onEvent(
-                                    PlayerStepInputViewModel.Event.RunTurn,
+                                    PlayerStepInputViewModel.Event.RunTurn {
+                                        onRunTurn()
+                                    },
                                 )
-                                onBack()
                             },
                         ) {
                             Text(text = "Kör futtatása")

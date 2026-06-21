@@ -23,6 +23,7 @@ class PlayerStepInputViewModel(
 ) : ViewModel() {
 
     val tabIndex = mutableStateOf(0)
+    val isRunningTurn = mutableStateOf(false)
 
     val game = mutableStateOf<Game?>(null)
     val gameState = mutableStateOf<GameState?>(null)
@@ -103,6 +104,7 @@ class PlayerStepInputViewModel(
             }
 
             is Event.RunTurn -> {
+                isRunningTurn.value = true
                 CoroutineScope(Dispatchers.Unconfined).launch {
                     val playerSteps = getPlayerSteps()
                     val newGameState = gameState.runTurn(playerSteps)
@@ -115,6 +117,8 @@ class PlayerStepInputViewModel(
                         gameId = game.value!!.id.toString(),
                         round = newGameState.index,
                     )
+                    isRunningTurn.value = false
+                    event.onComplete()
                 }
             }
 
@@ -305,7 +309,7 @@ class PlayerStepInputViewModel(
 
     sealed class Event {
         data class TabSelected(val index: Int) : Event()
-        data object RunTurn : Event()
+        data class RunTurn(val onComplete: () -> Unit) : Event()
         data class LeaveField(val index: Int, val value: String) : Event()
         data class EnterField(val index: Int, val value: String) : Event()
         data class PurchaseWeapon(val weapon: Weapon, val value: String) : Event()

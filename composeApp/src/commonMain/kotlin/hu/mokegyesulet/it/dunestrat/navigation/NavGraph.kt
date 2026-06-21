@@ -8,6 +8,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import hu.mokegyesulet.it.dunestrat.feature.init.InitScreen
 import hu.mokegyesulet.it.dunestrat.feature.mainmenu.MainMenu
+import hu.mokegyesulet.it.dunestrat.inventory.InventoryScreen
 import hu.mokegyesulet.it.dunestrat.feature.playerstep.PlayerStepInputScreen
 import hu.mokegyesulet.it.dunestrat.feature.testdata.TestDataScreen
 
@@ -25,6 +26,9 @@ fun NavGraph(navController: NavHostController = rememberNavController()) {
                 },
                 onNewGameClick = {
                     navController.navigate(Screen.InitScreen)
+                },
+                onInventoryClick = { gameId ->
+                    navController.navigate(Screen.Inventory(gameId))
                 },
             )
         }
@@ -48,6 +52,17 @@ fun NavGraph(navController: NavHostController = rememberNavController()) {
                 onBack = {
                     navController.popBackStack()
                 },
+                onRunTurn = {
+                    navController.popBackStack()
+                    navController.navigate(Screen.Inventory(navigationObject.gameId))
+                },
+            )
+        }
+        composable<Screen.Inventory> { backStackEntry ->
+            val navigationObject: Screen.Inventory = backStackEntry.toRoute()
+            InventoryScreen(
+                gameId = navigationObject.gameId,
+                onBack = { navController.popBackStack() },
             )
         }
         composable<Screen.TestData> { TestDataScreen(onTestBack = { navController.navigateUp() }) }
