@@ -89,27 +89,31 @@ fun MainMenu(
                 ) {
                     Text(text = "Lépések bevitele")
                 }
-                if (selectedGame != null) {
-                    Button(
-                        onClick = {
-                            openURL(viewModel.svgDownloadUrl!!)
-                        },
-                    ) {
-                        Text(text = "Térkép letöltése")
-                    }
-                    Button(
-                        onClick = { onInventoryClick(selectedGame!!.id) },
-                    ) {
-                        Text(text = "Csapatok nyersanyagai")
-                    }
-                }
-                LazyColumn(
-                    modifier = Modifier.weight(1f)
-                        .wrapContentHeight(),
+                Button(
+                    onClick = {
+                        viewModel.svgDownloadUrl?.let { openURL(it) }
+                    },
+                    enabled = selectedGame != null && viewModel.svgDownloadUrl != null,
                 ) {
-                    items(players.toList()) { player ->
-                        Text(text = "${player.id}: ${player.water} víz, ${player.spice} fűszer")
+                    Text(text = "Térkép letöltése")
+                }
+                Button(
+                    onClick = { selectedGame?.let { onInventoryClick(it.id) } },
+                    enabled = selectedGame != null,
+                ) {
+                    Text(text = "Csapatok nyersanyagai")
+                }
+                if (selectedGame != null) {
+                    LazyColumn(
+                        modifier = Modifier.weight(1f)
+                            .wrapContentHeight(),
+                    ) {
+                        items(players.toList()) { player ->
+                            Text(text = "${player.id}: ${player.water} víz, ${player.spice} fűszer")
+                        }
                     }
+                } else {
+                    Spacer(modifier = Modifier.weight(1f))
                 }
                 Button(
                     onClick = { onStat(selectedGame?.id ?: -1) },
