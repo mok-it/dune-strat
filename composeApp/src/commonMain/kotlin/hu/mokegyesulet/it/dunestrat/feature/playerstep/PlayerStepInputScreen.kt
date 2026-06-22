@@ -232,6 +232,7 @@ fun PlayerStepInputScreen(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FieldRow(
     value: String,
@@ -259,19 +260,40 @@ fun FieldRow(
                 null
             },
         )
-        Icon(
-            imageVector = when (validation?.isError) {
-                null -> Icons.Filled.Check
-                true -> Icons.Default.QuestionMark
-                false -> Icons.Default.Error
-            },
-            contentDescription = validation?.message,
-            tint = when (validation?.isError) {
-                null -> Color.Green
-                true -> Color.Red
-                false -> Color(1.0f, 0.5f, 0.0f)
-            },
-        )
+        val tooltipText = validation?.message
+        val icon = @Composable {
+            Icon(
+                imageVector = when (validation?.isError) {
+                    null -> Icons.Filled.Check
+                    true -> Icons.Default.QuestionMark
+                    false -> Icons.Default.Error
+                },
+                contentDescription = tooltipText,
+                tint = when (validation?.isError) {
+                    null -> Color.Green
+                    true -> Color.Red
+                    false -> Color(1.0f, 0.5f, 0.0f)
+                },
+            )
+        }
+
+        if (tooltipText != null) {
+            TooltipBox(
+                positionProvider = TooltipDefaults.rememberTooltipPositionProvider(
+                    positioning = TooltipAnchorPosition.Above,
+                ),
+                tooltip = {
+                    PlainTooltip {
+                        Text(text = tooltipText)
+                    }
+                },
+                state = rememberTooltipState(),
+            ) {
+                icon()
+            }
+        } else {
+            icon()
+        }
     }
 }
 
