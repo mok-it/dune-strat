@@ -14,10 +14,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import hu.mokegyesulet.it.dunestrat.model.Game
+import hu.mokegyesulet.it.dunestrat.ui.typography
 import hu.mokegyesulet.it.dunestrat.util.drawmap.openURL
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -32,108 +34,118 @@ fun MainMenu(
 
     val loggedIn by viewModel.isLoggedIn.collectAsState(initial = false)
 
-    if (loggedIn) {
-        val games by viewModel.games.collectAsStateWithLifecycle()
-        val selectedGame by viewModel.selectedGame
-        val latestGameState by viewModel.latestGameState
-        val players by viewModel.players
+    Scaffold(
+        topBar = {
+            TopAppBar(title = { Text(if (loggedIn) "Dűne - Főmenü" else "Dűne - Bejelentkezés") })
+        },
+    ) { paddingValues ->
+        if (loggedIn) {
+            val games by viewModel.games.collectAsStateWithLifecycle()
+            val selectedGame by viewModel.selectedGame
+            val latestGameState by viewModel.latestGameState
+            val players by viewModel.players
 
-        Row(
-            modifier = Modifier.fillMaxSize().padding(50.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-        ) {
-            LazyColumn {
-                item {
-                    Button(onClick = onNewGameClick) {
-                        Row {
-                            Icon(Icons.Filled.Add, contentDescription = "Add new game")
-                            Text(text = "Új játék")
+            Row(
+                modifier = Modifier.fillMaxSize().padding(paddingValues).padding(50.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+                Column(modifier = Modifier.width(250.dp).fillMaxHeight()) {
+                    ExtendedFloatingActionButton(
+                        onClick = onNewGameClick,
+                        icon = { Icon(Icons.Filled.Add, contentDescription = "Add new game") },
+                        text = { Text(text = "Új játék") },
+                        modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)
+                    )
+
+                    LazyColumn(modifier = Modifier.weight(1f)) {
+                        items(games) { game: Game ->
+                            NavigationDrawerItem(
+                                label = { Text(text = game.name) },
+                                selected = selectedGame == game,
+                                onClick = { viewModel.onEvent(MainMenuViewModel.Event.SelectGame(game)) },
+                                modifier = Modifier.padding(vertical = 4.dp)
+                            )
                         }
                     }
                 }
-
-                items(games) { game: Game ->
-                    Card(
-                        border = if (selectedGame == game) {
-                            BorderStroke(2.dp, Color.Red)
-                        } else {
-                            null
+                Column(
+                    modifier = Modifier.fillMaxHeight(),
+                    verticalArrangement = Arrangement.SpaceBetween,
+                ) {
+                    Button(
+                        onClick = {
+                            onInputMovesClick(selectedGame?.id ?: -1)
+                            viewModel.onEvent(MainMenuViewModel.Event.UnSelectGame)
                         },
-                        modifier = Modifier.clickable {
-                            viewModel.onEvent(MainMenuViewModel.Event.SelectGame(game))
-                        }.padding(4.dp),
+                        enabled = selectedGame != null,
                     ) {
-                        Text(
-                            text = if (selectedGame ==
-                                game
+                        Text(text = "Lépések bevitele")
+                    }
+                    Button(
+                        onClick = {
+                            viewModel.svgDownloadUrl?.let { openURL(it) }
+                        },
+                        enabled = selectedGame != null && viewModel.svgDownloadUrl != null,
+                    ) {
+                        Text(text = "Térkép letöltése")
+                    }
+                    Button(
+                        onClick = { selectedGame?.let { onInventoryClick(it.id) } },
+                        enabled = selectedGame != null,
+                    ) {
+                        Text(text = "Csapatok nyersanyagai")
+                    }
+                    if (selectedGame != null) {
+                        if (latestGameState == null) {
+                            Box(
+                                modifier = Modifier.weight(1f),
+                                contentAlignment = Alignment.Center,
                             ) {
-                                "${game.name}(${latestGameState?.index ?: -1 }. kör)"
-                            } else {
-                                game.name
-                            },
-                            modifier = Modifier.padding(8.dp),
-                        )
-                    }
-                }
-            }
-            Column(
-                modifier = Modifier.fillMaxHeight(),
-                verticalArrangement = Arrangement.SpaceBetween,
-            ) {
-                Button(
-                    onClick = {
-                        onInputMovesClick(selectedGame?.id ?: -1)
-                        viewModel.onEvent(MainMenuViewModel.Event.UnSelectGame)
-                    },
-                    enabled = selectedGame != null,
-                ) {
-                    Text(text = "Lépések bevitele")
-                }
-                Button(
-                    onClick = {
-                        viewModel.svgDownloadUrl?.let { openURL(it) }
-                    },
-                    enabled = selectedGame != null && viewModel.svgDownloadUrl != null,
-                ) {
-                    Text(text = "Térkép letöltése")
-                }
-                Button(
-                    onClick = { selectedGame?.let { onInventoryClick(it.id) } },
-                    enabled = selectedGame != null,
-                ) {
-                    Text(text = "Csapatok nyersanyagai")
-                }
-                if (selectedGame != null) {
-                    LazyColumn(
-                        modifier = Modifier.weight(1f)
-                            .wrapContentHeight(),
-                    ) {
-                        items(players.toList()) { player ->
-                            Text(text = "${player.id}: ${player.water} víz, ${player.spice} fűszer")
+                                CircularProgressIndicator()
+                            }
+                        } else {
+                            LazyColumn(
+                                modifier = Modifier.weight(1f)
+                                    .wrapContentHeight(),
+                            ) {
+                                item {
+                                    Text(
+                                        text = "${latestGameState?.index ?: -1 }. Kör",
+                                        style = typography.titleSmall,
+                                        fontWeight = FontWeight.Bold,
+                                        modifier = Modifier.padding(vertical = 8.dp),
+                                    )
+                                }
+                                items(players.toList()) { player ->
+                                    Text(
+                                        text = "${player.id}: ${player.water} víz, ${player.spice} fűszer",
+                                    )
+                                }
+                            }
                         }
+                    } else {
+                        Spacer(modifier = Modifier.weight(1f))
                     }
-                } else {
-                    Spacer(modifier = Modifier.weight(1f))
-                }
-                Button(
-                    onClick = { onStat(selectedGame?.id ?: -1) },
-                    enabled = selectedGame != null,
-                ) {
-                    Text(text = "Statisztika")
+                    Button(
+                        onClick = { onStat(selectedGame?.id ?: -1) },
+                        enabled = selectedGame != null,
+                    ) {
+                        Text(text = "Statisztika")
+                    }
                 }
             }
-        }
-    } else {
-        Box(
-            modifier = Modifier.fillMaxSize(),
-        ) {
-            Button(
-                onClick = {
-                    viewModel.onLogin()
-                },
-                modifier = Modifier.align(Alignment.Center),
+        } else {
+            Box(
+                modifier = Modifier.fillMaxSize().padding(paddingValues),
             ) {
-                Text(text = "Bejelentkezés")
+                Button(
+                    onClick = {
+                        viewModel.onLogin()
+                    },
+                    modifier = Modifier.align(Alignment.Center),
+                ) {
+                    Text(text = "Bejelentkezés")
+                }
             }
         }
     }

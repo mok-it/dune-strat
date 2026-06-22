@@ -4,6 +4,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.filled.QuestionMark
@@ -83,7 +85,12 @@ fun PlayerStepInputScreen(
             modifier = Modifier.fillMaxSize(),
             topBar = {
                 TopAppBar(
-                    title = {},
+                    title = { Text("Lépesek bevitele") },
+                    navigationIcon = {
+                        IconButton(onClick = onBack) {
+                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Vissza")
+                        }
+                    },
                     actions = {
                         Button(
                             modifier = Modifier.padding(horizontal = 4.dp),

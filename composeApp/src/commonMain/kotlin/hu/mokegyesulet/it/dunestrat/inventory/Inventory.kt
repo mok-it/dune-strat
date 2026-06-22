@@ -3,10 +3,10 @@ package hu.mokegyesulet.it.dunestrat.inventory
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Button
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -16,6 +16,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import hu.mokegyesulet.it.dunestrat.model.Player
 import hu.mokegyesulet.it.dunestrat.model.Weapon
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun InventoryScreen(
     gameId: Int,
@@ -24,53 +25,53 @@ fun InventoryScreen(
     val viewModel: InventoryViewModel = viewModel { InventoryViewModel(gameId) }
     val players by viewModel.players
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Text(
-                text = "Nyersanyagok - Játék: $gameId",
-                style = MaterialTheme.typography.titleLarge,
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text(text = "Nyersanyagok - Játék: $gameId") },
+                navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Vissza")
+                    }
+                },
             )
-            Button(onClick = onBack) { Text(text = "Vissza") }
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Box(
-            modifier = Modifier.fillMaxWidth(),
-            contentAlignment = Alignment.TopStart,
+        },
+    ) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .padding(16.dp),
         ) {
-            Column(modifier = Modifier.widthIn(max = 700.dp)) {
-                Row(
-                    modifier = Modifier.padding(start = 12.dp, end = 12.dp),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Text(text = "Sorszám", modifier = Modifier.width(80.dp))
-                    Text(text = "Víz", modifier = Modifier.width(64.dp))
-                    Text(text = "Fűszer", modifier = Modifier.width(64.dp))
-                    Text(text = "LSG", modifier = Modifier.width(64.dp))
-                    Text(text = "MPT", modifier = Modifier.width(64.dp))
-                    Text(text = "CRK", modifier = Modifier.width(64.dp))
-                    Text(text = "Légió", modifier = Modifier.width(72.dp))
-                }
+            Box(
+                modifier = Modifier.fillMaxWidth(),
+                contentAlignment = Alignment.TopStart,
+            ) {
+                Column(modifier = Modifier.widthIn(max = 700.dp)) {
+                    Row(
+                        modifier = Modifier.padding(start = 12.dp, end = 12.dp),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text(text = "Sorszám", modifier = Modifier.width(80.dp))
+                        Text(text = "Víz", modifier = Modifier.width(64.dp))
+                        Text(text = "Fűszer", modifier = Modifier.width(64.dp))
+                        Text(text = "LSG", modifier = Modifier.width(64.dp))
+                        Text(text = "MPT", modifier = Modifier.width(64.dp))
+                        Text(text = "CRK", modifier = Modifier.width(64.dp))
+                        Text(text = "Légió", modifier = Modifier.width(72.dp))
+                    }
 
-                Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.height(8.dp))
 
-                LazyColumn(modifier = Modifier.fillMaxHeight()) {
-                    items(players) { player ->
-                        val alternateBackground = players.indexOf(player) % 2 == 0
-                        InventoryRow(
-                            player = player,
-                            alternateBackground = alternateBackground,
-                        )
+                    LazyColumn(modifier = Modifier.fillMaxHeight()) {
+                        items(players) { player ->
+                            val alternateBackground = players.indexOf(player) % 2 == 0
+                            InventoryRow(
+                                player = player,
+                                alternateBackground = alternateBackground,
+                            )
+                        }
                     }
                 }
             }

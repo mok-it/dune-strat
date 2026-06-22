@@ -2,6 +2,9 @@ package hu.mokegyesulet.it.dunestrat.feature.init
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.material3.ExposedDropdownMenuDefaults.TrailingIcon
 import androidx.compose.runtime.*
@@ -39,214 +42,235 @@ fun InitScreen(onNavigateBack: () -> Unit) {
         }
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(top = 16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        if (phase == InitializationPhase.STARTING_CONDITIONS) {
-            // Dropdown
-            Column(
-                modifier = Modifier.fillMaxWidth(0.7f),
-            ) {
-                ExposedDropdownMenuBox(
-                    expanded = expanded,
-                    onExpandedChange = {
-                        viewModel.onEvent(
-                            InitViewModel.InitScreenEvent.ChangeMapDropdownExpanded(!expanded),
-                        )
-                    },
-
-                ) {
-                    OutlinedTextField(
-                        modifier = Modifier.menuAnchor(
-                            ExposedDropdownMenuAnchorType.PrimaryNotEditable,
-                            true,
-                        ).fillMaxWidth(),
-                        value = selectedDesert?.name?.ifBlank {
-                            "${selectedDesert?.fields?.count { it.startingField }} játékos térkép"
-                        } ?: "",
-                        onValueChange = {},
-                        readOnly = true,
-                        label = { Text("Térkép kiválasztása") },
-                        trailingIcon = { TrailingIcon(expanded = expanded) },
-                        isError = selectedDesert == null,
-                    )
-
-                    ExposedDropdownMenu(
-                        expanded = expanded,
-                        onDismissRequest = {
-                            viewModel.onEvent(
-                                InitViewModel.InitScreenEvent.ChangeMapDropdownExpanded(false),
-                            )
-                        },
-                        modifier = Modifier.fillMaxWidth(0.7f),
-                    ) {
-                        mapOptions.forEach { map ->
-                            DropdownMenuItem(
-                                text = {
-                                    Text(
-                                        text = map.name.ifBlank {
-                                            "${map.fields.count {
-                                                it.startingField
-                                            }} játékos térkép"
-                                        },
-                                    )
-                                },
-                                onClick = {
-                                    viewModel.onEvent(
-                                        InitViewModel.InitScreenEvent.ChangeSelectedMap(map),
-                                    )
-                                },
-                            )
-                        }
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Új játék indítása") },
+                navigationIcon = {
+                    IconButton(onClick = onNavigateBack) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Vissza")
                     }
-                }
-                if (selectedDesert == null) {
-                    Text(
-                        text = "A térkép kiválasztása kötelező!",
-                        color = androidx.compose.ui.graphics.Color.Red,
-                        style = MaterialTheme.typography.bodySmall,
-                        modifier = Modifier.padding(top = 4.dp),
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-        }
-
-        LazyColumn(
-            modifier = Modifier.fillMaxSize(),
+                },
+            )
+        },
+    ) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .padding(top = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             if (phase == InitializationPhase.STARTING_CONDITIONS) {
-                if (selectedDesert != null) {
-                    item {
-                        Column(modifier = Modifier.padding(16.dp)) {
-                            Card(
-                                modifier = Modifier.wrapContentSize()
-                                    .padding(20.dp),
-                            ) {
-                                Spacer(modifier = Modifier.height(16.dp))
+                // Dropdown
+                Column(
+                    modifier = Modifier.fillMaxWidth(0.7f),
+                ) {
+                    ExposedDropdownMenuBox(
+                        expanded = expanded,
+                        onExpandedChange = {
+                            viewModel.onEvent(
+                                InitViewModel.InitScreenEvent.ChangeMapDropdownExpanded(!expanded),
+                            )
+                        },
 
-                                TextField(
-                                    value = gameName,
-                                    onValueChange = { input ->
-                                        viewModel.onEvent(
-                                            InitViewModel.InitScreenEvent.ChangeGameName(input),
+                    ) {
+                        OutlinedTextField(
+                            modifier = Modifier.menuAnchor(
+                                ExposedDropdownMenuAnchorType.PrimaryNotEditable,
+                                true,
+                            ).fillMaxWidth(),
+                            value = selectedDesert?.name?.ifBlank {
+                                "${selectedDesert?.fields?.count {
+                                    it.startingField
+                                }} játékos térkép"
+                            } ?: "",
+                            onValueChange = {},
+                            readOnly = true,
+                            label = { Text("Térkép kiválasztása") },
+                            trailingIcon = { TrailingIcon(expanded = expanded) },
+                            isError = selectedDesert == null,
+                        )
+
+                        ExposedDropdownMenu(
+                            expanded = expanded,
+                            onDismissRequest = {
+                                viewModel.onEvent(
+                                    InitViewModel.InitScreenEvent.ChangeMapDropdownExpanded(false),
+                                )
+                            },
+                            modifier = Modifier.fillMaxWidth(0.7f),
+                        ) {
+                            mapOptions.forEach { map ->
+                                DropdownMenuItem(
+                                    text = {
+                                        Text(
+                                            text = map.name.ifBlank {
+                                                "${map.fields.count {
+                                                    it.startingField
+                                                }} játékos térkép"
+                                            },
                                         )
                                     },
-                                    label = { Text("Játék neve") },
-                                    isError = gameName == "",
+                                    onClick = {
+                                        viewModel.onEvent(
+                                            InitViewModel.InitScreenEvent.ChangeSelectedMap(map),
+                                        )
+                                    },
                                 )
                             }
                         }
                     }
-
-                    item {
-                        GlobalStartingConditionsCard(
-                            modifier = Modifier.fillMaxWidth(0.9f),
-                            player = basePlayer,
-                            onChange = {
-                                viewModel.onEvent(
-                                    InitViewModel.InitScreenEvent.UpdateGlobalStartingConditions(
-                                        it,
-                                    ),
-                                )
-                            },
+                    if (selectedDesert == null) {
+                        Text(
+                            text = "A térkép kiválasztása kötelező!",
+                            color = androidx.compose.ui.graphics.Color.Red,
+                            style = MaterialTheme.typography.bodySmall,
+                            modifier = Modifier.padding(top = 4.dp),
                         )
                     }
+                }
 
-                    items(playerCount) { index ->
-                        val currentFieldId = startingFieldIds[index]
-                        val isDuplicate =
-                            startingFieldIds.count { it == currentFieldId && it.isNotBlank() } > 1
-                        val availableFields =
-                            selectedDesert?.fields?.filter { it.startingField }?.map { it.id }
-                                ?: emptyList()
+                Spacer(modifier = Modifier.height(16.dp))
+            }
 
-                        PlayerStartingFieldCard(
-                            index = index,
-                            modifier = Modifier.fillMaxWidth(0.45f),
-                            startingFieldId = currentFieldId,
-                            onStartingFieldChange = { fieldId ->
-                                viewModel.onEvent(
-                                    InitViewModel.InitScreenEvent.UpdatePlayerStartingField(
-                                        fieldId,
-                                        index,
-                                    ),
-                                )
-                            },
-                            availableStartingFields = availableFields,
-                            isFieldDuplicate = isDuplicate,
-                        )
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                if (phase == InitializationPhase.STARTING_CONDITIONS) {
+                    if (selectedDesert != null) {
+                        item {
+                            Column(modifier = Modifier.padding(16.dp)) {
+                                Card(
+                                    modifier = Modifier.wrapContentSize()
+                                        .padding(20.dp),
+                                ) {
+                                    Spacer(modifier = Modifier.height(16.dp))
+
+                                    TextField(
+                                        value = gameName,
+                                        onValueChange = { input ->
+                                            viewModel.onEvent(
+                                                InitViewModel.InitScreenEvent.ChangeGameName(input),
+                                            )
+                                        },
+                                        label = { Text("Játék neve") },
+                                        isError = gameName == "",
+                                    )
+                                }
+                            }
+                        }
+
+                        item {
+                            GlobalStartingConditionsCard(
+                                modifier = Modifier.fillMaxWidth(0.9f),
+                                player = basePlayer,
+                                onChange = {
+                                    viewModel.onEvent(
+                                        InitViewModel.InitScreenEvent.UpdateGlobalStartingConditions(
+                                            it,
+                                        ),
+                                    )
+                                },
+                            )
+                        }
+
+                        items(playerCount) { index ->
+                            val currentFieldId = startingFieldIds[index]
+                            val isDuplicate =
+                                startingFieldIds.count { it == currentFieldId && it.isNotBlank() } >
+                                    1
+                            val availableFields =
+                                selectedDesert?.fields?.filter { it.startingField }?.map { it.id }
+                                    ?: emptyList()
+
+                            PlayerStartingFieldCard(
+                                index = index,
+                                modifier = Modifier.fillMaxWidth(0.45f),
+                                startingFieldId = currentFieldId,
+                                onStartingFieldChange = { fieldId ->
+                                    viewModel.onEvent(
+                                        InitViewModel.InitScreenEvent.UpdatePlayerStartingField(
+                                            fieldId,
+                                            index,
+                                        ),
+                                    )
+                                },
+                                availableStartingFields = availableFields,
+                                isFieldDuplicate = isDuplicate,
+                            )
+                        }
+
+                        item {
+                            Button(
+                                onClick = {
+                                    viewModel.onEvent(InitViewModel.InitScreenEvent.ProceedToTeams)
+                                },
+                                enabled = isFormValid,
+                                modifier = Modifier.padding(16.dp),
+                            ) {
+                                Text("Tovább a csapatokhoz")
+                            }
+                        }
                     }
-
+                } else {
                     item {
-                        Button(
-                            onClick = {
-                                viewModel.onEvent(InitViewModel.InitScreenEvent.ProceedToTeams)
-                            },
-                            enabled = isFormValid,
+                        Text(
+                            text = "Csapatok beállítása",
+                            style = MaterialTheme.typography.headlineSmall,
                             modifier = Modifier.padding(16.dp),
-                        ) {
-                            Text("Tovább a csapatokhoz")
-                        }
+                        )
                     }
-                }
-            } else {
-                item {
-                    Text(
-                        text = "Csapatok beállítása",
-                        style = MaterialTheme.typography.headlineSmall,
-                        modifier = Modifier.padding(16.dp),
-                    )
-                }
 
-                items(teams.size) { teamIndex ->
-                    TeamConfigurationCard(
-                        teamIndex = teamIndex,
-                        team = teams[teamIndex],
-                        onAddStudent = {
-                            viewModel.onEvent(InitViewModel.InitScreenEvent.AddStudent(teamIndex))
-                        },
-                        onRemoveStudent = { studentIndex ->
-                            viewModel.onEvent(
-                                InitViewModel.InitScreenEvent.RemoveStudent(
-                                    teamIndex,
-                                    studentIndex,
-                                ),
-                            )
-                        },
-                        onUpdateStudent = { studentIndex, student ->
-                            viewModel.onEvent(
-                                InitViewModel.InitScreenEvent.UpdateStudent(
-                                    teamIndex,
-                                    studentIndex,
-                                    student,
-                                ),
-                            )
-                        },
-                        modifier = Modifier.fillMaxWidth(0.9f),
-                    )
-                }
-
-                item {
-                    Row(modifier = Modifier.padding(16.dp)) {
-                        OutlinedButton(
-                            onClick = {
-                                viewModel.onEvent(InitViewModel.InitScreenEvent.BackToConditions)
+                    items(teams.size) { teamIndex ->
+                        TeamConfigurationCard(
+                            teamIndex = teamIndex,
+                            team = teams[teamIndex],
+                            onAddStudent = {
+                                viewModel.onEvent(
+                                    InitViewModel.InitScreenEvent.AddStudent(teamIndex),
+                                )
                             },
-                            modifier = Modifier.padding(end = 8.dp),
-                        ) {
-                            Text("Vissza")
-                        }
-                        Button(
-                            onClick = { viewModel.savePlayers() },
-                            enabled = isFormValid,
-                        ) {
-                            Text("Játék indítása")
+                            onRemoveStudent = { studentIndex ->
+                                viewModel.onEvent(
+                                    InitViewModel.InitScreenEvent.RemoveStudent(
+                                        teamIndex,
+                                        studentIndex,
+                                    ),
+                                )
+                            },
+                            onUpdateStudent = { studentIndex, student ->
+                                viewModel.onEvent(
+                                    InitViewModel.InitScreenEvent.UpdateStudent(
+                                        teamIndex,
+                                        studentIndex,
+                                        student,
+                                    ),
+                                )
+                            },
+                            modifier = Modifier.fillMaxWidth(0.9f),
+                        )
+                    }
+
+                    item {
+                        Row(modifier = Modifier.padding(16.dp)) {
+                            OutlinedButton(
+                                onClick = {
+                                    viewModel.onEvent(
+                                        InitViewModel.InitScreenEvent.BackToConditions,
+                                    )
+                                },
+                                modifier = Modifier.padding(end = 8.dp),
+                            ) {
+                                Text("Vissza")
+                            }
+                            Button(
+                                onClick = { viewModel.savePlayers() },
+                                enabled = isFormValid,
+                            ) {
+                                Text("Játék indítása")
+                            }
                         }
                     }
                 }

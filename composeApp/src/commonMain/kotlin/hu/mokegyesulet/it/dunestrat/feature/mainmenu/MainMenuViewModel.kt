@@ -70,6 +70,7 @@ class MainMenuViewModel : ViewModel() {
             is Event.SelectGame -> {
                 if (selectedGame.value != event.game) {
                     selectedGame.value = event.game
+                    latestGameState.value = null
                     viewModelScope.launch {
                         latestGameState.value =
                             SupabaseRepository.getLatestGameStateByGameId(event.game.id)
