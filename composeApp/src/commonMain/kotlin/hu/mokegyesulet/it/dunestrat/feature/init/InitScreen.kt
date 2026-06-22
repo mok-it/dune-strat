@@ -25,10 +25,8 @@ fun InitScreen(onNavigateBack: () -> Unit) {
     val viewModel: InitViewModel = viewModel { InitViewModel() }
     val phase by viewModel.currentPhase
     val expanded by viewModel.dropdownExpanded
-//    val selectedMap by viewModel.selectedMap
     val playerCount by viewModel.playerCount
     val mapOptions: List<Desert> by viewModel.mapOptions.collectAsStateWithLifecycle()
-    val playerList by viewModel.playerList
     val startingFieldIds by viewModel.startingFieldIds
     val teams by viewModel.teams
     val isFormValid by viewModel.isFormValid
@@ -124,9 +122,9 @@ fun InitScreen(onNavigateBack: () -> Unit) {
                     if (selectedDesert == null) {
                         Text(
                             text = "A térkép kiválasztása kötelező!",
-                            color = androidx.compose.ui.graphics.Color.Red,
-                            style = MaterialTheme.typography.bodySmall,
-                            modifier = Modifier.padding(top = 4.dp),
+                            color = MaterialTheme.colorScheme.error,
+                            style = MaterialTheme.typography.bodyMedium,
+                            modifier = Modifier.padding(start = 16.dp, top = 6.dp),
                         )
                     }
                 }
@@ -142,21 +140,22 @@ fun InitScreen(onNavigateBack: () -> Unit) {
                     if (selectedDesert != null) {
                         item {
                             Column(modifier = Modifier.padding(16.dp)) {
-                                Card(
-                                    modifier = Modifier.wrapContentSize()
-                                        .padding(20.dp),
-                                ) {
-                                    Spacer(modifier = Modifier.height(16.dp))
-
-                                    TextField(
-                                        value = gameName,
-                                        onValueChange = { input ->
-                                            viewModel.onEvent(
-                                                InitViewModel.InitScreenEvent.ChangeGameName(input),
-                                            )
-                                        },
-                                        label = { Text("Játék neve") },
-                                        isError = gameName == "",
+                                TextField(
+                                    value = gameName,
+                                    onValueChange = { input ->
+                                        viewModel.onEvent(
+                                            InitViewModel.InitScreenEvent.ChangeGameName(input),
+                                        )
+                                    },
+                                    label = { Text("Játék neve") },
+                                    isError = gameName.trim() == "",
+                                )
+                                if (gameName.trim() == "") {
+                                    Text(
+                                        text = "A játék neve nem lehet üres!",
+                                        color = MaterialTheme.colorScheme.error,
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        modifier = Modifier.padding(start = 16.dp, top = 6.dp),
                                     )
                                 }
                             }

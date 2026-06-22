@@ -72,6 +72,7 @@ class InitViewModel() : ViewModel() {
 
             is InitScreenEvent.ChangeGameName -> {
                 gameName.value = event.name
+                validateForm()
             }
 
             is InitScreenEvent.ChangeSelectedMap -> {
@@ -156,6 +157,7 @@ class InitViewModel() : ViewModel() {
             val desertSelected = selectedDesert.value != null
             val allFieldsAssigned = startingFieldIds.value.all { it.isNotBlank() }
             val uniqueFields = startingFieldIds.value.distinct().size == startingFieldIds.value.size
+            val named = gameName.value.trim() != ""
 
             val basePlayer = basePlayerState.value
             val baseConditionsValid = basePlayer.water >= 0 &&
@@ -166,6 +168,7 @@ class InitViewModel() : ViewModel() {
                 desertSelected &&
                 allFieldsAssigned &&
                 uniqueFields &&
+                named &&
                 baseConditionsValid
         } else {
             isFormValid.value = teams.value.all { team ->

@@ -125,16 +125,16 @@ fun PlayerStartingFieldCard(
             if (isFieldDuplicate) {
                 Text(
                     text = "Ez a mező már ki van választva!",
-                    color = Color.Red,
-                    style = MaterialTheme.typography.bodySmall,
-                    modifier = Modifier.padding(start = 16.dp, top = 4.dp),
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.padding(start = 16.dp, top = 6.dp),
                 )
             } else if (startingFieldId.isBlank()) {
                 Text(
                     text = "Ez a mező kötelező!",
-                    color = Color.Red,
-                    style = MaterialTheme.typography.bodySmall,
-                    modifier = Modifier.padding(start = 16.dp, top = 4.dp),
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.padding(start = 16.dp, top = 6.dp),
                 )
             }
         }
@@ -207,9 +207,10 @@ fun TeamConfigurationCard(
                             )
                             if (student.name.isBlank()) {
                                 Text(
-                                    text = "A név nem lehet üres!",
-                                    color = Color.Red,
-                                    style = MaterialTheme.typography.bodySmall,
+                                    text = "A név nem lehet üres!", // TODO
+                                    color = MaterialTheme.colorScheme.error,
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    modifier = Modifier.padding(start = 16.dp, top = 6.dp),
                                 )
                             }
                             Spacer(modifier = Modifier.height(4.dp))
