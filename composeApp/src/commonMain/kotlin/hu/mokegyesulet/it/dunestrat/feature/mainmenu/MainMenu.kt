@@ -1,7 +1,5 @@
 package hu.mokegyesulet.it.dunestrat.feature.mainmenu
 
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -13,7 +11,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -54,7 +51,7 @@ fun MainMenu(
                         onClick = onNewGameClick,
                         icon = { Icon(Icons.Filled.Add, contentDescription = "Add new game") },
                         text = { Text(text = "Új játék") },
-                        modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)
+                        modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
                     )
 
                     LazyColumn(modifier = Modifier.weight(1f)) {
@@ -62,8 +59,10 @@ fun MainMenu(
                             NavigationDrawerItem(
                                 label = { Text(text = game.name) },
                                 selected = selectedGame == game,
-                                onClick = { viewModel.onEvent(MainMenuViewModel.Event.SelectGame(game)) },
-                                modifier = Modifier.padding(vertical = 4.dp)
+                                onClick = {
+                                    viewModel.onEvent(MainMenuViewModel.Event.SelectGame(game))
+                                },
+                                modifier = Modifier.padding(vertical = 4.dp),
                             )
                         }
                     }
@@ -126,12 +125,13 @@ fun MainMenu(
                     } else {
                         Spacer(modifier = Modifier.weight(1f))
                     }
-                    Button(
-                        onClick = { onStat(selectedGame?.id ?: -1) },
-                        enabled = selectedGame != null,
-                    ) {
-                        Text(text = "Statisztika")
-                    }
+                    Spacer(modifier = Modifier.height(16.dp))
+//                    Button(
+//                        onClick = { onStat(selectedGame?.id ?: -1) },
+//                        enabled = selectedGame != null,
+//                    ) {
+//                        Text(text = "Statisztika")
+//                    }
                 }
             }
         } else {
