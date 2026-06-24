@@ -117,7 +117,9 @@ fun MainMenu(
                                 }
                                 items(players.toList()) { player ->
                                     Text(
-                                        text = "${player.id}: ${player.water} víz, ${player.spice} fűszer",
+                                        text =
+                                            "${player.id}: ${player.water} víz," +
+                                                " ${player.spice} fűszer",
                                     )
                                 }
                             }
