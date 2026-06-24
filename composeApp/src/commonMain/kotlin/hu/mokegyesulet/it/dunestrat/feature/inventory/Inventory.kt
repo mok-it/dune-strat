@@ -14,6 +14,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import hu.mokegyesulet.it.dunestrat.model.Player
 import hu.mokegyesulet.it.dunestrat.model.Weapon
+import hu.mokegyesulet.it.dunestrat.util.openURL
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -31,6 +32,15 @@ fun InventoryScreen(
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Vissza")
+                    }
+                },
+                actions = {
+                    Button(
+                        onClick = {
+                            openURL(viewModel.svgDownloadUrl!!)
+                        },
+                    ) {
+                        Text(text = "Térkép letöltése")
                     }
                 },
             )

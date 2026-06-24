@@ -52,7 +52,6 @@ class MainMenuViewModel : ViewModel() {
     val svgDownloadUrl: String?
         get() {
             return if (latestGameState.value == null) {
-                println("GECI TESÓ")
                 null
             } else {
                 val name = normalize(selectedGame.value!!.name)
