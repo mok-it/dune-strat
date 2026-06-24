@@ -7,8 +7,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import hu.mokegyesulet.it.dunestrat.feature.init.InitScreen
+import hu.mokegyesulet.it.dunestrat.feature.inventory.InventoryScreen
 import hu.mokegyesulet.it.dunestrat.feature.mainmenu.MainMenu
-import hu.mokegyesulet.it.dunestrat.inventory.InventoryScreen
 import hu.mokegyesulet.it.dunestrat.feature.playerstep.PlayerStepInputScreen
 import hu.mokegyesulet.it.dunestrat.feature.testdata.TestDataScreen
 

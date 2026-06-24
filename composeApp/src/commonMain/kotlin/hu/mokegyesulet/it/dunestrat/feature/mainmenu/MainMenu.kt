@@ -17,7 +17,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import hu.mokegyesulet.it.dunestrat.model.Game
 import hu.mokegyesulet.it.dunestrat.ui.typography
-import hu.mokegyesulet.it.dunestrat.util.drawmap.openURL
+import hu.mokegyesulet.it.dunestrat.util.openURL
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

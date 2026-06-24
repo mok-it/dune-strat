@@ -1,11 +1,10 @@
-package hu.mokegyesulet.it.dunestrat.inventory
+package hu.mokegyesulet.it.dunestrat.feature.inventory
 
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import hu.mokegyesulet.it.dunestrat.backend.SupabaseRepository
 import hu.mokegyesulet.it.dunestrat.model.Player
-import hu.mokegyesulet.it.dunestrat.model.Weapon
 import kotlinx.coroutines.launch
 
 class InventoryViewModel(
