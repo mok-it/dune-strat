@@ -1,0 +1,96 @@
+package hu.mokegyesulet.it.dunestrat.model
+
+import kotlin.math.pow
+import kotlinx.serialization.Transient
+
+data class Player(
+    val id: Int,
+    var water: Int,
+    var spice: Int,
+    var harvestersPurchased: Int,
+    val weapons: MutableMap<Weapon, Int>,
+    val ownedFields: MutableSet<GameStateField>,
+    @Transient
+    var inDebt: Boolean = false,
+) {
+    fun getWeaponCount(weapon: Weapon): Int = weapons[weapon] ?: 0
+
+    fun leaveFields(fields: Set<String>) {
+        ownedFields.removeAll { field -> field.id in fields }
+    }
+
+    fun waterConsumption(): Boolean {
+        var waterChange = 0
+        ownedFields.forEach { field -> waterChange += field.water }
+        water += waterChange
+
+        // return whether there is an issue or not
+        if (water >= 0) {
+            return false
+        }
+        ownedFields.removeAll { field -> field.water < 0 }
+        water = 0
+        return true
+    }
+
+    fun purchaseWeapons(purchaseWeapons: Map<Weapon, Int>) {
+        spice -= calculateWeaponPrices(purchaseWeapons)
+    }
+
+    fun deliverWeapons(purchaseWeapons: Map<Weapon, Int>) {
+        purchaseWeapons.keys.forEach { weapon ->
+            weapons[weapon] = getWeaponCount(weapon) + (purchaseWeapons[weapon] ?: 0)
+        }
+    }
+
+    fun purchaseHarvester(purchaseField: GameStateField) {
+        purchaseField.harvester = true
+        spice -= 5 * 2.0.pow(harvestersPurchased++).toInt()
+    }
+
+    fun calculateWeaponPrices(purchaseWeapons: Map<Weapon, Int>): Int {
+        var sum = 0
+        purchaseWeapons.forEach { entry ->
+            sum += entry.value * entry.key.price
+        }
+        return sum
+    }
+
+    fun calculateHarvesterPrice(count: Int): Int =
+        (5 * 2.0.pow(harvestersPurchased) * (2.0.pow(count) - 1)).toInt()
+
+    fun calculatePrices(purchases: PlayerStep): Int =
+        calculateWeaponPrices(purchases.purchaseWeapons) +
+            calculateHarvesterPrice(purchases.buildHarvesters.size)
+
+    fun calculatePower(field: GameStateField): Int {
+        var sum = getWeaponCount(field.effectiveWeapon) * 2
+        if (field !in ownedFields) {
+            sum += getWeaponCount(Weapon.LEGION) * 3
+        }
+        weapons.filter { weapon -> weapon.key != Weapon.LEGION }.keys.forEach { weapon ->
+            sum += getWeaponCount(weapon)
+        }
+        return sum
+    }
+
+    fun isFieldReachable(fieldInQuestion: GameStateField): Boolean {
+        if (fieldInQuestion in ownedFields) {
+            return false
+        }
+        ownedFields.forEach { field ->
+            if (fieldInQuestion in field.neighbours) {
+                return true
+            }
+        }
+        return false
+    }
+
+    fun loseWeaponPrecent(percent: Double) {
+        val normalizedPercent = if (percent > 1.0) 1.0 else percent
+        weapons.keys.forEach { weapon ->
+            weapons[weapon] = ((weapons[weapon]?.toDouble() ?: 0.0) * (1 - normalizedPercent))
+                .toInt()
+        }
+    }
+}
