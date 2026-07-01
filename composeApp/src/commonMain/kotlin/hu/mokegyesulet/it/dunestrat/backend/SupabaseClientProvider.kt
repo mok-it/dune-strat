@@ -10,8 +10,8 @@ import io.github.jan.supabase.storage.Storage
 object SupabaseClientProvider {
     @OptIn(SupabaseExperimental::class)
     private val _client = createSupabaseClient(
-        supabaseUrl = "https://lnwvuwepwaexwybselsf.supabase.co",
-        supabaseKey = "sb_publishable_Y8MlS_tbyIRvvsvbHvb1_g_wbyg6EfI",
+        supabaseUrl = SupabaseConfig.apiUrl,
+        supabaseKey = SupabaseConfig.ANON_KEY,
     ) {
         install(io.github.jan.supabase.auth.Auth) {
             getUrlLauncher()?.let {

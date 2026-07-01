@@ -4,6 +4,7 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import hu.mokegyesulet.it.dunestrat.backend.SupabaseConfig
 import hu.mokegyesulet.it.dunestrat.backend.SupabaseRepository
 import hu.mokegyesulet.it.dunestrat.model.GameState
 import hu.mokegyesulet.it.dunestrat.model.Player
@@ -41,7 +42,10 @@ class InventoryViewModel(
             } else {
                 val round = gameState.value!!.index
                 val roundString = if (round > 9) round.toString() else "0$round"
-                "https://lnwvuwepwaexwybselsf.supabase.co/storage/v1/object/public/svgs/$normalizedGameName($gameId)/$roundString.svg"
+                SupabaseConfig.publicStorageObjectUrl(
+                    SupabaseRepository.SVG_BUCKET_NAME,
+                    "$normalizedGameName($gameId)/$roundString.svg",
+                )
             }
         }
 }

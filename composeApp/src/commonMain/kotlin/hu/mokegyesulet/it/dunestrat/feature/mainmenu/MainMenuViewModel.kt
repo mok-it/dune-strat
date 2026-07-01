@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import hu.mokegyesulet.it.dunestrat.backend.AuthStatus
 import hu.mokegyesulet.it.dunestrat.backend.SupabaseAuth
+import hu.mokegyesulet.it.dunestrat.backend.SupabaseConfig
 import hu.mokegyesulet.it.dunestrat.backend.SupabaseRepository
 import hu.mokegyesulet.it.dunestrat.model.Game
 import hu.mokegyesulet.it.dunestrat.model.GameState
@@ -57,7 +58,10 @@ class MainMenuViewModel : ViewModel() {
                 val name = normalize(selectedGame.value!!.name)
                 val round = latestGameState.value!!.index
                 val roundString = if (round > 9) round.toString() else "0$round"
-                "https://lnwvuwepwaexwybselsf.supabase.co/storage/v1/object/public/svgs/$name(${selectedGame.value!!.id})/$roundString.svg"
+                SupabaseConfig.publicStorageObjectUrl(
+                    SupabaseRepository.SVG_BUCKET_NAME,
+                    "$name(${selectedGame.value!!.id})/$roundString.svg",
+                )
             }
         }
     sealed class Event {

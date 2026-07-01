@@ -14,6 +14,44 @@ This is a Kotlin Multiplatform project targeting Android, iOS, Web, Desktop (JVM
 * [/iosApp](./iosApp/iosApp) contains iOS applications. Even if you’re sharing your UI with Compose Multiplatform,
   you need this entry point for your iOS app. This is also where you should add SwiftUI code for your project.
 
+### Local Supabase
+
+The app is configured to use a local Supabase stack by default. **Make sure Docker Desktop is running, then run all four npm commands listed here, in this order, to get a working local instance of the app.**
+
+Prerequisites:
+- Node.js 20 or newer
+- Docker
+
+Install the pinned Supabase CLI:
+
+```shell
+npm ci
+```
+
+Start the local Supabase stack:
+
+```shell
+npm run supabase:start
+```
+
+Reset the local database back to the committed migrations and seed file:
+
+```shell
+npm run supabase:reset
+```
+
+Show local service URLs and keys:
+
+```shell
+npm run supabase:status
+```
+
+The committed local API defaults are:
+- JVM, web, iOS simulator: `http://127.0.0.1:54321`
+- Android emulator: `http://10.0.2.2:54321`
+
+The local schema is in [`supabase/migrations`](./supabase/migrations). Production application rows are committed in [`supabase/seed.sql`](./supabase/seed.sql), and production SVG storage objects are committed under [`supabase/storage`](./supabase/storage).
+
 ### Build and Run Android Application
 
 To build and run the development version of the Android app, use the run configuration from the run widget

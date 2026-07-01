@@ -24,3 +24,7 @@ node_modules/
 # Nix
 .direnv
 .envrc
+
+# Agent skills
+/.agents/
+/skills-lock.json
