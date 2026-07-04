@@ -105,9 +105,28 @@ class PlayerStepInputViewModel(
 
             is Event.RunTurn -> {
                 isRunningTurn.value = true
-                CoroutineScope(Dispatchers.Unconfined).launch {
+                CoroutineScope(Dispatchers.Main).launch {
                     val playerSteps = getPlayerSteps()
                     val newGameState = gameState.runTurn(playerSteps)
+                    SupabaseRepository.saveGameState(newGameState)
+                    MapDrawer.loadResources()
+                    val svg = MapDrawer.getGameStateSvg(newGameState)
+                    SupabaseRepository.uploadImage(
+                        svg = svg,
+                        gameName = game.value!!.name,
+                        gameId = game.value!!.id.toString(),
+                        round = newGameState.index,
+                    )
+                    isRunningTurn.value = false
+                    event.onComplete()
+                }
+            }
+
+            is Event.RunLastTurn -> {
+                isRunningTurn.value = true
+                CoroutineScope(Dispatchers.Main).launch {
+                    val playerSteps = getPlayerSteps()
+                    val newGameState = gameState.runLastTurn(playerSteps)
                     SupabaseRepository.saveGameState(newGameState)
                     MapDrawer.loadResources()
                     val svg = MapDrawer.getGameStateSvg(newGameState)
@@ -310,6 +329,7 @@ class PlayerStepInputViewModel(
     sealed class Event {
         data class TabSelected(val index: Int) : Event()
         data class RunTurn(val onComplete: () -> Unit) : Event()
+        data class RunLastTurn(val onComplete: () -> Unit) : Event()
         data class LeaveField(val index: Int, val value: String) : Event()
         data class EnterField(val index: Int, val value: String) : Event()
         data class PurchaseWeapon(val weapon: Weapon, val value: String) : Event()

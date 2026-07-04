@@ -27,6 +27,25 @@ data class GameState(
         )
     }
 
+    fun runLastTurn(playerSteps: MutableSet<PlayerStep>): GameState {
+        this.leaveFields(playerSteps)
+        this.waterConsumption(playerSteps)
+        this.checkPurchases(playerSteps)
+        this.buildHarvesters(playerSteps)
+        this.purchaseWeapons(playerSteps)
+        this.expansions(playerSteps)
+        this.produceSpice()
+        this.deliverWeapons(playerSteps)
+        index++
+
+        return GameState(
+            gameId = gameId,
+            index = index,
+            fields = fields,
+            players = players,
+        )
+    }
+
     fun leaveFields(playerSteps: Set<PlayerStep>) {
         players.forEach { player ->
             player.leaveFields(getPlayerStepById(player.id, playerSteps).leaveFields)
@@ -146,6 +165,13 @@ data class GameState(
                     }
                 }
             }
+        players.forEach { player ->
+            player.weapons.forEach { weapon ->
+                player.weapons[weapon.key] =
+                    (player.weapons[weapon.key] ?: 0) -
+                    ((losses[player] ?: 0.0) * (player.weapons[weapon.key] ?: 0)).toInt()
+            }
+        }
     }
 
     fun getOccupant(field: GameStateField): Player? {

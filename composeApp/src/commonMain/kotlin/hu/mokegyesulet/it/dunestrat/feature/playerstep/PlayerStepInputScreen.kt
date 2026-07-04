@@ -5,7 +5,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.filled.QuestionMark
@@ -92,6 +91,19 @@ fun PlayerStepInputScreen(
                         }
                     },
                     actions = {
+                        Button(
+                            modifier = Modifier.padding(horizontal = 4.dp),
+                            onClick = {
+                                viewModel.onEvent(
+                                    PlayerStepInputViewModel.Event.RunLastTurn {
+                                        onRunTurn()
+                                    },
+                                )
+                            },
+                        ) {
+                            Text(text = "Utolsó kör futtatása")
+                        }
+
                         Button(
                             modifier = Modifier.padding(horizontal = 4.dp),
                             onClick = {
