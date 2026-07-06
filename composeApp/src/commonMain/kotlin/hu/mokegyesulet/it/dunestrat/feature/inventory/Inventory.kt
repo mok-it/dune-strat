@@ -105,7 +105,7 @@ fun InventoryRow(
             horizontalArrangement = Arrangement.spacedBy(12.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Text(text = player.id.toString(), modifier = Modifier.width(80.dp))
+            Text(text = (player.id + 1).toString(), modifier = Modifier.width(80.dp))
             Text(text = player.water.toString(), modifier = Modifier.width(64.dp))
             Text(text = player.spice.toString(), modifier = Modifier.width(64.dp))
             Text(text = lsg, modifier = Modifier.width(64.dp))

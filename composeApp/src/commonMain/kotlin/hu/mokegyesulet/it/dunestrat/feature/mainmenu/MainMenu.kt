@@ -23,7 +23,6 @@ import hu.mokegyesulet.it.dunestrat.util.openURL
 @Composable
 fun MainMenu(
     onInputMovesClick: (Int) -> Unit,
-    onStat: (Int) -> Unit,
     onNewGameClick: () -> Unit,
     onInventoryClick: (Int) -> Unit,
 ) {
@@ -120,7 +119,7 @@ fun MainMenu(
                                     val water = player.water
                                     val spice = player.spice
                                     Text(
-                                        text = "$id: $water víz, $spice fűszer",
+                                        text = "${id + 1}: $water víz, $spice fűszer",
                                     )
                                 }
                             }
@@ -129,12 +128,6 @@ fun MainMenu(
                         Spacer(modifier = Modifier.weight(1f))
                     }
                     Spacer(modifier = Modifier.height(16.dp))
-//                    Button(
-//                        onClick = { onStat(selectedGame?.id ?: -1) },
-//                        enabled = selectedGame != null,
-//                    ) {
-//                        Text(text = "Statisztika")
-//                    }
                 }
             }
         } else {
