@@ -155,6 +155,18 @@ fun PlayerStepInputScreen(
                 Column {
                     Row {
                         FieldInputColumn(
+                            title = "Rálépés",
+                            fields = enterFields,
+                            onValueChange = { index, value ->
+                                viewModel.onEvent(
+                                    PlayerStepInputViewModel.Event.EnterField(index, value),
+                                )
+                            },
+                            onFocusChanged = saveOnLostFocus,
+                            modifier = Modifier.weight(1f).padding(horizontal = 16.dp),
+                        )
+
+                        FieldInputColumn(
                             title = "Lelépés",
                             fields = leaveFields,
                             onValueChange = { index, value ->
@@ -173,7 +185,12 @@ fun PlayerStepInputScreen(
 
                             val focusManager = LocalFocusManager.current
 
-                            Weapon.entries.forEach { weapon ->
+                            listOf(
+                                Weapon.LASGUN,
+                                Weapon.PISTOL,
+                                Weapon.CRYSKNIFE,
+                                Weapon.LEGION,
+                            ).forEach { weapon ->
                                 TextField(
                                     label = {
                                         Text(
@@ -208,7 +225,7 @@ fun PlayerStepInputScreen(
                                         .padding(horizontal = 4.dp, vertical = 6.dp),
                                 )
                             }
-                            FieldRow(
+                            FieldTextField(
                                 value = purchaseHarvester.first,
                                 label = "Harvester",
                                 onValueChange = {
@@ -223,17 +240,6 @@ fun PlayerStepInputScreen(
                                     .padding(horizontal = 4.dp, vertical = 26.dp),
                             )
                         }
-                        FieldInputColumn(
-                            title = "Rálépés",
-                            fields = enterFields,
-                            onValueChange = { index, value ->
-                                viewModel.onEvent(
-                                    PlayerStepInputViewModel.Event.EnterField(index, value),
-                                )
-                            },
-                            onFocusChanged = saveOnLostFocus,
-                            modifier = Modifier.weight(1f).padding(horizontal = 16.dp),
-                        )
                     }
 
                     Spacer(Modifier.weight(1f))
@@ -246,7 +252,7 @@ fun PlayerStepInputScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FieldRow(
+fun FieldTextField(
     value: String,
     onValueChange: (String) -> Unit,
     validation: PlayerStepInputViewModel.Validation?,
@@ -327,7 +333,7 @@ private fun FieldInputColumn(
                     index: Int,
                     fieldData: Pair<String, PlayerStepInputViewModel.Validation?>,
                 ->
-                FieldRow(
+                FieldTextField(
                     value = fieldData.first,
                     onValueChange = {
                         onValueChange(index, it)
