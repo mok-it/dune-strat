@@ -142,7 +142,7 @@ fun PlayerStepInputScreen(
                                 viewModel.onEvent(PlayerStepInputViewModel.Event.TabSelected(index))
                             },
                             text = {
-                                Text(text = playerId.toString())
+                                Text(text = (playerId + 1).toString())
                             },
                         )
                     }

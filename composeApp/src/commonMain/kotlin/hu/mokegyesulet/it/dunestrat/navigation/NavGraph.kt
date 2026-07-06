@@ -20,7 +20,6 @@ fun NavGraph(navController: NavHostController = rememberNavController()) {
     ) {
         composable<Screen.MainMenu> {
             MainMenu(
-                onStat = {},
                 onInputMovesClick = { gameId ->
                     navController.navigate(Screen.PlayerStepInput(gameId))
                 },
