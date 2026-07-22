@@ -183,7 +183,7 @@ class PlayerStepInputViewModel(
             }
 
             is Event.SaveToDatabase -> {
-                viewModelScope.async {
+                CoroutineScope(Dispatchers.Main).launch {
                     val playerStep = uiStates.value[tabIndex.value].toPlayerStep(gameState)
                     if (playerStep.id != -1) {
                         SupabaseRepository.savePlayerStep(playerStep)

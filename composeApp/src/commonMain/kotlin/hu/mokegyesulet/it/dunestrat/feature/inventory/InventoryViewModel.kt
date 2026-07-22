@@ -16,6 +16,7 @@ class InventoryViewModel(
 
     val gameState: MutableState<GameState?> = mutableStateOf(null)
     val players = mutableStateOf<List<Player>>(emptyList())
+    val gameName = mutableStateOf("")
 
     private lateinit var normalizedGameName: String
 
@@ -23,6 +24,7 @@ class InventoryViewModel(
         viewModelScope.launch {
             try {
                 val game = SupabaseRepository.getGameById(gameId)
+                gameName.value = game.name
                 normalizedGameName = StringNormalizer.normalize(game.name)
                 val latest = SupabaseRepository.getLatestGameStateByGameId(gameId)
                 gameState.value = latest

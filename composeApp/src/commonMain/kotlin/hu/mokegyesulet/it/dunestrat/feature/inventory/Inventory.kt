@@ -24,11 +24,12 @@ fun InventoryScreen(
 ) {
     val viewModel: InventoryViewModel = viewModel { InventoryViewModel(gameId) }
     val players by viewModel.players
+    val gameName by viewModel.gameName
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(text = "Nyersanyagok - Játék: $gameId") },
+                title = { Text(text = "Nyersanyagok - Játék: $gameName") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Vissza")
