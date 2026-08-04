@@ -138,7 +138,11 @@ compose.desktop {
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
             packageName = "hu.mokegyesulet.it.dunestrat"
-            packageVersion = "1.0.0"
+            packageVersion = "1.0.1"
+
+            windows {
+                shortcut = true
+            }
         }
     }
 }

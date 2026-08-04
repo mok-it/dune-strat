@@ -9,8 +9,7 @@ import kotlinx.coroutines.flow.map
 object SupabaseAuth : Auth {
     private val auth = SupabaseClientProvider.client.auth
 
-    override suspend fun logIn() =
-        auth.signInWith(provider = Google, redirectUrl = "https://mok-it.github.io/dune-strat/")
+    override suspend fun logIn() = auth.signInWith(provider = Google)
     override val authStatus get(): Flow<AuthStatus> = auth.sessionStatus.map { s ->
         if (s is SessionStatus.Authenticated) {
             AuthStatus.Authenticated(
