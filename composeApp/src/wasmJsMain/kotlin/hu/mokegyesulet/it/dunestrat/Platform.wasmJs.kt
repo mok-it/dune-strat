@@ -2,6 +2,7 @@ package hu.mokegyesulet.it.dunestrat
 
 import io.github.jan.supabase.annotations.SupabaseExperimental
 import io.github.jan.supabase.auth.UrlLauncher
+import kotlin.js.ExperimentalWasmJsInterop
 
 class WasmPlatform : Platform {
     override val name: String = "Web with Kotlin/Wasm"
@@ -10,6 +11,7 @@ class WasmPlatform : Platform {
     }
 }
 
+@OptIn(ExperimentalWasmJsInterop::class)
 private fun openUrlNative(url: String): Unit = js("window.open(url, '_blank')")
 
 actual fun getPlatform(): Platform = WasmPlatform()
