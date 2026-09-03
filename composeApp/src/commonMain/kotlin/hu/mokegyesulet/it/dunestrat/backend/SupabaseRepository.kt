@@ -9,8 +9,6 @@ import hu.mokegyesulet.it.dunestrat.util.StringNormalizer
 import io.github.jan.supabase.annotations.SupabaseExperimental
 import io.github.jan.supabase.postgrest.from
 import io.github.jan.supabase.postgrest.postgrest
-import io.github.jan.supabase.postgrest.query.filter.FilterOperation
-import io.github.jan.supabase.postgrest.query.filter.FilterOperator
 import io.github.jan.supabase.postgrest.rpc
 import io.github.jan.supabase.realtime.selectAsFlow
 import io.github.jan.supabase.storage.storage
@@ -82,10 +80,9 @@ object SupabaseRepository : Repository {
 
     @OptIn(SupabaseExperimental::class)
     override fun getPlayerStepsByGameStateId(gameStateId: Int): Flow<List<PlayerStep>> =
-        supabase.from(STEP_TABLE).selectAsFlow(
-            PlayerStepDatabaseEntity::id,
-            filter = FilterOperation("game_state_id", FilterOperator.EQ, gameStateId),
-        ).map { list ->
+        supabase.from(STEP_TABLE).selectAsFlow(PlayerStepDatabaseEntity::id) {
+            eq("game_state_id", gameStateId)
+        }.map { list ->
             list.map { it.toPlayerStep() }
         }
 
