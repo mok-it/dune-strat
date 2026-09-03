@@ -1,4 +1,4 @@
-package hu.mokegyesulet.it.dunestrat.util.drawmap
+package hu.mokegyesulet.it.dunestrat.util
 
 import android.content.Intent
 import androidx.core.net.toUri

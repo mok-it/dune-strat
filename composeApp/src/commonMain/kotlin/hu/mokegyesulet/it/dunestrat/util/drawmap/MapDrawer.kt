@@ -42,32 +42,32 @@ object MapDrawer {
         }
 
         val desertBytes = if (blackAndWhite) {
-            Res.readBytes("drawable/svg/desert_bnw.svg")
+            Res.readBytes("files/svg/desert_bnw.svg")
         } else {
-            Res.readBytes("drawable/svg/desert.svg")
+            Res.readBytes("files/svg/desert.svg")
         }
         desertSVG = desertBytes.decodeToString().replace("cls-", "desert-cls-") + "\n"
 
         val mountainBytes = if (blackAndWhite) {
-            Res.readBytes("drawable/svg/mountain_bnw.svg")
+            Res.readBytes("files/svg/mountain_bnw.svg")
         } else {
-            Res.readBytes("drawable/svg/mountain.svg")
+            Res.readBytes("files/svg/mountain.svg")
         }
         mountainSVG = mountainBytes.decodeToString().replace("cls-", "mountain-cls-") + "\n"
 
-        val pistolBytes = Res.readBytes("drawable/svg/pistol.svg")
+        val pistolBytes = Res.readBytes("files/svg/pistol.svg")
         pistolSVG = pistolBytes.decodeToString().replace("cls-", "pistol-cls-") + "\n"
 
-        val lasgunBytes = Res.readBytes("drawable/svg/lasgun.svg")
+        val lasgunBytes = Res.readBytes("files/svg/lasgun.svg")
         lasgunSVG = lasgunBytes.decodeToString().replace("cls-", "lasgun-cls-") + "\n"
 
-        val crysknifeBytes = Res.readBytes("drawable/svg/crysknife.svg")
+        val crysknifeBytes = Res.readBytes("files/svg/crysknife.svg")
         crysknifeSVG = crysknifeBytes.decodeToString().replace("cls-", "crysknife-cls-") + "\n"
 
-        val waterBytes = Res.readBytes("drawable/svg/water.svg")
+        val waterBytes = Res.readBytes("files/svg/water.svg")
         waterSVG = waterBytes.decodeToString().replace("cls-", "water-cls-") + "\n"
 
-        val spiceBytes = Res.readBytes("drawable/svg/spice.svg")
+        val spiceBytes = Res.readBytes("files/svg/spice.svg")
         spiceSVG = spiceBytes.decodeToString().replace("cls-", "spice-cls-") + "\n"
 
         resourcesLoaded = true
